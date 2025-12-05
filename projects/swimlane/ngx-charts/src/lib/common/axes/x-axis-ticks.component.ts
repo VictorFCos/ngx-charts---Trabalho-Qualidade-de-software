@@ -21,65 +21,7 @@ import { roundedRect } from '../../common/shape.helper';
 
 @Component({
   selector: 'g[ngx-charts-x-axis-ticks]',
-  template: `
-    <svg:g #ticksel>
-      <svg:g *ngFor="let tick of ticks" class="tick" [attr.transform]="tickTransform(tick)">
-        <ng-container *ngIf="tickFormat(tick) as tickFormatted">
-          <title>{{ tickFormatted }}</title>
-          <svg:text
-            stroke-width="0.01"
-            font-size="12px"
-            [attr.text-anchor]="textAnchor"
-            [attr.transform]="textTransform"
-          >
-            <ng-container *ngIf="isWrapTicksSupported; then tmplMultilineTick; else tmplSinglelineTick"></ng-container>
-          </svg:text>
-
-          <ng-template #tmplMultilineTick>
-            <ng-container *ngIf="tickChunks(tick) as tickLines">
-              <svg:tspan *ngFor="let tickLine of tickLines; let i = index" x="0" [attr.y]="i * 12">
-                {{ tickLine }}
-              </svg:tspan>
-            </ng-container>
-          </ng-template>
-
-          <ng-template #tmplSinglelineTick>
-            {{ tickTrim(tickFormatted) }}
-          </ng-template>
-        </ng-container>
-      </svg:g>
-    </svg:g>
-
-    <svg:g *ngFor="let tick of ticks" [attr.transform]="tickTransform(tick)">
-      <svg:g *ngIf="showGridLines" [attr.transform]="gridLineTransform()">
-        <svg:line class="gridline-path gridline-path-vertical" [attr.y1]="-gridLineHeight" y2="0" />
-      </svg:g>
-    </svg:g>
-
-    <svg:path
-      *ngIf="referenceLineLength > 1 && refMax && refMin && showRefLines"
-      class="reference-area"
-      [attr.d]="referenceAreaPath"
-      [attr.transform]="gridLineTransform()"
-    />
-
-    <svg:g *ngFor="let refLine of referenceLines" class="ref-line">
-      <svg:g *ngIf="showRefLines" [attr.transform]="transform(refLine.value)">
-        <svg:line
-          class="refline-path gridline-path-vertical"
-          y1="25"
-          [attr.y2]="25 + gridLineHeight"
-          [attr.transform]="gridLineTransform()"
-        />
-        <svg:g *ngIf="showRefLabels">
-          <title>{{ tickTrim(tickFormat(refLine.value)) }}</title>
-          <svg:text class="refline-label" transform="rotate(-270) translate(5, -5)">
-            {{ refLine.name }}
-          </svg:text>
-        </svg:g>
-      </svg:g>
-    </svg:g>
-  `,
+  templateUrl: './x-axis-ticks.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
@@ -136,7 +78,7 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
     return this.wrapTicks && this.scale.step;
   }
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: any) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.update();
@@ -165,8 +107,8 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
     const scale = this.scale;
     this.adjustedScale = this.scale.bandwidth
       ? function (d) {
-          return this.scale(d) + this.scale.bandwidth() * 0.5;
-        }
+        return this.scale(d) + this.scale.bandwidth() * 0.5;
+      }
       : this.scale;
     this.ticks = this.getTicks();
     const sign = this.orient === Orientation.Top || this.orient === Orientation.Right ? -1 : 1;
@@ -346,7 +288,7 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
   }
 
   gridLineTransform(): string {
-    return `translate(0,${-this.verticalSpacing - 5})`;
+    return `translate(0, ${- this.verticalSpacing - 5})`;
   }
 
   tickTrim(label: string): string {

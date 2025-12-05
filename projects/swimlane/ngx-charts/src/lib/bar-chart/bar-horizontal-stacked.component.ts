@@ -25,111 +25,7 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 
 @Component({
   selector: 'ngx-charts-bar-horizontal-stacked',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelActivate)="onActivate($event, undefined, true)"
-      (legendLabelDeactivate)="onDeactivate($event, undefined, true)"
-      (legendLabelClick)="onClick($event)"
-    >
-      <svg:g [attr.transform]="transform" class="bar-chart chart">
-        <svg:g
-          ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateXAxisHeight($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [yAxisOffset]="dataLabelMaxWidth.negative"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        ></svg:g>
-        <svg:g *ngIf="!isSSR">
-          <svg:g
-            *ngFor="let group of results; let index = index; trackBy: trackBy"
-            [@animationState]="'active'"
-            [attr.transform]="groupTransform(group)"
-          >
-            <svg:g
-              ngx-charts-series-horizontal
-              [type]="barChartType.Stacked"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [series]="group.series"
-              [activeEntries]="activeEntries"
-              [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="tooltipTemplate"
-              [seriesName]="group.name"
-              [animations]="animations"
-              [showDataLabel]="showDataLabel"
-              [dataLabelFormatting]="dataLabelFormatting"
-              [noBarWhenZero]="noBarWhenZero"
-              (select)="onClick($event, group)"
-              (activate)="onActivate($event, group)"
-              (deactivate)="onDeactivate($event, group)"
-              (dataLabelWidthChanged)="onDataLabelMaxWidthChanged($event, index)"
-            />
-          </svg:g>
-        </svg:g>
-        <svg:g *ngIf="isSSR">
-          <svg:g
-            *ngFor="let group of results; let index = index; trackBy: trackBy"
-            [attr.transform]="groupTransform(group)"
-          >
-            <svg:g
-              ngx-charts-series-horizontal
-              [type]="barChartType.Stacked"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [series]="group.series"
-              [activeEntries]="activeEntries"
-              [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="tooltipTemplate"
-              [seriesName]="group.name"
-              [animations]="animations"
-              [showDataLabel]="showDataLabel"
-              [dataLabelFormatting]="dataLabelFormatting"
-              [noBarWhenZero]="noBarWhenZero"
-              (select)="onClick($event, group)"
-              (activate)="onActivate($event, group)"
-              (deactivate)="onDeactivate($event, group)"
-              (dataLabelWidthChanged)="onDataLabelMaxWidthChanged($event, index)"
-            />
-          </svg:g>
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './bar-horizontal-stacked.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -242,7 +138,8 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
     this.setColors();
     this.legendOptions = this.getLegendOptions();
 
-    this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
+    this.transform = `translate(${this.dims.xOffset
+      }, ${this.margin[0]})`;
   }
 
   getGroupDomain(): string[] {

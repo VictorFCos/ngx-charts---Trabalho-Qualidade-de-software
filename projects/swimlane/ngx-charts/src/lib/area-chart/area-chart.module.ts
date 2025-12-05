@@ -10,4 +10,4 @@ import { ChartCommonModule } from '../common/chart-common.module';
   declarations: [AreaChartComponent, AreaChartNormalizedComponent, AreaChartStackedComponent, AreaSeriesComponent],
   exports: [AreaChartComponent, AreaChartNormalizedComponent, AreaChartStackedComponent, AreaSeriesComponent]
 })
-export class AreaChartModule {}
+export class AreaChartModule { }

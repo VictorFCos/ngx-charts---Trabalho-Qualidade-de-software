@@ -18,43 +18,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
 
 @Component({
   selector: 'ngx-charts-pie-chart',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelActivate)="onActivate($event, true)"
-      (legendLabelDeactivate)="onDeactivate($event, true)"
-      (legendLabelClick)="onClick($event)"
-    >
-      <svg:g [attr.transform]="translation" class="pie-chart chart">
-        <svg:g
-          ngx-charts-pie-series
-          [colors]="colors"
-          [series]="data"
-          [showLabels]="labels"
-          [labelFormatting]="labelFormatting"
-          [trimLabels]="trimLabels"
-          [maxLabelLength]="maxLabelLength"
-          [activeEntries]="activeEntries"
-          [innerRadius]="innerRadius"
-          [outerRadius]="outerRadius"
-          [explodeSlices]="explodeSlices"
-          [gradient]="gradient"
-          [animations]="animations"
-          [tooltipDisabled]="tooltipDisabled"
-          [tooltipTemplate]="tooltipTemplate"
-          [tooltipText]="tooltipText"
-          (dblclick)="dblclick.emit($event)"
-          (select)="onClick($event)"
-          (activate)="onActivate($event)"
-          (deactivate)="onDeactivate($event)"
-        />
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './pie-chart.component.html',
   styleUrls: ['../common/base-chart.component.scss', './pie-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
