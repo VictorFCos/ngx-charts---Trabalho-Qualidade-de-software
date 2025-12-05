@@ -180,8 +180,8 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   @Input() rangeFillOpacity: number = 0.15;
   @Input() trimYAxisTicks: boolean = true;
   @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: (o: any) => any;
-  @Input() yAxisTickFormatting: (o: any) => any;
+  @Input() xAxisTickFormatting?: (o: any) => string;
+  @Input() yAxisTickFormatting?: (o: any) => string;
   @Input() roundDomains: boolean = false;
   @Input() tooltipDisabled: boolean = false;
   @Input() showSeriesOnHover: boolean = true;
@@ -199,9 +199,9 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   dims: ViewDimensions;
   yAxisDims: ViewDimensions;
   labelOffset: number;
-  xDomain: any;
-  yDomain: any;
-  seriesDomain: any;
+  xDomain: any[];
+  yDomain: any[];
+  seriesDomain: any[];
   yScale: any; // -> rScale
   xScale: any; // -> tScale
   yAxisScale: any; // -> yScale

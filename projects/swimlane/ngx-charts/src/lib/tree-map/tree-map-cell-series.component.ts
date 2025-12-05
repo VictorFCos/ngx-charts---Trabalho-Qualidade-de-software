@@ -61,8 +61,8 @@ export class TreeMapCellSeriesComponent implements OnChanges {
   @Input() data: { children: any[] };
   @Input() dims: ViewDimensions;
   @Input() colors: ColorHelper;
-  @Input() valueFormatting: (value: any) => string;
-  @Input() labelFormatting: (cell: any) => string;
+  @Input() valueFormatting?: (value: any) => string;
+  @Input() labelFormatting?: (cell: any) => string;
   @Input() gradient: boolean = false;
   @Input() tooltipDisabled: boolean = false;
   @Input() tooltipTemplate: TemplateRef<any>;
