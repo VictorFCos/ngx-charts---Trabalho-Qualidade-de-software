@@ -170,8 +170,8 @@ export class BubbleChartComponent extends BaseChartComponent {
   @Input() rotateXAxisTicks: boolean = true;
   @Input() maxXAxisTickLength: number = 16;
   @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
+  @Input() xAxisTickFormatting: (val: any) => string;
+  @Input() yAxisTickFormatting: (val: any) => string;
   @Input() xAxisTicks: any[];
   @Input() yAxisTicks: any[];
   @Input() roundDomains: boolean = false;

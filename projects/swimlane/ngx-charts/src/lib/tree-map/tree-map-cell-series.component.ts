@@ -58,11 +58,11 @@ interface TreeMapCell {
   standalone: false
 })
 export class TreeMapCellSeriesComponent implements OnChanges {
-  @Input() data: any; // type this
+  @Input() data: { children: any[] };
   @Input() dims: ViewDimensions;
   @Input() colors: ColorHelper;
-  @Input() valueFormatting: any;
-  @Input() labelFormatting: any;
+  @Input() valueFormatting: (value: any) => string;
+  @Input() labelFormatting: (cell: any) => string;
   @Input() gradient: boolean = false;
   @Input() tooltipDisabled: boolean = false;
   @Input() tooltipTemplate: TemplateRef<any>;
@@ -99,7 +99,7 @@ export class TreeMapCellSeriesComponent implements OnChanges {
       });
   }
 
-  getTooltipText({ label, value }: { label: any; value: any }): string {
+  getTooltipText({ label, value }: { label: string; value: number }): string {
     return `
       <span class="tooltip-label">${escapeLabel(label)}</span>
       <span class="tooltip-val">${value.toLocaleString()}</span>
