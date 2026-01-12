@@ -21,8 +21,7 @@ import { escapeLabel } from '../common/label.helper';
 import { decimalChecker, count } from '../common/count/count.helper';
 import { GridData } from '../common/grid-layout.helper';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import { calculateTextWidth } from '../utils/calculate-width';
-import { VERDANA_FONT_WIDTHS_16_PX } from '../common/constants/font-widths';
+import { calculateCardTextPadding, getCardScaleText, scaleCardTextSSR } from './card.helper';
 
 @Component({
   selector: 'g[ngx-charts-card]',
@@ -125,7 +124,10 @@ export class CardComponent implements OnChanges, OnDestroy, OnInit {
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
-      this.scaleTextSSR();
+      const { textFontSize, labelFontSize } = scaleCardTextSSR(this.value, this.cardWidth, this.cardHeight, this.textFontSize);
+      this.textFontSize = textFontSize;
+      this.labelFontSize = labelFontSize;
+      this.setPadding();
     }
   }
 
@@ -215,42 +217,21 @@ export class CardComponent implements OnChanges, OnDestroy, OnInit {
         return;
       }
 
-      const textPadding = (this.textPadding[1] = this.textPadding[3] = this.cardWidth / 8);
-      const availableWidth = this.cardWidth - 2 * textPadding;
-      const availableHeight = this.cardHeight / 3;
-
-      const resizeScale = Math.min(availableWidth / width, availableHeight / height);
-      this.textFontSize = Math.floor(this.textFontSize * resizeScale);
-      this.labelFontSize = Math.min(this.textFontSize, 15);
+      const { textFontSize, labelFontSize } = getCardScaleText(width, height, this.cardWidth, this.cardHeight, this.textFontSize);
+      this.textFontSize = textFontSize;
+      this.labelFontSize = labelFontSize;
 
       this.setPadding();
       this.cd.markForCheck();
     });
   }
 
-  scaleTextSSR() {
-    const width = calculateTextWidth(VERDANA_FONT_WIDTHS_16_PX, this.value, 10);
-    const height = 18;
-    const textPadding = (this.textPadding[1] = this.textPadding[3] = this.cardWidth / 8);
-    const availableWidth = this.cardWidth - 2 * textPadding;
-    const availableHeight = this.cardHeight / 3;
-
-    const resizeScale = Math.min(availableWidth / width, availableHeight / height);
-
-    this.textFontSize = Math.floor(this.textFontSize * resizeScale);
-    this.labelFontSize = Math.min(this.textFontSize, 15);
-
-    this.setPadding();
-  }
-
   setPadding() {
-    this.textPadding[1] = this.textPadding[3] = this.cardWidth / 8;
-    const padding = this.cardHeight / 2;
-    this.textPadding[0] = padding - this.textFontSize - this.labelFontSize / 2;
-    this.textPadding[2] = padding - this.labelFontSize;
+    this.textPadding = calculateCardTextPadding(this.cardWidth, this.cardHeight, this.textFontSize, this.labelFontSize);
   }
 
   onClick(): void {
     this.select.emit(this.data);
   }
 }
+

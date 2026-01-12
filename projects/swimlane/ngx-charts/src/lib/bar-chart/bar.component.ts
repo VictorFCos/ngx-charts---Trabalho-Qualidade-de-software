@@ -10,11 +10,11 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { select } from 'd3-selection';
-import { roundedRect } from '../common/shape.helper';
 import { id } from '../utils/id';
 import { DataItem } from '../models/chart-data.model';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import { Gradient } from '../common/types/gradient.interface';
+import { getBarRadius, getBarEdges, getBarPath, getBarStartingPath, getBarGradient, shouldHideBar } from './bar.helper';
 
 @Component({
   selector: 'g[ngx-charts-bar]',
@@ -83,134 +83,47 @@ export class BarComponent implements OnChanges {
     this.gradientFill = `url(#${this.gradientId})`;
 
     if (this.gradient || this.stops) {
-      this.gradientStops = this.getGradient();
+      this.gradientStops = getBarGradient(this.fill, this.stops, this.roundEdges ? 0.2 : 0.5);
       this.hasGradient = true;
     } else {
       this.hasGradient = false;
     }
 
     this.updatePathEl();
-    this.checkToHideBar();
+    this.hideBar = shouldHideBar(this.noBarWhenZero, this.orientation, this.width, this.height);
   }
-
   loadAnimation(): void {
-    this.path = this.getStartingPath();
+    this.path = getBarStartingPath(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      getBarRadius(this.roundEdges, this.height, this.width),
+      this.roundEdges,
+      this.orientation,
+      getBarEdges(this.roundEdges, this.orientation, this.data.value)
+    );
     setTimeout(this.update.bind(this), 100);
   }
 
   updatePathEl(): void {
     const node = select(this.element).select('.bar');
-    const path = this.getPath();
+    const path = getBarPath(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      getBarRadius(this.roundEdges, this.height, this.width),
+      this.roundEdges,
+      this.orientation,
+      getBarEdges(this.roundEdges, this.orientation, this.data.value)
+    );
     if (this.animations) {
       node.transition().duration(500).attr('d', path);
     } else {
       node.attr('d', path);
     }
   }
-
-  getGradient(): Gradient[] {
-    if (this.stops) {
-      return this.stops;
-    }
-
-    return [
-      {
-        offset: 0,
-        color: this.fill,
-        opacity: this.getStartOpacity()
-      },
-      {
-        offset: 100,
-        color: this.fill,
-        opacity: 1
-      }
-    ];
-  }
-
-  getStartingPath(): string {
-    if (!this.animations) {
-      return this.getPath();
-    }
-
-    let radius = this.getRadius();
-    let path;
-
-    if (this.roundEdges) {
-      if (this.orientation === BarOrientation.Vertical) {
-        radius = Math.min(this.height, radius);
-        path = roundedRect(this.x, this.y + this.height, this.width, 1, 0, this.edges);
-      } else if (this.orientation === BarOrientation.Horizontal) {
-        radius = Math.min(this.width, radius);
-        path = roundedRect(this.x, this.y, 1, this.height, 0, this.edges);
-      }
-    } else {
-      if (this.orientation === BarOrientation.Vertical) {
-        path = roundedRect(this.x, this.y + this.height, this.width, 1, 0, this.edges);
-      } else if (this.orientation === BarOrientation.Horizontal) {
-        path = roundedRect(this.x, this.y, 1, this.height, 0, this.edges);
-      }
-    }
-
-    return path;
-  }
-
-  getPath(): string {
-    let radius = this.getRadius();
-    let path;
-
-    if (this.roundEdges) {
-      if (this.orientation === BarOrientation.Vertical) {
-        radius = Math.min(this.height, radius);
-        path = roundedRect(this.x, this.y, this.width, this.height, radius, this.edges);
-      } else if (this.orientation === BarOrientation.Horizontal) {
-        radius = Math.min(this.width, radius);
-        path = roundedRect(this.x, this.y, this.width, this.height, radius, this.edges);
-      }
-    } else {
-      path = roundedRect(this.x, this.y, this.width, this.height, radius, this.edges);
-    }
-
-    return path;
-  }
-
-  getRadius(): number {
-    let radius = 0;
-
-    if (this.roundEdges && this.height > 5 && this.width > 5) {
-      radius = Math.floor(Math.min(5, this.height / 2, this.width / 2));
-    }
-
-    return radius;
-  }
-
-  getStartOpacity(): number {
-    if (this.roundEdges) {
-      return 0.2;
-    } else {
-      return 0.5;
-    }
-  }
-
-  get edges(): boolean[] {
-    let edges = [false, false, false, false];
-    if (this.roundEdges) {
-      if (this.orientation === BarOrientation.Vertical) {
-        if (this.data.value > 0) {
-          edges = [true, true, false, false];
-        } else {
-          edges = [false, false, true, true];
-        }
-      } else if (this.orientation === BarOrientation.Horizontal) {
-        if (this.data.value > 0) {
-          edges = [false, true, false, true];
-        } else {
-          edges = [true, false, true, false];
-        }
-      }
-    }
-    return edges;
-  }
-
   @HostListener('mouseenter')
   onMouseEnter(): void {
     this.activate.emit(this.data);
@@ -220,11 +133,6 @@ export class BarComponent implements OnChanges {
   onMouseLeave(): void {
     this.deactivate.emit(this.data);
   }
-
-  private checkToHideBar(): void {
-    this.hideBar =
-      this.noBarWhenZero &&
-      ((this.orientation === BarOrientation.Vertical && this.height === 0) ||
-        (this.orientation === BarOrientation.Horizontal && this.width === 0));
-  }
 }
+
+
