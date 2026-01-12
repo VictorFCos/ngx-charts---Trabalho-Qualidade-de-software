@@ -10,7 +10,7 @@ export function getAreaGenerators(
   stacked: boolean,
   normalized: boolean,
   baseValue: any
-): { currentArea: any, startingArea: any } {
+): { currentArea: any; startingArea: any } {
   const xProperty = d => xScale(d.name);
   let currentArea;
   let startingArea;
@@ -58,7 +58,7 @@ export function getAreaSeriesGradient(
   stacked: boolean,
   normalized: boolean,
   series: any[]
-): { hasGradient: boolean, gradientStops: Gradient[] } {
+): { hasGradient: boolean; gradientStops: Gradient[] } {
   if (colors.scaleType === ScaleType.Linear) {
     let max, min;
     if (stacked || normalized) {

@@ -2,12 +2,7 @@ import { ColorHelper } from '../common/color.helper';
 import { ScaleType } from './types/scale-type.enum';
 import { Tooltip } from './tooltip-area.component';
 
-export function getTooltipValues(
-  xVal: any,
-  results: any[],
-  colors: ColorHelper,
-  showPercentage: boolean
-): Tooltip[] {
+export function getTooltipValues(xVal: any, results: any[], colors: ColorHelper, showPercentage: boolean): Tooltip[] {
   const tooltipResults = [];
 
   for (const group of results) {
@@ -113,7 +108,15 @@ export function getTooltipAreaText(tooltipItem: Tooltip): string {
   return result;
 }
 
-export function tooltipAreaMove(event: any, xSet: any[], xScale: any, dims: any, results: any[], colors: any, showPercentage: boolean): any {
+export function tooltipAreaMove(
+  event: any,
+  xSet: any[],
+  xScale: any,
+  dims: any,
+  results: any[],
+  colors: any,
+  showPercentage: boolean
+): any {
   const xPos = event.pageX - event.target.getBoundingClientRect().left;
   const closestIndex = findClosestPointIndex(xPos, xSet, xScale);
   const closestPoint = xSet[closestIndex];
@@ -124,4 +127,3 @@ export function tooltipAreaMove(event: any, xSet: any[], xScale: any, dims: any,
   const anchorValues = getTooltipValues(closestPoint, results, colors, showPercentage);
   return { anchorPos, anchorValues, closestPoint };
 }
-

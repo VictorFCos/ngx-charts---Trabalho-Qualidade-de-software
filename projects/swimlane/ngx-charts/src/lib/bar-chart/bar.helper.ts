@@ -61,7 +61,7 @@ export function getBarStartingPath(
   orientation: BarOrientation,
   edges: boolean[]
 ): string {
-  let actualRadius = roundEdges ? 1 : 0;
+  const actualRadius = roundEdges ? 1 : 0;
   if (orientation === BarOrientation.Vertical) {
     return roundedRect(x, y + height, width, 1, 0, edges);
   } else if (orientation === BarOrientation.Horizontal) {
@@ -89,9 +89,15 @@ export function getBarGradient(fill: string, stops: Gradient[], startOpacity: nu
   ];
 }
 
-export function shouldHideBar(noBarWhenZero: boolean, orientation: BarOrientation, width: number, height: number): boolean {
-  return noBarWhenZero &&
+export function shouldHideBar(
+  noBarWhenZero: boolean,
+  orientation: BarOrientation,
+  width: number,
+  height: number
+): boolean {
+  return (
+    noBarWhenZero &&
     ((orientation === BarOrientation.Vertical && height === 0) ||
-      (orientation === BarOrientation.Horizontal && width === 0));
+      (orientation === BarOrientation.Horizontal && width === 0))
+  );
 }
-

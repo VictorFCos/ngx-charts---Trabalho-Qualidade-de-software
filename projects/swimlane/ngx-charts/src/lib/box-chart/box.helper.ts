@@ -36,12 +36,6 @@ export function getBoxStartingLineCoordinates(
   lineCoordinates: [IVector2D, IVector2D, IVector2D, IVector2D]
 ): [IVector2D, IVector2D, IVector2D, IVector2D] {
   const coords = cloneLineCoordinates(lineCoordinates);
-  coords[1].v1.y =
-    coords[1].v2.y =
-    coords[3].v1.y =
-    coords[3].v2.y =
-    coords[0].v1.y =
-    coords[0].v2.y =
-      coords[2].v1.y;
+  coords[1].v1.y = coords[1].v2.y = coords[3].v1.y = coords[3].v2.y = coords[0].v1.y = coords[0].v2.y = coords[2].v1.y;
   return coords;
 }

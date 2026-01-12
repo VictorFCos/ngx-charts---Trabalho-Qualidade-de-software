@@ -1,4 +1,16 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, ChangeDetectionStrategy, Output, EventEmitter, ViewEncapsulation, ContentChild, TemplateRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Output,
+  EventEmitter,
+  ViewEncapsulation,
+  ContentChild,
+  TemplateRef
+} from '@angular/core';
 import { scaleLinear } from 'd3-scale';
 import { BaseChartComponent } from '../common/base-chart.component';
 import { calculateViewDimensions } from '../common/view-dimensions.helper';
@@ -9,22 +21,83 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { getGaugeValueDomain, getGaugeDisplayValue, getGaugeArcs } from './gauge.helper';
 
-interface Arcs { backgroundArc: ArcItem; valueArc: ArcItem; }
+interface Arcs {
+  backgroundArc: ArcItem;
+  valueArc: ArcItem;
+}
 
 export interface GaugeOptions {
-  legend: boolean; legendTitle: string; legendPosition: LegendPosition; min: number; max: number; textValue: string; units: string; bigSegments: number; smallSegments: number; showAxis: boolean; startAngle: number; angleSpan: number; activeEntries: any[]; axisTickFormatting: any; tooltipDisabled: boolean; valueFormatting: (value: any) => string; showText: boolean; margin: number[];
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  min: number;
+  max: number;
+  textValue: string;
+  units: string;
+  bigSegments: number;
+  smallSegments: number;
+  showAxis: boolean;
+  startAngle: number;
+  angleSpan: number;
+  activeEntries: any[];
+  axisTickFormatting: any;
+  tooltipDisabled: boolean;
+  valueFormatting: (value: any) => string;
+  showText: boolean;
+  margin: number[];
 }
 
 @Component({
   selector: 'ngx-charts-gauge',
   template: `
-    <ngx-charts-chart [view]="[width, height]" [showLegend]="legend" [legendOptions]="legendOptions" [activeEntries]="activeEntries" [animations]="animations" (legendLabelClick)="onClick($event)" (legendLabelActivate)="onActivate($event)" (legendLabelDeactivate)="onDeactivate($event)">
+    <ngx-charts-chart
+      [view]="[width, height]"
+      [showLegend]="legend"
+      [legendOptions]="legendOptions"
+      [activeEntries]="activeEntries"
+      [animations]="animations"
+      (legendLabelClick)="onClick($event)"
+      (legendLabelActivate)="onActivate($event)"
+      (legendLabelDeactivate)="onDeactivate($event)"
+    >
       <svg:g [attr.transform]="transform" class="gauge chart">
         <svg:g *ngFor="let arc of arcs; trackBy: trackBy" [attr.transform]="rotation">
-          <svg:g ngx-charts-gauge-arc [backgroundArc]="arc.backgroundArc" [valueArc]="arc.valueArc" [cornerRadius]="cornerRadius" [colors]="colors" [isActive]="isActive(arc.valueArc.data)" [tooltipDisabled]="tooltipDisabled" [tooltipTemplate]="tooltipTemplate" [valueFormatting]="valueFormatting" [animations]="animations" (select)="onClick($event)" (activate)="onActivate($event)" (deactivate)="onDeactivate($event)"></svg:g>
+          <svg:g
+            ngx-charts-gauge-arc
+            [backgroundArc]="arc.backgroundArc"
+            [valueArc]="arc.valueArc"
+            [cornerRadius]="cornerRadius"
+            [colors]="colors"
+            [isActive]="isActive(arc.valueArc.data)"
+            [tooltipDisabled]="tooltipDisabled"
+            [tooltipTemplate]="tooltipTemplate"
+            [valueFormatting]="valueFormatting"
+            [animations]="animations"
+            (select)="onClick($event)"
+            (activate)="onActivate($event)"
+            (deactivate)="onDeactivate($event)"
+          ></svg:g>
         </svg:g>
-        <svg:g ngx-charts-gauge-axis *ngIf="showAxis" [bigSegments]="bigSegments" [smallSegments]="smallSegments" [min]="min" [max]="max" [radius]="outerRadius" [angleSpan]="angleSpan" [valueScale]="valueScale" [startAngle]="startAngle" [tickFormatting]="axisTickFormatting"></svg:g>
-        <svg:text #textEl *ngIf="showText" [style.textAnchor]="'middle'" [attr.transform]="textTransform" alignment-baseline="central">
+        <svg:g
+          ngx-charts-gauge-axis
+          *ngIf="showAxis"
+          [bigSegments]="bigSegments"
+          [smallSegments]="smallSegments"
+          [min]="min"
+          [max]="max"
+          [radius]="outerRadius"
+          [angleSpan]="angleSpan"
+          [valueScale]="valueScale"
+          [startAngle]="startAngle"
+          [tickFormatting]="axisTickFormatting"
+        ></svg:g>
+        <svg:text
+          #textEl
+          *ngIf="showText"
+          [style.textAnchor]="'middle'"
+          [attr.transform]="textTransform"
+          alignment-baseline="central"
+        >
           <tspan x="0" dy="0">{{ displayValue }}</tspan>
           <tspan x="0" dy="1.2em">{{ units }}</tspan>
         </svg:text>
@@ -43,47 +116,121 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
   @ViewChild('textEl') textEl: ElementRef;
 
-  dims: ViewDimensions; domain: any[]; valueDomain: [number, number]; valueScale: any; colors: ColorHelper; transform: string; outerRadius: number; textRadius: number; resizeScale: number = 1; rotation: string = ''; textTransform: string = 'scale(1, 1)'; cornerRadius: number = 10; arcs: Arcs[]; displayValue: string; legendOptions: LegendOptions;
+  dims: ViewDimensions;
+  domain: any[];
+  valueDomain: [number, number];
+  valueScale: any;
+  colors: ColorHelper;
+  transform: string;
+  outerRadius: number;
+  textRadius: number;
+  resizeScale: number = 1;
+  rotation: string = '';
+  textTransform: string = 'scale(1, 1)';
+  cornerRadius: number = 10;
+  arcs: Arcs[];
+  displayValue: string;
+  legendOptions: LegendOptions;
 
-  get legend() { return this.config?.legend ?? false; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get min() { return this.config?.min ?? 0; }
-  get max() { return this.config?.max ?? 100; }
-  get textValue() { return this.config?.textValue; }
-  get units() { return this.config?.units; }
-  get bigSegments() { return this.config?.bigSegments ?? 10; }
-  get smallSegments() { return this.config?.smallSegments ?? 5; }
-  get showAxis() { return this.config?.showAxis ?? true; }
-  get startAngle() { return this.config?.startAngle ?? -120; }
-  get angleSpan() { return this.config?.angleSpan ?? 240; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
-  get axisTickFormatting() { return this.config?.axisTickFormatting; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get valueFormatting() { return this.config?.valueFormatting; }
-  get showText() { return this.config?.showText ?? true; }
-  get margin() { return this.config?.margin; }
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get min() {
+    return this.config?.min ?? 0;
+  }
+  get max() {
+    return this.config?.max ?? 100;
+  }
+  get textValue() {
+    return this.config?.textValue;
+  }
+  get units() {
+    return this.config?.units;
+  }
+  get bigSegments() {
+    return this.config?.bigSegments ?? 10;
+  }
+  get smallSegments() {
+    return this.config?.smallSegments ?? 5;
+  }
+  get showAxis() {
+    return this.config?.showAxis ?? true;
+  }
+  get startAngle() {
+    return this.config?.startAngle ?? -120;
+  }
+  get angleSpan() {
+    return this.config?.angleSpan ?? 240;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get axisTickFormatting() {
+    return this.config?.axisTickFormatting;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get valueFormatting() {
+    return this.config?.valueFormatting;
+  }
+  get showText() {
+    return this.config?.showText ?? true;
+  }
+  get margin() {
+    return this.config?.margin;
+  }
 
-  ngOnChanges(): void { this.update(); }
-  ngAfterViewInit(): void { super.ngAfterViewInit(); setTimeout(() => this.scaleText()); }
+  ngOnChanges(): void {
+    this.update();
+  }
+  ngAfterViewInit(): void {
+    super.ngAfterViewInit();
+    setTimeout(() => this.scaleText());
+  }
 
   update(): void {
     super.update();
-    if (!this.margin) this.config = { ...this.config, margin: this.showAxis ? [60, 100, 60, 100] : [10, 20, 10, 20] } as any;
-    this.dims = calculateViewDimensions({ width: this.width, height: this.height, margins: this.margin, showLegend: this.legend, legendPosition: this.legendPosition });
+    if (!this.margin)
+      this.config = { ...this.config, margin: this.showAxis ? [60, 100, 60, 100] : [10, 20, 10, 20] } as any;
+    this.dims = calculateViewDimensions({
+      width: this.width,
+      height: this.height,
+      margins: this.margin,
+      showLegend: this.legend,
+      legendPosition: this.legendPosition
+    });
     this.domain = this.results.map(d => d.name);
     this.valueDomain = getGaugeValueDomain(this.results, this.min, this.max);
-    this.valueScale = scaleLinear().range([0, Math.min(this.angleSpan, 360)]).nice().domain(this.valueDomain);
+    this.valueScale = scaleLinear()
+      .range([0, Math.min(this.angleSpan, 360)])
+      .nice()
+      .domain(this.valueDomain);
     this.displayValue = getGaugeDisplayValue(this.results, this.textValue, this.valueFormatting);
     this.outerRadius = Math.min(this.dims.width, this.dims.height) / 2;
     this.arcs = getGaugeArcs(this.results, this.outerRadius, Math.min(this.angleSpan, 360), this.valueScale, this.max);
     this.cornerRadius = Math.floor((Math.min((this.outerRadius * 0.7) / this.results.length, 10) * 0.7) / 2);
-    this.textRadius = this.outerRadius - this.results.length * Math.min((this.outerRadius * 0.7) / this.results.length, 10);
+    this.textRadius =
+      this.outerRadius - this.results.length * Math.min((this.outerRadius * 0.7) / this.results.length, 10);
     this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain, this.customColors);
-    this.legendOptions = { scaleType: ScaleType.Ordinal, colors: this.colors, domain: this.domain, title: this.legendTitle, position: this.legendPosition };
+    this.legendOptions = {
+      scaleType: ScaleType.Ordinal,
+      colors: this.colors,
+      domain: this.domain,
+      title: this.legendTitle,
+      position: this.legendPosition
+    };
     this.transform = `translate(${this.margin[3] + this.dims.width / 2}, ${this.margin[0] + this.dims.height / 2})`;
-    this.rotation = `rotate(${(this.startAngle < 0 ? (this.startAngle % 360) + 360 : this.startAngle)})`;
+    this.rotation = `rotate(${this.startAngle < 0 ? (this.startAngle % 360) + 360 : this.startAngle})`;
     setTimeout(() => this.scaleText(), 50);
   }
 
@@ -99,15 +246,30 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     }
   }
 
-  onClick(data): void { this.select.emit(data); }
+  onClick(data): void {
+    this.select.emit(data);
+  }
   onActivate(item): void {
     const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
-    if (idx === -1) { this.activeEntries = [item, ...this.activeEntries]; this.activate.emit({ value: item, entries: this.activeEntries }); }
+    if (idx === -1) {
+      this.activeEntries = [item, ...this.activeEntries];
+      this.activate.emit({ value: item, entries: this.activeEntries });
+    }
   }
   onDeactivate(item): void {
     const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
-    if (idx > -1) { this.activeEntries.splice(idx, 1); this.activeEntries = [...this.activeEntries]; this.deactivate.emit({ value: item, entries: this.activeEntries }); }
+    if (idx > -1) {
+      this.activeEntries.splice(idx, 1);
+      this.activeEntries = [...this.activeEntries];
+      this.deactivate.emit({ value: item, entries: this.activeEntries });
+    }
   }
-  isActive(entry): boolean { return this.activeEntries ? this.activeEntries.some(d => entry.name === d.name && entry.series === d.series) : false; }
-  trackBy(index: number, item: Arcs): any { return item.valueArc.data.name; }
+  isActive(entry): boolean {
+    return this.activeEntries
+      ? this.activeEntries.some(d => entry.name === d.name && entry.series === d.series)
+      : false;
+  }
+  trackBy(index: number, item: Arcs): any {
+    return item.valueArc.data.name;
+  }
 }

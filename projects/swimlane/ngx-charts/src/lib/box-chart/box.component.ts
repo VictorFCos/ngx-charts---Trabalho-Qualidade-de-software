@@ -193,14 +193,32 @@ export class BoxComponent implements OnChanges {
   }
 
   loadAnimation(): void {
-    this.boxPath = this.oldPath = this.animations ? getBoxStartingPath(this.width, this.lineCoordinates, this.roundEdges, this.edges) : getBoxPath(this.x, this.y, this.width, this.height, getBoxRadius(this.roundEdges, this.height, this.width), this.edges);
-    this.oldLineCoordinates = this.animations ? getBoxStartingLineCoordinates(this.lineCoordinates) : [...this.lineCoordinates];
+    this.boxPath = this.oldPath = this.animations
+      ? getBoxStartingPath(this.width, this.lineCoordinates, this.roundEdges, this.edges)
+      : getBoxPath(
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+          getBoxRadius(this.roundEdges, this.height, this.width),
+          this.edges
+        );
+    this.oldLineCoordinates = this.animations
+      ? getBoxStartingLineCoordinates(this.lineCoordinates)
+      : [...this.lineCoordinates];
     setTimeout(this.update.bind(this), 100);
   }
 
   updatePathEl(): void {
     const nodeBar = select(this.nativeElm).selectAll('.bar');
-    const path = getBoxPath(this.x, this.y, this.width, this.height, getBoxRadius(this.roundEdges, this.height, this.width), this.edges);
+    const path = getBoxPath(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      getBoxRadius(this.roundEdges, this.height, this.width),
+      this.edges
+    );
     if (this.animations) {
       nodeBar
         .attr('d', this.oldPath)
@@ -330,4 +348,3 @@ export class BoxComponent implements OnChanges {
     this.hideBar = this.noBarWhenZero && this.height === 0;
   }
 }
-

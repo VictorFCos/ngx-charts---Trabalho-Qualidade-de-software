@@ -140,7 +140,7 @@ describe('<ngx-charts-bar-vertical>', () => {
         { name: 'Lorem Ipsum is simply', value: 50000 },
         { name: 'Lorem Ipsum is simply dummy text', value: 36240 },
         { name: 'Lorem Ipsum is simply dummy text of the printing', value: 3000 },
-        { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', value: 5655 },
+        { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', value: 5655 }
       ];
       TestBed.overrideComponent(TestComponent, {
         set: {
@@ -156,7 +156,7 @@ describe('<ngx-charts-bar-vertical>', () => {
       });
       // In the original spec, it seems it was using a local variable or member for results.
       // I'll adjust to use 'single' for simplicity in this test override if needed, or define it.
-      
+
       const fixture = TestBed.createComponent(TestComponent);
       fixture.componentInstance.single = testData;
       fixture.detectChanges();
@@ -191,7 +191,10 @@ describe('<ngx-charts-bar-vertical>', () => {
     it('should show a max of 5 lines for a wrapped tick', () => {
       const testData = [
         { name: 'Lorem Ipsum', value: 40632 },
-        { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', value: 5655 },
+        {
+          name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+          value: 5655
+        }
       ];
       TestBed.overrideComponent(TestComponent, {
         set: {

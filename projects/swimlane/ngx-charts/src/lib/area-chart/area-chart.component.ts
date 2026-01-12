@@ -244,42 +244,114 @@ export class AreaChartComponent extends BaseChartComponent {
   timelineTransform: any;
   timelinePadding: number = 10;
 
-  get legend() { return this.config?.legend ?? false; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get xAxis() { return this.config?.xAxis ?? false; }
-  get yAxis() { return this.config?.yAxis ?? false; }
-  get baseValue() { return this.config?.baseValue ?? 'auto'; }
-  get autoScale() { return this.config?.autoScale ?? false; }
-  get showXAxisLabel() { return this.config?.showXAxisLabel; }
-  get showYAxisLabel() { return this.config?.showYAxisLabel; }
-  get xAxisLabel() { return this.config?.xAxisLabel; }
-  get yAxisLabel() { return this.config?.yAxisLabel; }
-  get timeline() { return this.config?.timeline ?? false; }
-  get gradient() { return this.config?.gradient; }
-  get showGridLines() { return this.config?.showGridLines ?? true; }
-  get curve() { return this.config?.curve ?? curveLinear; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
-  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
-  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
-  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
-  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
-  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
-  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
-  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
-  get xAxisTicks() { return this.config?.xAxisTicks; }
-  get yAxisTicks() { return this.config?.yAxisTicks; }
-  get roundDomains() { return this.config?.roundDomains ?? false; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get referenceLines() { return this.config?.referenceLines; }
-  get showRefLines() { return this.config?.showRefLines ?? false; }
-  get showRefLabels() { return this.config?.showRefLabels ?? false; }
-  get xScaleMin() { return this.config?.xScaleMin; }
-  get xScaleMax() { return this.config?.xScaleMax; }
-  get yScaleMin() { return this.config?.yScaleMin; }
-  get yScaleMax() { return this.config?.yScaleMax; }
-  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis ?? false;
+  }
+  get yAxis() {
+    return this.config?.yAxis ?? false;
+  }
+  get baseValue() {
+    return this.config?.baseValue ?? 'auto';
+  }
+  get autoScale() {
+    return this.config?.autoScale ?? false;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get timeline() {
+    return this.config?.timeline ?? false;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get curve() {
+    return this.config?.curve ?? curveLinear;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get referenceLines() {
+    return this.config?.referenceLines;
+  }
+  get showRefLines() {
+    return this.config?.showRefLines ?? false;
+  }
+  get showRefLabels() {
+    return this.config?.showRefLabels ?? false;
+  }
+  get xScaleMin() {
+    return this.config?.xScaleMin;
+  }
+  get xScaleMax() {
+    return this.config?.xScaleMax;
+  }
+  get yScaleMin() {
+    return this.config?.yScaleMin;
+  }
+  get yScaleMax() {
+    return this.config?.yScaleMax;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
 
   ngOnChanges(): void {
     if (this.config && this.config.schemeType) {

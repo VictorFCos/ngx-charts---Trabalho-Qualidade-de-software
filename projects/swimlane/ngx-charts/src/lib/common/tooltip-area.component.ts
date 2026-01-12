@@ -118,7 +118,15 @@ export class TooltipArea {
 
   mouseMove(event) {
     if (!isPlatformBrowser(this.platformId)) return;
-    const { anchorPos, anchorValues, closestPoint } = tooltipAreaMove(event, this.xSet, this.xScale, this.dims, this.results, this.colors, this.showPercentage);
+    const { anchorPos, anchorValues, closestPoint } = tooltipAreaMove(
+      event,
+      this.xSet,
+      this.xScale,
+      this.dims,
+      this.results,
+      this.colors,
+      this.showPercentage
+    );
     this.anchorPos = anchorPos;
     this.anchorValues = anchorValues;
 
@@ -149,5 +157,3 @@ export class TooltipArea {
     return getTooltipAreaText(tooltipItem);
   }
 }
-
-

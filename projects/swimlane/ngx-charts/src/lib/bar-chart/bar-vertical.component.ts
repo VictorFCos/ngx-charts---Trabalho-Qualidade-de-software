@@ -157,44 +157,114 @@ export class BarVerticalComponent extends BaseChartComponent {
   dataLabelMaxHeight: any = { negative: 0, positive: 0 };
 
   // Getters to maintain template compatibility and default values
-  get legend() { return this.config?.legend ?? false; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get xAxis() { return this.config?.xAxis; }
-  get yAxis() { return this.config?.yAxis; }
-  get showXAxisLabel() { return this.config?.showXAxisLabel; }
-  get showYAxisLabel() { return this.config?.showYAxisLabel; }
-  get xAxisLabel() { return this.config?.xAxisLabel; }
-  get yAxisLabel() { return this.config?.yAxisLabel; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get gradient() { return this.config?.gradient; }
-  get referenceLines() { return this.config?.referenceLines; }
-  get showRefLines() { return this.config?.showRefLines; }
-  get showRefLabels() { return this.config?.showRefLabels; }
-  get showGridLines() { return this.config?.showGridLines ?? true; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get referenceLines() {
+    return this.config?.referenceLines;
+  }
+  get showRefLines() {
+    return this.config?.showRefLines;
+  }
+  get showRefLabels() {
+    return this.config?.showRefLabels;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
   // schemeType is inherited from BaseChartComponent, so we don't define a getter/setter here to avoid TS2611.
   // We sync it in ngOnChanges.
 
-  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
-  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
-  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
-  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
-  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
-  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
-  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
-  get xAxisTicks() { return this.config?.xAxisTicks; }
-  get yAxisTicks() { return this.config?.yAxisTicks; }
-  get barPadding() { return this.config?.barPadding ?? 8; }
-  get roundDomains() { return this.config?.roundDomains ?? false; }
-  get roundEdges() { return this.config?.roundEdges ?? true; }
-  get yScaleMax() { return this.config?.yScaleMax; }
-  get yScaleMin() { return this.config?.yScaleMin; }
-  get showDataLabel() { return this.config?.showDataLabel ?? false; }
-  get dataLabelFormatting() { return this.config?.dataLabelFormatting; }
-  get noBarWhenZero() { return this.config?.noBarWhenZero ?? true; }
-  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get barPadding() {
+    return this.config?.barPadding ?? 8;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get roundEdges() {
+    return this.config?.roundEdges ?? true;
+  }
+  get yScaleMax() {
+    return this.config?.yScaleMax;
+  }
+  get yScaleMin() {
+    return this.config?.yScaleMin;
+  }
+  get showDataLabel() {
+    return this.config?.showDataLabel ?? false;
+  }
+  get dataLabelFormatting() {
+    return this.config?.dataLabelFormatting;
+  }
+  get noBarWhenZero() {
+    return this.config?.noBarWhenZero ?? true;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
 
   ngOnChanges(): void {
     if (this.config && this.config.schemeType) {

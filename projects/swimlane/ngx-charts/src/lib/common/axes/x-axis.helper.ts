@@ -1,6 +1,7 @@
 import { Orientation } from '../types/orientation.enum';
 import { TextAnchor } from '../types/text-anchor.enum';
 import { getTickLines, reduceTicks } from './ticks.helper';
+import { roundedRect } from '../../common/shape.helper';
 
 export function getXAxisRotationAngle(
   ticks: any[],
@@ -78,10 +79,7 @@ export function getXAxisTickChunks(
 
     if (!isPlatformBrowser) {
       possibleStringLength = Math.floor(
-        Math.min(
-          approxHeight / maxAllowedLines,
-          Math.max(maxPossibleLengthForTickIfWrapped, maxTickLength)
-        )
+        Math.min(approxHeight / maxAllowedLines, Math.max(maxPossibleLengthForTickIfWrapped, maxTickLength))
       );
     }
 
@@ -93,10 +91,25 @@ export function getXAxisTickChunks(
 }
 
 export function setXAxisReferenceLines(referenceLines: any[], adjustedScale: any, gridLineHeight: number): any {
-  const refMin = adjustedScale(Math.min.apply(null, referenceLines.map(item => item.value)));
-  const refMax = adjustedScale(Math.max.apply(null, referenceLines.map(item => item.value)));
+  const refMin = adjustedScale(
+    Math.min.apply(
+      null,
+      referenceLines.map(item => item.value)
+    )
+  );
+  const refMax = adjustedScale(
+    Math.max.apply(
+      null,
+      referenceLines.map(item => item.value)
+    )
+  );
   const referenceLineLength = referenceLines.length;
-  const referenceAreaPath = roundedRect(refMax, -gridLineHeight + 25, refMin - refMax, gridLineHeight, 0, [false, false, false, false]);
+  const referenceAreaPath = roundedRect(refMax, -gridLineHeight + 25, refMin - refMax, gridLineHeight, 0, [
+    false,
+    false,
+    false,
+    false
+  ]);
   return { refMin, refMax, referenceLineLength, referenceAreaPath };
 }
 
@@ -106,25 +119,53 @@ export function getXAxisHeight(ticksElement: any): number {
 
 export function updateXAxisTicks(component: any): void {
   const scale = component.scale;
-  component.adjustedScale = scale.bandwidth ? (d) => scale(d) + scale.bandwidth() * 0.5 : scale;
+  component.adjustedScale = scale.bandwidth ? d => scale(d) + scale.bandwidth() * 0.5 : scale;
   component.ticks = getXAxisTicks(scale, component.tickValues, component.width);
   component.tickSpacing = Math.max(component.innerTickSize, 0) + component.tickPadding;
-  component.tickFormat = component.tickFormatting || (scale.tickFormat ? scale.tickFormat.apply(scale, component.tickArguments) : (d) => d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString());
-  const angle = component.rotateTicks ? getXAxisRotationAngle(component.ticks, component.tickFormat, component.trimTicks, component.tickTrim.bind(component), component.width, component.maxAllowedLength) : null;
+  component.tickFormat =
+    component.tickFormatting ||
+    (scale.tickFormat
+      ? scale.tickFormat(...(component.tickArguments || []))
+      : d => (d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString()));
+  const angle = component.rotateTicks
+    ? getXAxisRotationAngle(
+        component.ticks,
+        component.tickFormat,
+        component.trimTicks,
+        component.tickTrim.bind(component),
+        component.width,
+        component.maxAllowedLength
+      )
+    : null;
   component.textTransform = angle && angle !== 0 ? `rotate(${angle})` : '';
   component.textAnchor = angle && angle !== 0 ? TextAnchor.End : TextAnchor.Middle;
   if (angle && angle !== 0) component.verticalSpacing = 10;
   if (component.isWrapTicksSupported) {
-    const longestTick = component.ticks.reduce((earlier, current) => (current.length > earlier.length ? current : earlier), '');
+    const longestTick = component.ticks.reduce(
+      (earlier, current) => (current.length > earlier.length ? current : earlier),
+      ''
+    );
     const tickLines = component.tickChunks(longestTick);
     const labelHeight = 14 * (tickLines.length || 1);
-    component.maxPossibleLengthForTickIfWrapped = scale.bandwidth ? Math.max(Math.floor(scale.bandwidth() / 7), component.maxTickLength) : component.maxTickLength;
-    component.approxHeight = Math.min(angle !== 0 ? Math.max(Math.abs(Math.sin((angle * Math.PI) / 180)) * component.maxTickLength * 7, 10) : labelHeight, 200);
+    component.maxPossibleLengthForTickIfWrapped = scale.bandwidth
+      ? Math.max(Math.floor(scale.bandwidth() / 7), component.maxTickLength)
+      : component.maxTickLength;
+    component.approxHeight = Math.min(
+      angle !== 0
+        ? Math.max(Math.abs(Math.sin((angle * Math.PI) / 180)) * component.maxTickLength * 7, 10)
+        : labelHeight,
+      200
+    );
   }
   if (component.showRefLines && component.referenceLines) {
-    const { refMin, refMax, referenceLineLength, referenceAreaPath } = setXAxisReferenceLines(component.referenceLines, component.adjustedScale, component.gridLineHeight);
-    component.refMin = refMin; component.refMax = refMax; component.referenceLineLength = referenceLineLength; component.referenceAreaPath = referenceAreaPath;
+    const { refMin, refMax, referenceLineLength, referenceAreaPath } = setXAxisReferenceLines(
+      component.referenceLines,
+      component.adjustedScale,
+      component.gridLineHeight
+    );
+    component.refMin = refMin;
+    component.refMax = refMax;
+    component.referenceLineLength = referenceLineLength;
+    component.referenceAreaPath = referenceAreaPath;
   }
 }
-
-

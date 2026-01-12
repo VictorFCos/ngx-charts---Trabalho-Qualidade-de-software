@@ -124,7 +124,12 @@ export class CardComponent implements OnChanges, OnDestroy, OnInit {
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
-      const { textFontSize, labelFontSize } = scaleCardTextSSR(this.value, this.cardWidth, this.cardHeight, this.textFontSize);
+      const { textFontSize, labelFontSize } = scaleCardTextSSR(
+        this.value,
+        this.cardWidth,
+        this.cardHeight,
+        this.textFontSize
+      );
       this.textFontSize = textFontSize;
       this.labelFontSize = labelFontSize;
       this.setPadding();
@@ -217,7 +222,13 @@ export class CardComponent implements OnChanges, OnDestroy, OnInit {
         return;
       }
 
-      const { textFontSize, labelFontSize } = getCardScaleText(width, height, this.cardWidth, this.cardHeight, this.textFontSize);
+      const { textFontSize, labelFontSize } = getCardScaleText(
+        width,
+        height,
+        this.cardWidth,
+        this.cardHeight,
+        this.textFontSize
+      );
       this.textFontSize = textFontSize;
       this.labelFontSize = labelFontSize;
 
@@ -234,4 +245,3 @@ export class CardComponent implements OnChanges, OnDestroy, OnInit {
     this.select.emit(this.data);
   }
 }
-
