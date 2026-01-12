@@ -9,43 +9,7 @@
         [customColors]="customColors"
         [results]="single"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          tooltipDisabled: tooltipDisabled,
-          gradient: gradient,
-          referenceLines: refLines,
-          showRefLines: showRefLines,
-          showRefLabels: showRefLabels,
-          showGridLines: showGridLines,
-          activeEntries: [],
-          schemeType: schemeType,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          barPadding: barPadding,
-          roundDomains: roundDomains,
-          roundEdges: roundEdges,
-          yScaleMax: yScaleMax,
-          yScaleMin: undefined,
-          showDataLabel: showDataLabel,
-          dataLabelFormatting: undefined,
-          noBarWhenZero: noBarWhenZero,
-          wrapTicks: wrapTicks
-        }"
+        [config]="barChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -58,43 +22,7 @@
         [scheme]="colorScheme"
         [results]="single"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          tooltipDisabled: tooltipDisabled,
-          referenceLines: refLines,
-          showRefLines: showRefLines,
-          showRefLabels: showRefLabels,
-          gradient: gradient,
-          showGridLines: showGridLines,
-          activeEntries: [],
-          schemeType: schemeType,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          barPadding: barPadding,
-          roundDomains: roundDomains,
-          roundEdges: roundEdges,
-          xScaleMax: xScaleMax,
-          xScaleMin: undefined,
-          showDataLabel: showDataLabel,
-          dataLabelFormatting: undefined,
-          noBarWhenZero: noBarWhenZero,
-          wrapTicks: wrapTicks
-        }"
+        [config]="barHorizontalChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -323,23 +251,7 @@
         [scheme]="colorScheme"
         [results]="single"
         [animations]="animations"
-        [config]="{
-          labels: showLabels,
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          explodeSlices: explodeSlices,
-          doughnut: doughnut,
-          arcWidth: arcWidth,
-          gradient: gradient,
-          activeEntries: [],
-          tooltipDisabled: tooltipDisabled,
-          labelFormatting: undefined,
-          trimLabels: true,
-          maxLabelLength: 10,
-          tooltipText: pieTooltipText,
-          margins: undefined
-        }"
+        [config]="pieChartConfig"
         (dblclick)="dblclick($event)"
         (select)="select($event)"
         (activate)="activate($event)"
@@ -369,14 +281,7 @@
         [scheme]="colorScheme"
         [results]="single"
         [animations]="animations"
-        [config]="{
-          designatedTotal: undefined,
-          tooltipDisabled: tooltipDisabled,
-          tooltipText: pieTooltipText,
-          label: 'Total',
-          minWidth: 150,
-          activeEntries: []
-        }"
+        [config]="pieGridChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -389,44 +294,7 @@
         [scheme]="colorScheme"
         [results]="dateDataWithOrWithoutRange"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          autoScale: autoScale,
-          timeline: timeline,
-          gradient: gradient,
-          showGridLines: showGridLines,
-          curve: curve,
-          activeEntries: [],
-          schemeType: schemeType,
-          rangeFillOpacity: rangeFillOpacity,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          roundDomains: roundDomains,
-          tooltipDisabled: tooltipDisabled,
-          showRefLines: undefined,
-          referenceLines: undefined,
-          showRefLabels: undefined,
-          xScaleMin: xScaleMin,
-          xScaleMax: xScaleMax,
-          yScaleMin: yScaleMin,
-          yScaleMax: yScaleMax,
-          wrapTicks: wrapTicks
-        }"
+        [config]="lineChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -439,35 +307,7 @@
         [scheme]="colorScheme"
         [results]="multi"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          autoScale: autoScale,
-          showGridLines: showGridLines,
-          curve: closedCurve,
-          activeEntries: [],
-          schemeType: schemeType,
-          rangeFillOpacity: rangeFillOpacity,
-          trimYAxisTicks: trimYAxisTicks,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          roundDomains: roundDomains,
-          tooltipDisabled: tooltipDisabled,
-          showSeriesOnHover: showSeriesOnHover,
-          gradient: gradient,
-          yAxisMinScale: undefined,
-          labelTrim: true,
-          labelTrimSize: 10,
-          wrapTicks: undefined
-        }"
+        [config]="polarChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -480,38 +320,7 @@
         [results]="bubble"
         [animations]="animations"
         [scheme]="colorScheme"
-        [config]="{
-          showGridLines: showGridLines,
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          roundDomains: roundDomains,
-          maxRadius: maxRadius,
-          minRadius: minRadius,
-          autoScale: autoScale,
-          schemeType: schemeType,
-          tooltipDisabled: tooltipDisabled,
-          xScaleMin: xScaleMin,
-          xScaleMax: xScaleMax,
-          yScaleMin: yScaleMin,
-          yScaleMax: yScaleMax,
-          wrapTicks: wrapTicks
-        }"
+        [config]="bubbleChartConfig"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
         (select)="select($event)"
@@ -524,44 +333,7 @@
         [scheme]="colorScheme"
         [results]="dateData"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          baseValue: 'auto',
-          autoScale: autoScale,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          timeline: timeline,
-          gradient: gradient,
-          showGridLines: showGridLines,
-          curve: curve,
-          activeEntries: [],
-          schemeType: schemeType,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          roundDomains: roundDomains,
-          tooltipDisabled: tooltipDisabled,
-          referenceLines: refLinesArea,
-          showRefLines: showRefLines,
-          showRefLabels: showRefLabels,
-          xScaleMin: xScaleMin,
-          xScaleMax: xScaleMax,
-          yScaleMin: yScaleMin,
-          yScaleMax: yScaleMax,
-          wrapTicks: wrapTicks
-        }"
+        [config]="areaChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -677,34 +449,7 @@
         [scheme]="colorScheme"
         [results]="multi"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          gradient: gradient,
-          innerPadding: innerPadding,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          tooltipDisabled: tooltipDisabled,
-          tooltipText: undefined,
-          min: heatmapMin,
-          max: heatmapMax,
-          activeEntries: [],
-          wrapTicks: wrapTicks
-        }"
+        [config]="heatMapChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -717,34 +462,7 @@
         [scheme]="colorScheme"
         [results]="calendarData"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: false,
-          showYAxisLabel: false,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          gradient: gradient,
-          innerPadding: innerPadding,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: calendarAxisTickFormatting,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          tooltipDisabled: tooltipDisabled,
-          tooltipText: calendarTooltipText,
-          min: undefined,
-          max: undefined,
-          activeEntries: [],
-          wrapTicks: wrapTicks
-        }"
+        [config]="calendarChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -865,26 +583,7 @@
         [scheme]="colorScheme"
         [results]="single"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          min: gaugeMin,
-          max: gaugeMax,
-          textValue: gaugeTextValue,
-          units: gaugeUnits,
-          bigSegments: gaugeLargeSegments,
-          smallSegments: gaugeSmallSegments,
-          showAxis: gaugeShowAxis,
-          startAngle: gaugeStartAngle,
-          angleSpan: gaugeAngleSpan,
-          activeEntries: [],
-          axisTickFormatting: undefined,
-          tooltipDisabled: tooltipDisabled,
-          valueFormatting: undefined,
-          showText: showText,
-          margin: margin ? [marginTop, marginRight, marginBottom, marginLeft] : null
-        }"
+        [config]="gaugeChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -935,44 +634,7 @@
           [scheme]="colorScheme"
           [results]="plotData"
           [animations]="animations"
-          [config]="{
-            legend: false,
-            legendTitle: legendTitle,
-            legendPosition: legendPosition,
-            xAxis: showXAxis,
-            yAxis: showYAxis,
-            showXAxisLabel: false,
-            showYAxisLabel: false,
-            xAxisLabel: 'angle',
-            yAxisLabel: 'radius',
-            autoScale: autoScale,
-            timeline: timeline,
-            gradient: gradient,
-            showGridLines: showGridLines,
-            curve: curves['Cardinal'],
-            activeEntries: [],
-            schemeType: schemeType,
-            rangeFillOpacity: rangeFillOpacity,
-            trimXAxisTicks: trimXAxisTicks,
-            trimYAxisTicks: trimYAxisTicks,
-            rotateXAxisTicks: rotateXAxisTicks,
-            maxXAxisTickLength: maxXAxisTickLength,
-            maxYAxisTickLength: maxYAxisTickLength,
-            xAxisTickFormatting: undefined,
-            yAxisTickFormatting: undefined,
-            xAxisTicks: undefined,
-            yAxisTicks: undefined,
-            roundDomains: roundDomains,
-            tooltipDisabled: tooltipDisabled,
-            showRefLines: undefined,
-            referenceLines: undefined,
-            showRefLabels: undefined,
-            xScaleMin: undefined,
-            xScaleMax: undefined,
-            yScaleMin: undefined,
-            yScaleMax: undefined,
-            wrapTicks: undefined
-          }"
+          [config]="plotLineChartConfig"
           (select)="select($event)"
         >
         </ngx-charts-line-chart>
@@ -984,35 +646,7 @@
           [scheme]="colorScheme"
           [results]="plotData"
           [animations]="animations"
-          [config]="{
-            legend: false,
-            legendTitle: legendTitle,
-            legendPosition: legendPosition,
-            xAxis: false,
-            yAxis: true,
-            showXAxisLabel: false,
-            showYAxisLabel: false,
-            xAxisLabel: 'angle',
-            yAxisLabel: 'radius',
-            autoScale: autoScale,
-            showGridLines: showGridLines,
-            curve: curves['Cardinal Closed'],
-            activeEntries: [],
-            schemeType: schemeType,
-            rangeFillOpacity: rangeFillOpacity,
-            trimYAxisTicks: trimYAxisTicks,
-            maxYAxisTickLength: maxYAxisTickLength,
-            xAxisTickFormatting: undefined,
-            yAxisTickFormatting: undefined,
-            roundDomains: roundDomains,
-            tooltipDisabled: tooltipDisabled,
-            showSeriesOnHover: showSeriesOnHover,
-            gradient: gradient,
-            yAxisMinScale: undefined,
-            labelTrim: true,
-            labelTrimSize: 10,
-            wrapTicks: undefined
-          }"
+          [config]="plotPolarChartConfig"
           (select)="select($event)"
           (activate)="activate($event)"
           (deactivate)="deactivate($event)"
@@ -1094,44 +728,7 @@
         [scheme]="colorScheme"
         [results]="multi"
         [animations]="animations"
-        [config]="{
-          legend: showLegend,
-          legendTitle: legendTitle,
-          legendPosition: legendPosition,
-          xAxis: showXAxis,
-          yAxis: showYAxis,
-          showXAxisLabel: showXAxisLabel,
-          showYAxisLabel: showYAxisLabel,
-          xAxisLabel: xAxisLabel,
-          yAxisLabel: yAxisLabel,
-          autoScale: autoScale,
-          timeline: timeline,
-          gradient: gradient,
-          showGridLines: showGridLines,
-          curve: curve,
-          activeEntries: [],
-          schemeType: schemeType,
-          rangeFillOpacity: rangeFillOpacity,
-          trimXAxisTicks: trimXAxisTicks,
-          trimYAxisTicks: trimYAxisTicks,
-          rotateXAxisTicks: rotateXAxisTicks,
-          maxXAxisTickLength: maxXAxisTickLength,
-          maxYAxisTickLength: maxYAxisTickLength,
-          xAxisTickFormatting: undefined,
-          yAxisTickFormatting: undefined,
-          xAxisTicks: undefined,
-          yAxisTicks: undefined,
-          roundDomains: roundDomains,
-          tooltipDisabled: tooltipDisabled,
-          showRefLines: showRefLines,
-          referenceLines: refLines,
-          showRefLabels: showRefLabels,
-          xScaleMin: undefined,
-          xScaleMax: undefined,
-          yScaleMin: undefined,
-          yScaleMax: undefined,
-          wrapTicks: wrapTicks
-        }"
+        [config]="lineChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
@@ -1146,24 +743,7 @@
         [customColors]="customColors"
         [results]="single"
         [animations]="animations"
-        [gradient]="gradient"
-        [xAxis]="showXAxis"
-        [yAxis]="showYAxis"
-        [legend]="showLegend"
-        [legendTitle]="legendTitle"
-        [legendPosition]="legendPosition"
-        [showXAxisLabel]="showXAxisLabel"
-        [showYAxisLabel]="showYAxisLabel"
-        [tooltipDisabled]="tooltipDisabled"
-        [xAxisLabel]="xAxisLabel"
-        [yAxisLabel]="yAxisLabel"
-        [showGridLines]="showGridLines"
-        [barPadding]="barPadding"
-        [roundDomains]="roundDomains"
-        [trimXAxisTicks]="trimXAxisTicks"
-        [trimYAxisTicks]="trimYAxisTicks"
-        [maxXAxisTickLength]="maxXAxisTickLength"
-        [maxYAxisTickLength]="maxYAxisTickLength"
+        [config]="barChartConfig"
         (select)="select($event)"
         (activate)="activate($event)"
         (deactivate)="deactivate($event)"
