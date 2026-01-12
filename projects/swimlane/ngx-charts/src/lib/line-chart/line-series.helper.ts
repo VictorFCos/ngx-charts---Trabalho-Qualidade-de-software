@@ -47,7 +47,16 @@ export function sortLineData(data: any[], scaleType: ScaleType, xScale: any) {
   }
 }
 
-export function getLineSeriesGradients(colors: any, series: any[]): { hasGradient: boolean, gradientId: string, gradientUrl: string, gradientStops: Gradient[], areaGradientStops: Gradient[] } {
+export function getLineSeriesGradients(
+  colors: any,
+  series: any[]
+): {
+  hasGradient: boolean;
+  gradientId: string;
+  gradientUrl: string;
+  gradientStops: Gradient[];
+  areaGradientStops: Gradient[];
+} {
   if (colors.scaleType === ScaleType.Linear) {
     const gradientId = 'grad' + id().toString();
     const values = series.map(d => d.value);
@@ -61,11 +70,20 @@ export function getLineSeriesGradients(colors: any, series: any[]): { hasGradien
       areaGradientStops: colors.getLinearGradientStops(max)
     };
   }
-  return { hasGradient: false, gradientId: undefined, gradientUrl: undefined, gradientStops: undefined, areaGradientStops: undefined };
+  return {
+    hasGradient: false,
+    gradientId: undefined,
+    gradientUrl: undefined,
+    gradientStops: undefined,
+    areaGradientStops: undefined
+  };
 }
 
 export function updateLineSeries(component: any): void {
-  const { hasGradient, gradientId, gradientUrl, gradientStops, areaGradientStops } = getLineSeriesGradients(component.colors, component.data.series);
+  const { hasGradient, gradientId, gradientUrl, gradientStops, areaGradientStops } = getLineSeriesGradients(
+    component.colors,
+    component.data.series
+  );
   component.hasGradient = hasGradient;
   component.gradientId = gradientId;
   component.gradientUrl = gradientUrl;
@@ -74,11 +92,13 @@ export function updateLineSeries(component: any): void {
 
   const data = sortLineData(component.data.series, component.scaleType, component.xScale);
 
-  component.path = getLineGenerator(component.xScale, component.yScale, component.scaleType, component.curve)(data) || '';
+  component.path =
+    getLineGenerator(component.xScale, component.yScale, component.scaleType, component.curve)(data) || '';
   component.areaPath = getAreaGenerator(component.xScale, component.yScale, component.curve)(data) || '';
 
   if (component.hasRange) {
-    component.outerPath = getRangeGenerator(component.xScale, component.yScale, component.scaleType, component.curve)(data) || '';
+    component.outerPath =
+      getRangeGenerator(component.xScale, component.yScale, component.scaleType, component.curve)(data) || '';
   }
 
   if (component.hasGradient) {
@@ -91,5 +111,3 @@ export function updateLineSeries(component: any): void {
     component.stroke = component.colors.getColor(component.data.name);
   }
 }
-
-

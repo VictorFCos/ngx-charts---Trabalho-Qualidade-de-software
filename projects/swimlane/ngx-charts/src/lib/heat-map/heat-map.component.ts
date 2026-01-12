@@ -152,33 +152,87 @@ export class HeatMapComponent extends BaseChartComponent {
   legendOptions: LegendOptions;
   scaleType: ScaleType = ScaleType.Linear;
 
-  get legend() { return this.config?.legend; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get xAxis() { return this.config?.xAxis; }
-  get yAxis() { return this.config?.yAxis; }
-  get showXAxisLabel() { return this.config?.showXAxisLabel; }
-  get showYAxisLabel() { return this.config?.showYAxisLabel; }
-  get xAxisLabel() { return this.config?.xAxisLabel; }
-  get yAxisLabel() { return this.config?.yAxisLabel; }
-  get gradient() { return this.config?.gradient; }
-  get innerPadding() { return this.config?.innerPadding ?? 8; }
-  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
-  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
-  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
-  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
-  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
-  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
-  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
-  get xAxisTicks() { return this.config?.xAxisTicks; }
-  get yAxisTicks() { return this.config?.yAxisTicks; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get tooltipText() { return this.config?.tooltipText; }
-  get min() { return this.config?.min; }
-  get max() { return this.config?.max; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
-  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+  get legend() {
+    return this.config?.legend;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get innerPadding() {
+    return this.config?.innerPadding ?? 8;
+  }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get tooltipText() {
+    return this.config?.tooltipText;
+  }
+  get min() {
+    return this.config?.min;
+  }
+  get max() {
+    return this.config?.max;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
 
   ngOnChanges(): void {
     this.update();

@@ -20,14 +20,24 @@ export function getYAxisTicks(scale: any, tickValues: any[], height: number): an
   return ticks;
 }
 
-export function getYAxisApproximateWidth(ticks: any[], tickTrim: (label: string) => string, tickFormat: (o: any) => string): number {
+export function getYAxisApproximateWidth(
+  ticks: any[],
+  tickTrim: (label: string) => string,
+  tickFormat: (o: any) => string
+): number {
   if (ticks.length === 0) return 0;
   const maxChars = Math.max(...ticks.map(t => tickTrim(tickFormat(t)).length));
   const charWidth = 7;
   return maxChars * charWidth;
 }
 
-export function getYAxisTickChunks(label: string, maxTickLength: number, bandwidth: number, tickTrim: (label: string) => string, tickFormat: (o: any) => string): string[] {
+export function getYAxisTickChunks(
+  label: string,
+  maxTickLength: number,
+  bandwidth: number,
+  tickTrim: (label: string) => string,
+  tickFormat: (o: any) => string
+): string[] {
   if (label.toString().length > maxTickLength && bandwidth) {
     const preferredWidth = maxTickLength;
     const maxLines = Math.floor(bandwidth / 15);
@@ -47,24 +57,47 @@ export function updateYAxisTicks(component: any): void {
   const sign = component.orient === Orientation.Top || component.orient === Orientation.Right ? -1 : 1;
   component.tickSpacing = Math.max(component.innerTickSize, 0) + component.tickPadding;
   component.ticks = getYAxisTicks(scale, component.tickValues, component.height);
-  component.tickFormat = component.tickFormatting || (scale.tickFormat ? scale.tickFormat.apply(scale, component.tickArguments) : (d) => d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString());
-  component.adjustedScale = scale.bandwidth ? d => {
-    const positionMiddle = scale(d) + scale.bandwidth() * 0.5;
-    if (component.wrapTicks && d.toString().length > component.maxTickLength) {
-      const chunksLength = component.tickChunks(d).length;
-      if (chunksLength === 1) return positionMiddle;
-      const bandWidth = scale.bandwidth();
-      const heightOfLines = chunksLength * 8;
-      const availableFreeSpace = bandWidth * 0.5 - heightOfLines * 0.5;
-      return scale(d) + availableFreeSpace;
-    }
-    return positionMiddle;
-  } : scale;
+  component.tickFormat =
+    component.tickFormatting ||
+    (scale.tickFormat
+      ? scale.tickFormat(...(component.tickArguments || []))
+      : d => (d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString()));
+  component.adjustedScale = scale.bandwidth
+    ? d => {
+        const positionMiddle = scale(d) + scale.bandwidth() * 0.5;
+        if (component.wrapTicks && d.toString().length > component.maxTickLength) {
+          const chunksLength = component.tickChunks(d).length;
+          if (chunksLength === 1) return positionMiddle;
+          const bandWidth = scale.bandwidth();
+          const heightOfLines = chunksLength * 8;
+          const availableFreeSpace = bandWidth * 0.5 - heightOfLines * 0.5;
+          return scale(d) + availableFreeSpace;
+        }
+        return positionMiddle;
+      }
+    : scale;
   if (component.showRefLines && component.referenceLines) {
-    component.refMin = component.adjustedScale(Math.min.apply(null, component.referenceLines.map(item => item.value)));
-    component.refMax = component.adjustedScale(Math.max.apply(null, component.referenceLines.map(item => item.value)));
+    component.refMin = component.adjustedScale(
+      Math.min.apply(
+        null,
+        component.referenceLines.map(item => item.value)
+      )
+    );
+    component.refMax = component.adjustedScale(
+      Math.max.apply(
+        null,
+        component.referenceLines.map(item => item.value)
+      )
+    );
     component.referenceLineLength = component.referenceLines.length;
-    component.referenceAreaPath = roundedRect(0, component.refMax, component.gridLineWidth, component.refMin - component.refMax, 0, [false, false, false, false]);
+    component.referenceAreaPath = roundedRect(
+      0,
+      component.refMax,
+      component.gridLineWidth,
+      component.refMin - component.refMax,
+      0,
+      [false, false, false, false]
+    );
   }
   switch (component.orient) {
     case Orientation.Top:
@@ -91,4 +124,3 @@ export function updateYAxisTicks(component: any): void {
       break;
   }
 }
-

@@ -90,7 +90,15 @@ export function getCircleTooltipText(circle: any): string {
   `;
 }
 
-export function getActiveCircle(data: any, visibleValue: any, xScale: any, yScale: any, scaleType: ScaleType, type: SeriesType, colors: any): Circle {
+export function getActiveCircle(
+  data: any,
+  visibleValue: any,
+  xScale: any,
+  yScale: any,
+  scaleType: ScaleType,
+  type: SeriesType,
+  colors: any
+): Circle {
   const indexActiveDataPoint = data.series.findIndex(d => {
     const label = d.name;
     return label && visibleValue && label.toString() === visibleValue.toString() && d.value !== undefined;
@@ -98,7 +106,16 @@ export function getActiveCircle(data: any, visibleValue: any, xScale: any, yScal
 
   if (indexActiveDataPoint === -1) return undefined;
 
-  return mapDataPointToCircle(data.series[indexActiveDataPoint], indexActiveDataPoint, data, xScale, yScale, scaleType, type, colors);
+  return mapDataPointToCircle(
+    data.series[indexActiveDataPoint],
+    indexActiveDataPoint,
+    data,
+    xScale,
+    yScale,
+    scaleType,
+    type,
+    colors
+  );
 }
 
 export function getCircleGradientStops(color: string): Gradient[] {
@@ -107,4 +124,3 @@ export function getCircleGradientStops(color: string): Gradient[] {
     { offset: 100, color, opacity: 1 }
   ];
 }
-

@@ -1,4 +1,17 @@
-import { Component, Input, Output, OnChanges, ElementRef, ViewChild, EventEmitter, AfterViewInit, ChangeDetectionStrategy, SimpleChanges, PLATFORM_ID, Inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  OnChanges,
+  ElementRef,
+  ViewChild,
+  EventEmitter,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  SimpleChanges,
+  PLATFORM_ID,
+  Inject
+} from '@angular/core';
 import { trimLabel } from '../trim-label.helper';
 import { isPlatformBrowser } from '@angular/common';
 import { Orientation } from '../types/orientation.enum';
@@ -12,13 +25,22 @@ import { getYAxisTicks, getYAxisApproximateWidth, getYAxisTickChunks, updateYAxi
       <svg:g *ngFor="let tick of ticks" class="tick" [attr.transform]="transform(tick)">
         <ng-container *ngIf="tickFormat(tick) as tickFormatted">
           <title>{{ tickFormatted }}</title>
-          <svg:text stroke-width="0.01" [attr.dy]="dy" [attr.x]="x1" [attr.y]="y1" [attr.text-anchor]="textAnchor" [style.font-size]="'12px'">
+          <svg:text
+            stroke-width="0.01"
+            [attr.dy]="dy"
+            [attr.x]="x1"
+            [attr.y]="y1"
+            [attr.text-anchor]="textAnchor"
+            [style.font-size]="'12px'"
+          >
             <ng-container *ngIf="wrapTicks; then tmplMultilineTick; else tmplSinglelineTick"></ng-container>
           </svg:text>
           <ng-template #tmplMultilineTick>
             <ng-container *ngIf="tickChunks(tick) as tickLines">
               <ng-container *ngIf="tickLines.length > 1; else tmplSinglelineTick">
-                <svg:tspan *ngFor="let tickLine of tickLines; let i = index" x="0" [attr.y]="i * (8 + tickSpacing)">{{ tickLine }}</svg:tspan>
+                <svg:tspan *ngFor="let tickLine of tickLines; let i = index" x="0" [attr.y]="i * (8 + tickSpacing)">
+                  {{ tickLine }}
+                </svg:tspan>
               </ng-container>
             </ng-container>
           </ng-template>
@@ -26,11 +48,26 @@ import { getYAxisTicks, getYAxisApproximateWidth, getYAxisTickChunks, updateYAxi
         </ng-container>
       </svg:g>
     </svg:g>
-    <svg:path *ngIf="referenceLineLength > 1 && refMax && refMin && showRefLines" class="reference-area" [attr.d]="referenceAreaPath" [attr.transform]="gridLineTransform()" />
+    <svg:path
+      *ngIf="referenceLineLength > 1 && refMax && refMin && showRefLines"
+      class="reference-area"
+      [attr.d]="referenceAreaPath"
+      [attr.transform]="gridLineTransform()"
+    />
     <svg:g *ngFor="let tick of ticks" [attr.transform]="transform(tick)">
       <svg:g *ngIf="showGridLines" [attr.transform]="gridLineTransform()">
-        <svg:line *ngIf="orient === Orientation.Left" class="gridline-path gridline-path-horizontal" x1="0" [attr.x2]="gridLineWidth" />
-        <svg:line *ngIf="orient === Orientation.Right" class="gridline-path gridline-path-horizontal" x1="0" [attr.x2]="-gridLineWidth" />
+        <svg:line
+          *ngIf="orient === Orientation.Left"
+          class="gridline-path gridline-path-horizontal"
+          x1="0"
+          [attr.x2]="gridLineWidth"
+        />
+        <svg:line
+          *ngIf="orient === Orientation.Right"
+          class="gridline-path gridline-path-horizontal"
+          x1="0"
+          [attr.x2]="-gridLineWidth"
+        />
       </svg:g>
     </svg:g>
     <svg:g *ngFor="let refLine of referenceLines" class="ref-line">
@@ -38,7 +75,15 @@ import { getYAxisTicks, getYAxisApproximateWidth, getYAxisTickChunks, updateYAxi
         <svg:line class="refline-path gridline-path-horizontal" x1="0" [attr.x2]="gridLineWidth" />
         <svg:g *ngIf="showRefLabels">
           <title>{{ tickTrim(tickFormat(refLine.value)) }}</title>
-          <svg:text class="refline-label" [attr.dy]="dy" [attr.y]="-6" [attr.x]="gridLineWidth" [attr.text-anchor]="textAnchor">{{ refLine.name }}</svg:text>
+          <svg:text
+            class="refline-label"
+            [attr.dy]="dy"
+            [attr.y]="-6"
+            [attr.x]="gridLineWidth"
+            [attr.text-anchor]="textAnchor"
+          >
+            {{ refLine.name }}
+          </svg:text>
         </svg:g>
       </svg:g>
     </svg:g>
@@ -51,6 +96,7 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
   @Input() orient: Orientation;
   @Input() tickArguments: number[] = [5];
   @Input() tickValues: any[];
+  @Input() tickStroke: string = '#ccc';
   @Input() trimTicks: boolean = true;
   @Input() maxTickLength: number = 16;
   @Input() tickFormatting;
@@ -83,8 +129,12 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
   @ViewChild('ticksel') ticksElement: ElementRef;
 
   constructor(@Inject(PLATFORM_ID) private platformId: any) {}
-  ngOnChanges(changes: SimpleChanges): void { this.update(); }
-  ngAfterViewInit(): void { setTimeout(() => this.updateDims()); }
+  ngOnChanges(changes: SimpleChanges): void {
+    this.update();
+  }
+  ngAfterViewInit(): void {
+    setTimeout(() => this.updateDims());
+  }
 
   updateDims(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -105,7 +155,19 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
     setTimeout(() => this.updateDims());
   }
 
-  tickTrim(label: string): string { return this.trimTicks ? trimLabel(label, this.maxTickLength) : label; }
-  tickChunks(label: string): string[] { return getYAxisTickChunks(label, this.maxTickLength, this.scale.bandwidth, this.tickTrim.bind(this), this.tickFormat.bind(this)); }
-  gridLineTransform(): string { return `translate(5,0)`; }
+  tickTrim(label: string): string {
+    return this.trimTicks ? trimLabel(label, this.maxTickLength) : label;
+  }
+  tickChunks(label: string): string[] {
+    return getYAxisTickChunks(
+      label,
+      this.maxTickLength,
+      this.scale.bandwidth ? this.scale.bandwidth() : 0,
+      this.tickTrim.bind(this),
+      this.tickFormat.bind(this)
+    );
+  }
+  gridLineTransform(): string {
+    return `translate(5,0)`;
+  }
 }

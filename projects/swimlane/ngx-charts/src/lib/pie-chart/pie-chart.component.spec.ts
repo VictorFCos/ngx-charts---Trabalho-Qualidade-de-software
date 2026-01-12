@@ -21,6 +21,7 @@ class TestComponent {
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
+  config: any = {};
 }
 
 describe('<ngx-charts-pie>', () => {
@@ -54,7 +55,7 @@ describe('<ngx-charts-pie>', () => {
               [results]="single"
               [view]="[400,800]"
               [scheme]="colorScheme"
-              [doughnut]="false">
+              [config]="{ doughnut: false }">
             </ngx-charts-pie-chart>`
         }
       }).compileComponents();
@@ -96,7 +97,7 @@ describe('<ngx-charts-pie>', () => {
               [results]="single"
               [view]="[400,800]"
               [scheme]="colorScheme"
-              [doughnut]="true">
+              [config]="{ doughnut: true }">
             </ngx-charts-pie-chart>`
         }
       }).compileComponents();
@@ -130,8 +131,7 @@ describe('<ngx-charts-pie>', () => {
             [results]="single"
             [view]="[400,800]"
             [scheme]="colorScheme"
-            [doughnut]="true"
-            [arcWidth]="0.1">
+            [config]="{ doughnut: true, arcWidth: 0.1 }">
           </ngx-charts-pie-chart>`
         }
       }).compileComponents();

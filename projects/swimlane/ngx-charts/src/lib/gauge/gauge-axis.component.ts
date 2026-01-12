@@ -81,7 +81,8 @@ export class GaugeAxisComponent implements OnChanges {
           line: getGaugeTickPath(startDistance, tickLength, angle),
           textAnchor: getGaugeTickAnchor(angleDeg, this.startAngle),
           text,
-          textTransform: `translate(${textDist * Math.cos(angle)}, ${textDist * Math.sin(angle)}) rotate(${-this.rotationAngle})`
+          textTransform: `translate(${textDist * Math.cos(angle)}, ${textDist * Math.sin(angle)}) rotate(${-this
+            .rotationAngle})`
         });
       }
 
@@ -95,4 +96,3 @@ export class GaugeAxisComponent implements OnChanges {
     return ticks;
   }
 }
-

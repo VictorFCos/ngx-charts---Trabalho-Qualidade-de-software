@@ -134,5 +134,3 @@ export class BarComponent implements OnChanges {
     this.deactivate.emit(this.data);
   }
 }
-
-

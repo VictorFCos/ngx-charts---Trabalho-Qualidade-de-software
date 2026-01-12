@@ -1,6 +1,7 @@
 import { Gradient } from '../common/types/gradient.interface';
 import { trimLabel } from '../common/trim-label.helper';
 import { escapeLabel } from '../common/label.helper';
+import { select } from 'd3-selection';
 
 export function getTreeMapCellGradientStops(fill: string): Gradient[] {
   return [
@@ -27,7 +28,14 @@ export function getTreeMapCellFormattedLabel(label: string, labelFormatting: any
   return formatting({ label, data, value });
 }
 
-export function animateTreeMapCellToCurrentForm(node: any, animations: boolean, x: number, y: number, width: number, height: number): void {
+export function animateTreeMapCellToCurrentForm(
+  node: any,
+  animations: boolean,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): void {
   if (animations) {
     node
       .transition()
@@ -42,7 +50,14 @@ export function animateTreeMapCellToCurrentForm(node: any, animations: boolean, 
   }
 }
 
-export function loadTreeMapCellAnimation(element: HTMLElement, x: number, y: number, animations: boolean, width: number, height: number): void {
+export function loadTreeMapCellAnimation(
+  element: HTMLElement,
+  x: number,
+  y: number,
+  animations: boolean,
+  width: number,
+  height: number
+): void {
   const node = select(element).select('.cell');
   node.attr('opacity', 0).attr('x', x).attr('y', y);
   animateTreeMapCellToCurrentForm(node, animations, x, y, width, height);
@@ -50,14 +65,25 @@ export function loadTreeMapCellAnimation(element: HTMLElement, x: number, y: num
 
 export function updateTreeMapCell(component: any): void {
   if (component.initialized) {
-    animateTreeMapCellToCurrentForm(select(component.element).select('.cell'), component.animations, component.x, component.y, component.width, component.height);
+    animateTreeMapCellToCurrentForm(
+      select(component.element).select('.cell'),
+      component.animations,
+      component.x,
+      component.y,
+      component.width,
+      component.height
+    );
   } else {
     if (component.animations) {
-      loadTreeMapCellAnimation(component.element, component.x, component.y, component.animations, component.width, component.height);
+      loadTreeMapCellAnimation(
+        component.element,
+        component.x,
+        component.y,
+        component.animations,
+        component.width,
+        component.height
+      );
     }
     component.initialized = true;
   }
 }
-
-
-

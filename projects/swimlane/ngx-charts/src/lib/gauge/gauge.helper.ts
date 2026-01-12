@@ -16,7 +16,13 @@ export function getGaugeDisplayValue(results: any[], textValue: string, valueFor
   return value.toLocaleString();
 }
 
-export function getGaugeArcs(results: any[], outerRadius: number, angleSpan: number, valueScale: any, max: number): any[] {
+export function getGaugeArcs(
+  results: any[],
+  outerRadius: number,
+  angleSpan: number,
+  valueScale: any,
+  max: number
+): any[] {
   const arcs = [];
   const availableRadius = outerRadius * 0.7;
   const radiusPerArc = Math.min(availableRadius / results.length, 10);

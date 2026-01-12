@@ -62,11 +62,23 @@ export class AreaSeriesComponent implements OnChanges {
   }
 
   update(): void {
-    const { hasGradient, gradientStops } = getAreaSeriesGradient(this.colors, this.stacked, this.normalized, this.data.series);
+    const { hasGradient, gradientStops } = getAreaSeriesGradient(
+      this.colors,
+      this.stacked,
+      this.normalized,
+      this.data.series
+    );
     this.hasGradient = hasGradient;
     this.gradientStops = gradientStops;
 
-    const { currentArea, startingArea } = getAreaGenerators(this.xScale, this.yScale, this.curve, this.stacked, this.normalized, this.baseValue);
+    const { currentArea, startingArea } = getAreaGenerators(
+      this.xScale,
+      this.yScale,
+      this.curve,
+      this.stacked,
+      this.normalized,
+      this.baseValue
+    );
 
     this.opacity = 0.8;
     const data = sortAreaSeriesData(this.data.series, this.scaleType, this.xScale);
@@ -91,4 +103,3 @@ export class AreaSeriesComponent implements OnChanges {
     return item === undefined;
   }
 }
-

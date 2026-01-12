@@ -122,14 +122,30 @@ export class PieGridComponent extends BaseChartComponent {
 
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
-  get designatedTotal() { return this.config?.designatedTotal; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get tooltipText() { return this.config?.tooltipText; }
-  set tooltipText(value: (o: any) => any) { if (this.config) this.config.tooltipText = value; }
-  get label() { return this.config?.label ?? 'Total'; }
-  get minWidth() { return this.config?.minWidth ?? 150; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get designatedTotal() {
+    return this.config?.designatedTotal;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get tooltipText() {
+    return this.config?.tooltipText;
+  }
+  set tooltipText(value: (o: any) => any) {
+    if (this.config) this.config.tooltipText = value;
+  }
+  get label() {
+    return this.config?.label ?? 'Total';
+  }
+  get minWidth() {
+    return this.config?.minWidth ?? 150;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
 
   ngOnChanges(): void {
     this.update();

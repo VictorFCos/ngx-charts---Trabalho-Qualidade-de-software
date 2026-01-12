@@ -102,11 +102,22 @@ export class PieArcComponent implements OnChanges {
         this.cornerRadius,
         this.explodeSlices,
         this.initialized,
-        select(this.element).selectAll('.arc').data([{ startAngle: this.startAngle, endAngle: this.endAngle }])
+        select(this.element)
+          .selectAll('.arc')
+          .data([{ startAngle: this.startAngle, endAngle: this.endAngle }])
       );
       this.initialized = true;
     } else {
-      this.path = calculatePieArcPath(this.innerRadius, this.outerRadius, this.max, this.value, this.cornerRadius, this.explodeSlices).startAngle(this.startAngle).endAngle(this.endAngle)();
+      this.path = calculatePieArcPath(
+        this.innerRadius,
+        this.outerRadius,
+        this.max,
+        this.value,
+        this.cornerRadius,
+        this.explodeSlices
+      )
+        .startAngle(this.startAngle)
+        .endAngle(this.endAngle)();
     }
   }
 
@@ -126,5 +137,3 @@ export class PieArcComponent implements OnChanges {
     });
   }
 }
-
-

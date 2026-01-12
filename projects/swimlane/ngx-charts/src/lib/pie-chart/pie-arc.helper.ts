@@ -31,8 +31,7 @@ export function animatePieArc(
   nodeSelection: any
 ): void {
   const calc = calculatePieArcPath(innerRadius, outerRadius, max, value, cornerRadius, explodeSlices);
-  const node = nodeSelection || nodeSelection.selectAll('.arc')
-    .data([{ startAngle, endAngle }]);
+  const node = nodeSelection || nodeSelection.selectAll('.arc').data([{ startAngle, endAngle }]);
 
   if (isUpdate) {
     node
@@ -71,4 +70,3 @@ export function animatePieArc(
       });
   }
 }
-

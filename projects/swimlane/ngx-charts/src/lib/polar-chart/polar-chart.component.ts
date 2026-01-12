@@ -229,33 +229,87 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   isSSR = false;
 
-  get legend() { return this.config?.legend; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get xAxis() { return this.config?.xAxis; }
-  get yAxis() { return this.config?.yAxis; }
-  get showXAxisLabel() { return this.config?.showXAxisLabel; }
-  get showYAxisLabel() { return this.config?.showYAxisLabel; }
-  get xAxisLabel() { return this.config?.xAxisLabel; }
-  get yAxisLabel() { return this.config?.yAxisLabel; }
-  get autoScale() { return this.config?.autoScale; }
-  get showGridLines() { return this.config?.showGridLines ?? true; }
-  get curve() { return this.config?.curve ?? curveCardinalClosed; }
-  get activeEntries() { return this.config?.activeEntries ?? []; }
-  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
-  get rangeFillOpacity() { return this.config?.rangeFillOpacity ?? 0.15; }
-  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
-  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
-  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
-  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
-  get roundDomains() { return this.config?.roundDomains ?? false; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get showSeriesOnHover() { return this.config?.showSeriesOnHover ?? true; }
-  get gradient() { return this.config?.gradient ?? false; }
-  get yAxisMinScale() { return this.config?.yAxisMinScale ?? 0; }
-  get labelTrim() { return this.config?.labelTrim ?? true; }
-  get labelTrimSize() { return this.config?.labelTrimSize ?? 10; }
-  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+  get legend() {
+    return this.config?.legend;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get autoScale() {
+    return this.config?.autoScale;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get curve() {
+    return this.config?.curve ?? curveCardinalClosed;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get rangeFillOpacity() {
+    return this.config?.rangeFillOpacity ?? 0.15;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get showSeriesOnHover() {
+    return this.config?.showSeriesOnHover ?? true;
+  }
+  get gradient() {
+    return this.config?.gradient ?? false;
+  }
+  get yAxisMinScale() {
+    return this.config?.yAxisMinScale ?? 0;
+  }
+  get labelTrim() {
+    return this.config?.labelTrim ?? true;
+  }
+  get labelTrimSize() {
+    return this.config?.labelTrimSize ?? 10;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {

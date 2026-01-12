@@ -227,37 +227,99 @@ export class BubbleChartComponent extends BaseChartComponent {
 
   isSSR = false;
 
-  get showGridLines() { return this.config?.showGridLines ?? true; }
-  get legend() { return this.config?.legend ?? false; }
-  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
-  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
-  get xAxis() { return this.config?.xAxis ?? true; }
-  get yAxis() { return this.config?.yAxis ?? true; }
-  get showXAxisLabel() { return this.config?.showXAxisLabel; }
-  get showYAxisLabel() { return this.config?.showYAxisLabel; }
-  get xAxisLabel() { return this.config?.xAxisLabel; }
-  get yAxisLabel() { return this.config?.yAxisLabel; }
-  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
-  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
-  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
-  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
-  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
-  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
-  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
-  get xAxisTicks() { return this.config?.xAxisTicks; }
-  get yAxisTicks() { return this.config?.yAxisTicks; }
-  get roundDomains() { return this.config?.roundDomains ?? false; }
-  get maxRadius() { return this.config?.maxRadius ?? 10; }
-  set maxRadius(value: number) { if (this.config) this.config.maxRadius = value; }
-  get minRadius() { return this.config?.minRadius ?? 3; }
-  set minRadius(value: number) { if (this.config) this.config.minRadius = value; }
-  get autoScale() { return this.config?.autoScale; }
-  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
-  get xScaleMin() { return this.config?.xScaleMin; }
-  get xScaleMax() { return this.config?.xScaleMax; }
-  get yScaleMin() { return this.config?.yScaleMin; }
-  get yScaleMax() { return this.config?.yScaleMax; }
-  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis ?? true;
+  }
+  get yAxis() {
+    return this.config?.yAxis ?? true;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get maxRadius() {
+    return this.config?.maxRadius ?? 10;
+  }
+  set maxRadius(value: number) {
+    if (this.config) this.config.maxRadius = value;
+  }
+  get minRadius() {
+    return this.config?.minRadius ?? 3;
+  }
+  set minRadius(value: number) {
+    if (this.config) this.config.minRadius = value;
+  }
+  get autoScale() {
+    return this.config?.autoScale;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get xScaleMin() {
+    return this.config?.xScaleMin;
+  }
+  get xScaleMax() {
+    return this.config?.xScaleMax;
+  }
+  get yScaleMin() {
+    return this.config?.yScaleMin;
+  }
+  get yScaleMax() {
+    return this.config?.yScaleMax;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
