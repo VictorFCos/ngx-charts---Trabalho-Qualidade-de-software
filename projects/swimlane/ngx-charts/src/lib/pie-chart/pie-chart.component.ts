@@ -16,6 +16,24 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
+export interface PieChartConfig {
+  labels: boolean;
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  explodeSlices: boolean;
+  doughnut: boolean;
+  arcWidth: number;
+  gradient: boolean;
+  activeEntries: any[];
+  tooltipDisabled: boolean;
+  labelFormatting: any;
+  trimLabels: boolean;
+  maxLabelLength: number;
+  tooltipText: any;
+  margins: number[];
+}
+
 @Component({
   selector: 'ngx-charts-pie-chart',
   template: `
@@ -61,23 +79,9 @@ import { ScaleType } from '../common/types/scale-type.enum';
   standalone: false
 })
 export class PieChartComponent extends BaseChartComponent {
-  @Input() labels: boolean = false;
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() explodeSlices: boolean = false;
-  @Input() doughnut: boolean = false;
-  @Input() arcWidth: number = 0.25;
-  @Input() gradient: boolean;
-  @Input() activeEntries: any[] = [];
-  @Input() tooltipDisabled: boolean = false;
-  @Input() labelFormatting: any;
-  @Input() trimLabels: boolean = true;
-  @Input() maxLabelLength: number = 10;
-  @Input() tooltipText: any;
+  @Input() config: PieChartConfig;
+
   @Output() dblclick = new EventEmitter();
-  // optional margins
-  @Input() margins: number[];
   @Output() select = new EventEmitter();
   @Output() activate = new EventEmitter();
   @Output() deactivate = new EventEmitter();
@@ -92,6 +96,24 @@ export class PieChartComponent extends BaseChartComponent {
   domain: string[];
   dims: ViewDimensions;
   legendOptions: LegendOptions;
+
+  get labels() { return this.config?.labels ?? false; }
+  get legend() { return this.config?.legend ?? false; }
+  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
+  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
+  get explodeSlices() { return this.config?.explodeSlices ?? false; }
+  get doughnut() { return this.config?.doughnut ?? false; }
+  get arcWidth() { return this.config?.arcWidth ?? 0.25; }
+  get gradient() { return this.config?.gradient; }
+  get activeEntries() { return this.config?.activeEntries ?? []; }
+  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get labelFormatting() { return this.config?.labelFormatting; }
+  get trimLabels() { return this.config?.trimLabels ?? true; }
+  get maxLabelLength() { return this.config?.maxLabelLength ?? 10; }
+  get tooltipText() { return this.config?.tooltipText; }
+  get margins() { return this.config?.margins; }
+  set margins(value: number[]) { if (this.config) this.config.margins = value; }
 
   ngOnChanges(): void {
     this.update();

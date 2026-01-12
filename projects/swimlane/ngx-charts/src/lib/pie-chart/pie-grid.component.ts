@@ -23,6 +23,15 @@ import { StyleTypes } from '../common/tooltip/style.type';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
+export interface PieGridConfig {
+  designatedTotal: number;
+  tooltipDisabled: boolean;
+  tooltipText: (o: any) => any;
+  label: string;
+  minWidth: number;
+  activeEntries: any[];
+}
+
 @Component({
   selector: 'ngx-charts-pie-grid',
   template: `
@@ -95,12 +104,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
   standalone: false
 })
 export class PieGridComponent extends BaseChartComponent {
-  @Input() designatedTotal: number;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() tooltipText: (o: any) => any;
-  @Input() label: string = 'Total';
-  @Input() minWidth: number = 150;
-  @Input() activeEntries: any[] = [];
+  @Input() config: PieGridConfig;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -117,6 +121,15 @@ export class PieGridComponent extends BaseChartComponent {
   styleTypes = StyleTypes;
 
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+
+  get designatedTotal() { return this.config?.designatedTotal; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get tooltipText() { return this.config?.tooltipText; }
+  set tooltipText(value: (o: any) => any) { if (this.config) this.config.tooltipText = value; }
+  get label() { return this.config?.label ?? 'Total'; }
+  get minWidth() { return this.config?.minWidth ?? 150; }
+  get activeEntries() { return this.config?.activeEntries ?? []; }
+  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
 
   ngOnChanges(): void {
     this.update();

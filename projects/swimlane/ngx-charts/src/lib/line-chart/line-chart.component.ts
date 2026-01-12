@@ -24,6 +24,45 @@ import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { isPlatformServer } from '@angular/common';
 
+export interface LineChartOptions {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  autoScale: boolean;
+  timeline: boolean;
+  gradient: boolean;
+  showGridLines: boolean;
+  curve: any;
+  activeEntries: any[];
+  schemeType: ScaleType;
+  rangeFillOpacity: number;
+  trimXAxisTicks: boolean;
+  trimYAxisTicks: boolean;
+  rotateXAxisTicks: boolean;
+  maxXAxisTickLength: number;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: any;
+  yAxisTickFormatting: any;
+  xAxisTicks: any[];
+  yAxisTicks: any[];
+  roundDomains: boolean;
+  tooltipDisabled: boolean;
+  showRefLines: boolean;
+  referenceLines: any;
+  showRefLabels: boolean;
+  xScaleMin: number;
+  xScaleMax: number;
+  yScaleMin: number;
+  yScaleMax: number;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-line-chart',
   template: `
@@ -201,42 +240,7 @@ import { isPlatformServer } from '@angular/common';
   standalone: false
 })
 export class LineChartComponent extends BaseChartComponent implements OnInit {
-  @Input() legend: boolean;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean;
-  @Input() yAxis: boolean;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() autoScale: boolean;
-  @Input() timeline: boolean;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() curve: any = curveLinear;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() rangeFillOpacity: number;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() roundDomains: boolean = false;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() showRefLines: boolean = false;
-  @Input() referenceLines: any;
-  @Input() showRefLabels: boolean = true;
-  @Input() xScaleMin: number;
-  @Input() xScaleMax: number;
-  @Input() yScaleMin: number;
-  @Input() yScaleMax: number;
-  @Input() wrapTicks = false;
+  @Input() config: LineChartOptions;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -274,6 +278,43 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
 
   isSSR = false;
 
+  get legend() { return this.config?.legend; }
+  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
+  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
+  get xAxis() { return this.config?.xAxis; }
+  get yAxis() { return this.config?.yAxis; }
+  get showXAxisLabel() { return this.config?.showXAxisLabel; }
+  get showYAxisLabel() { return this.config?.showYAxisLabel; }
+  get xAxisLabel() { return this.config?.xAxisLabel; }
+  get yAxisLabel() { return this.config?.yAxisLabel; }
+  get autoScale() { return this.config?.autoScale; }
+  get timeline() { return this.config?.timeline; }
+  get gradient() { return this.config?.gradient; }
+  get showGridLines() { return this.config?.showGridLines ?? true; }
+  get curve() { return this.config?.curve ?? curveLinear; }
+  get activeEntries() { return this.config?.activeEntries ?? []; }
+  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get rangeFillOpacity() { return this.config?.rangeFillOpacity; }
+  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
+  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
+  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
+  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
+  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
+  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
+  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
+  get xAxisTicks() { return this.config?.xAxisTicks; }
+  get yAxisTicks() { return this.config?.yAxisTicks; }
+  get roundDomains() { return this.config?.roundDomains ?? false; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get showRefLines() { return this.config?.showRefLines ?? false; }
+  get referenceLines() { return this.config?.referenceLines; }
+  get showRefLabels() { return this.config?.showRefLabels ?? true; }
+  get xScaleMin() { return this.config?.xScaleMin; }
+  get xScaleMax() { return this.config?.xScaleMax; }
+  get yScaleMin() { return this.config?.yScaleMin; }
+  get yScaleMax() { return this.config?.yScaleMax; }
+  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
       this.isSSR = true;
@@ -281,6 +322,9 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   }
 
   ngOnChanges(): void {
+    if (this.config && this.config.schemeType) {
+      this.schemeType = this.config.schemeType;
+    }
     this.update();
   }
 
