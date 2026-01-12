@@ -26,6 +26,27 @@ interface Arcs {
   valueArc: ArcItem;
 }
 
+export interface GaugeOptions {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  min: number;
+  max: number;
+  textValue: string;
+  units: string;
+  bigSegments: number;
+  smallSegments: number;
+  showAxis: boolean;
+  startAngle: number;
+  angleSpan: number;
+  activeEntries: any[];
+  axisTickFormatting: any;
+  tooltipDisabled: boolean;
+  valueFormatting: (value: any) => string;
+  showText: boolean;
+  margin: number[];
+}
+
 @Component({
   selector: 'ngx-charts-gauge',
   template: `
@@ -91,27 +112,7 @@ interface Arcs {
   standalone: false
 })
 export class GaugeComponent extends BaseChartComponent implements AfterViewInit {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() min: number = 0;
-  @Input() max: number = 100;
-  @Input() textValue: string;
-  @Input() units: string;
-  @Input() bigSegments: number = 10;
-  @Input() smallSegments: number = 5;
-  @Input() declare results: any[];
-  @Input() showAxis: boolean = true;
-  @Input() startAngle: number = -120;
-  @Input() angleSpan: number = 240;
-  @Input() activeEntries: any[] = [];
-  @Input() axisTickFormatting: any;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() valueFormatting: (value: any) => string;
-  @Input() showText: boolean = true;
-
-  // Specify margins
-  @Input() margin: number[];
+  @Input() config: GaugeOptions;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -137,6 +138,31 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   arcs: Arcs[];
   displayValue: string;
   legendOptions: LegendOptions;
+
+  get legend() { return this.config?.legend ?? false; }
+  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
+  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
+  get min() { return this.config?.min ?? 0; }
+  set min(value: number) { if (this.config) this.config.min = value; }
+  get max() { return this.config?.max ?? 100; }
+  set max(value: number) { if (this.config) this.config.max = value; }
+  get textValue() { return this.config?.textValue; }
+  get units() { return this.config?.units; }
+  get bigSegments() { return this.config?.bigSegments ?? 10; }
+  get smallSegments() { return this.config?.smallSegments ?? 5; }
+  get showAxis() { return this.config?.showAxis ?? true; }
+  get startAngle() { return this.config?.startAngle ?? -120; }
+  set startAngle(value: number) { if (this.config) this.config.startAngle = value; }
+  get angleSpan() { return this.config?.angleSpan ?? 240; }
+  set angleSpan(value: number) { if (this.config) this.config.angleSpan = value; }
+  get activeEntries() { return this.config?.activeEntries ?? []; }
+  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get axisTickFormatting() { return this.config?.axisTickFormatting; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get valueFormatting() { return this.config?.valueFormatting; }
+  get showText() { return this.config?.showText ?? true; }
+  get margin() { return this.config?.margin; }
+  set margin(value: number[]) { if (this.config) this.config.margin = value; }
 
   ngOnChanges(): void {
     this.update();

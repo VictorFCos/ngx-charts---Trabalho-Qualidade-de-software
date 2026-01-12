@@ -24,6 +24,39 @@ import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { isPlatformServer } from '@angular/common';
 
+export interface BubbleChartOptions {
+  showGridLines: boolean;
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  trimXAxisTicks: boolean;
+  trimYAxisTicks: boolean;
+  rotateXAxisTicks: boolean;
+  maxXAxisTickLength: number;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: any;
+  yAxisTickFormatting: any;
+  xAxisTicks: any[];
+  yAxisTicks: any[];
+  roundDomains: boolean;
+  maxRadius: number;
+  minRadius: number;
+  autoScale: boolean;
+  schemeType: ScaleType;
+  tooltipDisabled: boolean;
+  xScaleMin: number;
+  xScaleMax: number;
+  yScaleMin: number;
+  yScaleMax: number;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-bubble-chart',
   template: `
@@ -155,36 +188,7 @@ import { isPlatformServer } from '@angular/common';
   standalone: false
 })
 export class BubbleChartComponent extends BaseChartComponent {
-  @Input() showGridLines: boolean = true;
-  @Input() legend = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean = true;
-  @Input() yAxis: boolean = true;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() roundDomains: boolean = false;
-  @Input() maxRadius: number = 10;
-  @Input() minRadius: number = 3;
-  @Input() autoScale: boolean;
-  @Input() schemeType: ScaleType = ScaleType.Ordinal;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() xScaleMin: number;
-  @Input() xScaleMax: number;
-  @Input() yScaleMin: number;
-  @Input() yScaleMax: number;
-  @Input() wrapTicks = false;
+  @Input() config: BubbleChartOptions;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -223,6 +227,38 @@ export class BubbleChartComponent extends BaseChartComponent {
 
   isSSR = false;
 
+  get showGridLines() { return this.config?.showGridLines ?? true; }
+  get legend() { return this.config?.legend ?? false; }
+  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
+  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
+  get xAxis() { return this.config?.xAxis ?? true; }
+  get yAxis() { return this.config?.yAxis ?? true; }
+  get showXAxisLabel() { return this.config?.showXAxisLabel; }
+  get showYAxisLabel() { return this.config?.showYAxisLabel; }
+  get xAxisLabel() { return this.config?.xAxisLabel; }
+  get yAxisLabel() { return this.config?.yAxisLabel; }
+  get trimXAxisTicks() { return this.config?.trimXAxisTicks ?? true; }
+  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
+  get rotateXAxisTicks() { return this.config?.rotateXAxisTicks ?? true; }
+  get maxXAxisTickLength() { return this.config?.maxXAxisTickLength ?? 16; }
+  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
+  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
+  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
+  get xAxisTicks() { return this.config?.xAxisTicks; }
+  get yAxisTicks() { return this.config?.yAxisTicks; }
+  get roundDomains() { return this.config?.roundDomains ?? false; }
+  get maxRadius() { return this.config?.maxRadius ?? 10; }
+  set maxRadius(value: number) { if (this.config) this.config.maxRadius = value; }
+  get minRadius() { return this.config?.minRadius ?? 3; }
+  set minRadius(value: number) { if (this.config) this.config.minRadius = value; }
+  get autoScale() { return this.config?.autoScale; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get xScaleMin() { return this.config?.xScaleMin; }
+  get xScaleMax() { return this.config?.xScaleMax; }
+  get yScaleMin() { return this.config?.yScaleMin; }
+  get yScaleMax() { return this.config?.yScaleMax; }
+  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
       this.isSSR = true;
@@ -230,6 +266,9 @@ export class BubbleChartComponent extends BaseChartComponent {
   }
 
   ngOnChanges(): void {
+    if (this.config && this.config.schemeType) {
+      this.schemeType = this.config.schemeType;
+    }
     this.update();
   }
 

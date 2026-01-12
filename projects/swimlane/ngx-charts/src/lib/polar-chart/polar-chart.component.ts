@@ -26,6 +26,36 @@ import { isPlatformServer } from '@angular/common';
 
 const twoPI = 2 * Math.PI;
 
+export interface PolarChartConfig {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  autoScale: boolean;
+  showGridLines: boolean;
+  curve: any;
+  activeEntries: any[];
+  schemeType: ScaleType;
+  rangeFillOpacity: number;
+  trimYAxisTicks: boolean;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: (o: any) => any;
+  yAxisTickFormatting: (o: any) => any;
+  roundDomains: boolean;
+  tooltipDisabled: boolean;
+  showSeriesOnHover: boolean;
+  gradient: boolean;
+  yAxisMinScale: number;
+  labelTrim: boolean;
+  labelTrimSize: number;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-polar-chart',
   template: `
@@ -163,33 +193,7 @@ const twoPI = 2 * Math.PI;
   standalone: false
 })
 export class PolarChartComponent extends BaseChartComponent implements OnInit {
-  @Input() legend: boolean;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean;
-  @Input() yAxis: boolean;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() autoScale: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() curve: any = curveCardinalClosed;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() rangeFillOpacity: number = 0.15;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: (o: any) => any;
-  @Input() yAxisTickFormatting: (o: any) => any;
-  @Input() roundDomains: boolean = false;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() showSeriesOnHover: boolean = true;
-  @Input() gradient: boolean = false;
-  @Input() yAxisMinScale: number = 0;
-  @Input() labelTrim: boolean = true;
-  @Input() labelTrimSize: number = 10;
-  @Input() wrapTicks = false;
+  @Input() config: PolarChartConfig;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -225,6 +229,34 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   isSSR = false;
 
+  get legend() { return this.config?.legend; }
+  get legendTitle() { return this.config?.legendTitle ?? 'Legend'; }
+  get legendPosition() { return this.config?.legendPosition ?? LegendPosition.Right; }
+  get xAxis() { return this.config?.xAxis; }
+  get yAxis() { return this.config?.yAxis; }
+  get showXAxisLabel() { return this.config?.showXAxisLabel; }
+  get showYAxisLabel() { return this.config?.showYAxisLabel; }
+  get xAxisLabel() { return this.config?.xAxisLabel; }
+  get yAxisLabel() { return this.config?.yAxisLabel; }
+  get autoScale() { return this.config?.autoScale; }
+  get showGridLines() { return this.config?.showGridLines ?? true; }
+  get curve() { return this.config?.curve ?? curveCardinalClosed; }
+  get activeEntries() { return this.config?.activeEntries ?? []; }
+  set activeEntries(value: any[]) { if (this.config) this.config.activeEntries = value; }
+  get rangeFillOpacity() { return this.config?.rangeFillOpacity ?? 0.15; }
+  get trimYAxisTicks() { return this.config?.trimYAxisTicks ?? true; }
+  get maxYAxisTickLength() { return this.config?.maxYAxisTickLength ?? 16; }
+  get xAxisTickFormatting() { return this.config?.xAxisTickFormatting; }
+  get yAxisTickFormatting() { return this.config?.yAxisTickFormatting; }
+  get roundDomains() { return this.config?.roundDomains ?? false; }
+  get tooltipDisabled() { return this.config?.tooltipDisabled ?? false; }
+  get showSeriesOnHover() { return this.config?.showSeriesOnHover ?? true; }
+  get gradient() { return this.config?.gradient ?? false; }
+  get yAxisMinScale() { return this.config?.yAxisMinScale ?? 0; }
+  get labelTrim() { return this.config?.labelTrim ?? true; }
+  get labelTrimSize() { return this.config?.labelTrimSize ?? 10; }
+  get wrapTicks() { return this.config?.wrapTicks ?? false; }
+
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
       this.isSSR = true;
@@ -232,6 +264,9 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   }
 
   ngOnChanges(): void {
+    if (this.config && this.config.schemeType) {
+      this.schemeType = this.config.schemeType;
+    }
     this.update();
   }
 
