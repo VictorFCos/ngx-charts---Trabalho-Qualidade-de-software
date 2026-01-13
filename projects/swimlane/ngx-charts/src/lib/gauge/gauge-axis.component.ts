@@ -1,6 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
-import { line } from 'd3-shape';
-import { TextAnchor } from '../common/types/text-anchor.enum';
+import { getGaugeTickAnchor, getGaugeTickPath } from './gauge-axis.helper';
 
 interface Big {
   line: string;
@@ -67,11 +66,7 @@ export class GaugeAxisComponent implements OnChanges {
     const bigTickSegment = this.angleSpan / this.bigSegments;
     const smallTickSegment = bigTickSegment / this.smallSegments;
     const tickLength = 20;
-    const ticks = {
-      big: [],
-      small: []
-    };
-
+    const ticks = { big: [], small: [] };
     const startDistance = this.radius + 10;
     const textDist = startDistance + tickLength + 10;
 
@@ -79,74 +74,25 @@ export class GaugeAxisComponent implements OnChanges {
       const angleDeg = i * bigTickSegment;
       const angle = (angleDeg * Math.PI) / 180;
 
-      const textAnchor = this.getTextAnchor(angleDeg);
-
-      let skip = false;
-      if (i === 0 && this.angleSpan === 360) {
-        skip = true;
-      }
-
-      if (!skip) {
+      if (!(i === 0 && this.angleSpan === 360)) {
         let text = Number.parseFloat(this.valueScale.invert(angleDeg).toString()).toLocaleString();
-        if (this.tickFormatting) {
-          text = this.tickFormatting(text);
-        }
+        if (this.tickFormatting) text = this.tickFormatting(text);
         ticks.big.push({
-          line: this.getTickPath(startDistance, tickLength, angle),
-          textAnchor,
+          line: getGaugeTickPath(startDistance, tickLength, angle),
+          textAnchor: getGaugeTickAnchor(angleDeg, this.startAngle),
           text,
-          textTransform: `
-            translate(${textDist * Math.cos(angle)}, ${textDist * Math.sin(angle)}) rotate(${-this.rotationAngle})
-          `
+          textTransform: `translate(${textDist * Math.cos(angle)}, ${textDist * Math.sin(angle)}) rotate(${-this
+            .rotationAngle})`
         });
       }
 
-      if (i === this.bigSegments) {
-        continue;
-      }
+      if (i === this.bigSegments) continue;
 
       for (let j = 1; j <= this.smallSegments; j++) {
-        const smallAngleDeg = angleDeg + j * smallTickSegment;
-        const smallAngle = (smallAngleDeg * Math.PI) / 180;
-
-        ticks.small.push({
-          line: this.getTickPath(startDistance, tickLength / 2, smallAngle)
-        });
+        const smallAngle = ((angleDeg + j * smallTickSegment) * Math.PI) / 180;
+        ticks.small.push({ line: getGaugeTickPath(startDistance, tickLength / 2, smallAngle) });
       }
     }
-
     return ticks;
-  }
-
-  getTextAnchor(angle: number): TextAnchor {
-    // [0, 45] = 'middle';
-    // [46, 135] = 'start';
-    // [136, 225] = 'middle';
-    // [226, 315] = 'end';
-
-    angle = (this.startAngle + angle) % 360;
-    let textAnchor = TextAnchor.Middle;
-    if (angle > 45 && angle <= 135) {
-      textAnchor = TextAnchor.Start;
-    } else if (angle > 225 && angle <= 315) {
-      textAnchor = TextAnchor.End;
-    }
-    return textAnchor;
-  }
-
-  getTickPath(startDistance: number, tickLength: number, angle: number): any {
-    const y1 = startDistance * Math.sin(angle);
-    const y2 = (startDistance + tickLength) * Math.sin(angle);
-    const x1 = startDistance * Math.cos(angle);
-    const x2 = (startDistance + tickLength) * Math.cos(angle);
-
-    const points = [
-      { x: x1, y: y1 },
-      { x: x2, y: y2 }
-    ];
-    const lineGenerator = line<any>()
-      .x(d => d.x)
-      .y(d => d.y);
-    return lineGenerator(points);
   }
 }

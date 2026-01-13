@@ -26,6 +26,18 @@ import pkg from '../../projects/swimlane/ngx-charts/package.json';
 import { InputTypes } from '@swimlane/ngx-ui';
 import { LegendPosition } from '@swimlane/ngx-charts/common/types/legend.model';
 import { ScaleType } from '@swimlane/ngx-charts/common/types/scale-type.enum';
+import {
+  BarChartConfig,
+  BarHorizontalChartOptions,
+  HeatMapOptions,
+  PolarChartConfig,
+  PieChartConfig,
+  PieGridConfig,
+  GaugeOptions,
+  AreaChartOptions,
+  LineChartOptions,
+  BubbleChartOptions
+} from '@swimlane/ngx-charts';
 
 const monthName = new Intl.DateTimeFormat('en-us', { month: 'short' });
 const weekdayName = new Intl.DateTimeFormat('en-us', { weekday: 'short' });
@@ -275,6 +287,365 @@ export class AppComponent implements OnInit {
   dataVisible: boolean = true;
   dimVisible: boolean = true;
   optsVisible: boolean = true;
+
+  get barChartConfig(): BarChartConfig {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      tooltipDisabled: this.tooltipDisabled,
+      gradient: this.gradient,
+      referenceLines: this.refLines,
+      showRefLines: this.showRefLines,
+      showRefLabels: this.showRefLabels,
+      showGridLines: this.showGridLines,
+      activeEntries: [],
+      schemeType: this.schemeType,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      barPadding: this.barPadding,
+      roundDomains: this.roundDomains,
+      roundEdges: this.roundEdges,
+      yScaleMax: this.yScaleMax,
+      yScaleMin: this.yScaleMin,
+      showDataLabel: this.showDataLabel,
+      dataLabelFormatting: undefined,
+      noBarWhenZero: this.noBarWhenZero,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get barHorizontalChartConfig(): BarHorizontalChartOptions {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      tooltipDisabled: this.tooltipDisabled,
+      referenceLines: this.refLines,
+      showRefLines: this.showRefLines,
+      showRefLabels: this.showRefLabels,
+      gradient: this.gradient,
+      showGridLines: this.showGridLines,
+      activeEntries: [],
+      schemeType: this.schemeType,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      barPadding: this.barPadding,
+      roundDomains: this.roundDomains,
+      roundEdges: this.roundEdges,
+      xScaleMax: this.xScaleMax,
+      xScaleMin: this.xScaleMin,
+      showDataLabel: this.showDataLabel,
+      dataLabelFormatting: undefined,
+      noBarWhenZero: this.noBarWhenZero,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get heatMapChartConfig(): HeatMapOptions {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      gradient: this.gradient,
+      innerPadding: this.innerPadding,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      tooltipDisabled: this.tooltipDisabled,
+      tooltipText: undefined,
+      min: this.heatmapMin,
+      max: this.heatmapMax,
+      activeEntries: [],
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get polarChartConfig(): PolarChartConfig {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      autoScale: this.autoScale,
+      showGridLines: this.showGridLines,
+      curve: this.curve,
+      activeEntries: [],
+      schemeType: this.schemeType,
+      rangeFillOpacity: this.rangeFillOpacity,
+      trimYAxisTicks: this.trimYAxisTicks,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      roundDomains: this.roundDomains,
+      tooltipDisabled: this.tooltipDisabled,
+      showSeriesOnHover: this.showSeriesOnHover,
+      gradient: this.gradient,
+      yAxisMinScale: 0,
+      labelTrim: true,
+      labelTrimSize: 10,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get pieChartConfig(): PieChartConfig {
+    return {
+      labels: this.showLabels,
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      explodeSlices: this.explodeSlices,
+      doughnut: this.doughnut,
+      arcWidth: this.arcWidth,
+      gradient: this.gradient,
+      activeEntries: [],
+      tooltipDisabled: this.tooltipDisabled,
+      labelFormatting: undefined,
+      trimLabels: true,
+      maxLabelLength: 20,
+      tooltipText: undefined,
+      margins: undefined
+    };
+  }
+
+  get pieGridChartConfig(): PieGridConfig {
+    return {
+      designatedTotal: undefined,
+      tooltipDisabled: this.tooltipDisabled,
+      tooltipText: undefined,
+      label: 'Total',
+      minWidth: 150,
+      activeEntries: []
+    };
+  }
+
+  get gaugeChartConfig(): GaugeOptions {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      min: this.gaugeMin,
+      max: this.gaugeMax,
+      textValue: this.gaugeTextValue,
+      units: this.gaugeUnits,
+      bigSegments: this.gaugeLargeSegments,
+      smallSegments: this.gaugeSmallSegments,
+      showAxis: this.gaugeShowAxis,
+      startAngle: this.gaugeStartAngle,
+      angleSpan: this.gaugeAngleSpan,
+      activeEntries: [],
+      axisTickFormatting: undefined,
+      tooltipDisabled: this.tooltipDisabled,
+      valueFormatting: undefined,
+      showText: this.showText,
+      margin: undefined
+    };
+  }
+
+  get areaChartConfig(): AreaChartOptions {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      baseValue: undefined,
+      autoScale: this.autoScale,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      timeline: this.timeline,
+      gradient: this.gradient,
+      showGridLines: this.showGridLines,
+      curve: this.curve,
+      activeEntries: [],
+      schemeType: this.schemeType,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      roundDomains: this.roundDomains,
+      tooltipDisabled: this.tooltipDisabled,
+      referenceLines: this.refLines,
+      showRefLines: this.showRefLines,
+      showRefLabels: this.showRefLabels,
+      xScaleMin: this.xScaleMin,
+      xScaleMax: this.xScaleMax,
+      yScaleMin: this.yScaleMin,
+      yScaleMax: this.yScaleMax,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get lineChartConfig(): LineChartOptions {
+    return {
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      autoScale: this.autoScale,
+      timeline: this.timeline,
+      gradient: this.gradient,
+      showGridLines: this.showGridLines,
+      curve: this.curve,
+      activeEntries: [],
+      schemeType: this.schemeType,
+      rangeFillOpacity: this.rangeFillOpacity,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      roundDomains: this.roundDomains,
+      tooltipDisabled: this.tooltipDisabled,
+      showRefLines: this.showRefLines,
+      referenceLines: this.refLines,
+      showRefLabels: this.showRefLabels,
+      xScaleMin: this.xScaleMin,
+      xScaleMax: this.xScaleMax,
+      yScaleMin: this.yScaleMin,
+      yScaleMax: this.yScaleMax,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get bubbleChartConfig(): BubbleChartOptions {
+    return {
+      showGridLines: this.showGridLines,
+      legend: this.showLegend,
+      legendTitle: this.legendTitle,
+      legendPosition: this.legendPosition,
+      xAxis: this.showXAxis,
+      yAxis: this.showYAxis,
+      showXAxisLabel: this.showXAxisLabel,
+      showYAxisLabel: this.showYAxisLabel,
+      xAxisLabel: this.xAxisLabel,
+      yAxisLabel: this.yAxisLabel,
+      trimXAxisTicks: this.trimXAxisTicks,
+      trimYAxisTicks: this.trimYAxisTicks,
+      rotateXAxisTicks: this.rotateXAxisTicks,
+      maxXAxisTickLength: this.maxXAxisTickLength,
+      maxYAxisTickLength: this.maxYAxisTickLength,
+      xAxisTickFormatting: undefined,
+      yAxisTickFormatting: undefined,
+      xAxisTicks: undefined,
+      yAxisTicks: undefined,
+      roundDomains: this.roundDomains,
+      maxRadius: this.maxRadius,
+      minRadius: this.minRadius,
+      autoScale: this.autoScale,
+      schemeType: this.schemeType,
+      tooltipDisabled: this.tooltipDisabled,
+      xScaleMin: this.xScaleMin,
+      xScaleMax: this.xScaleMax,
+      yScaleMin: this.yScaleMin,
+      yScaleMax: this.yScaleMax,
+      wrapTicks: this.wrapTicks
+    };
+  }
+
+  get calendarChartConfig(): HeatMapOptions {
+    return {
+      ...this.heatMapChartConfig,
+      showXAxisLabel: false,
+      showYAxisLabel: false,
+      xAxisTickFormatting: this.calendarAxisTickFormatting
+    };
+  }
+
+  get plotLineChartConfig(): LineChartOptions {
+    return {
+      ...this.lineChartConfig,
+      legend: false,
+      showXAxisLabel: false,
+      showYAxisLabel: false,
+      xAxisLabel: 'angle',
+      yAxisLabel: 'radius',
+      curve: this.curves['Cardinal'],
+      showRefLines: undefined,
+      referenceLines: undefined,
+      showRefLabels: undefined,
+      xScaleMin: undefined,
+      xScaleMax: undefined,
+      yScaleMin: undefined,
+      yScaleMax: undefined,
+      wrapTicks: undefined
+    };
+  }
+
+  get plotPolarChartConfig(): PolarChartConfig {
+    return {
+      ...this.polarChartConfig,
+      legend: false,
+      xAxis: false,
+      yAxis: true,
+      showXAxisLabel: false,
+      showYAxisLabel: false,
+      xAxisLabel: 'angle',
+      yAxisLabel: 'radius',
+      curve: this.curves['Cardinal Closed'],
+      yAxisMinScale: undefined,
+      wrapTicks: undefined
+    };
+  }
 
   constructor(public location: Location) {
     this.mathFunction = this.getFunction();

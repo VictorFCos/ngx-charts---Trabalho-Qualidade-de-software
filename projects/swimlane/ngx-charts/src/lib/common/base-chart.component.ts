@@ -49,7 +49,7 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy, 
     protected zone: NgZone,
     protected cd: ChangeDetectorRef,
     @Inject(PLATFORM_ID) public platformId: any
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
@@ -219,5 +219,34 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy, 
     }
 
     return results;
+  }
+  protected areConfigsEqual(prev: any, curr: any): boolean {
+    if (prev === curr) return true;
+    if (!prev || !curr) return false;
+
+    const keysPrev = Object.keys(prev);
+    const keysCurr = Object.keys(curr);
+
+    if (keysPrev.length !== keysCurr.length) return false;
+
+    for (const key of keysPrev) {
+      const valPrev = prev[key];
+      const valCurr = curr[key];
+
+      if (valPrev === valCurr) continue;
+
+      if (Array.isArray(valPrev) && Array.isArray(valCurr)) {
+        if (valPrev.length !== valCurr.length) return false;
+        // Check if both are empty - common case for activeEntries
+        if (valPrev.length === 0 && valCurr.length === 0) continue;
+
+        const isShallowEqual = valPrev.every((v, i) => v === valCurr[i]);
+        if (isShallowEqual) continue;
+      }
+
+      return false;
+    }
+
+    return true;
   }
 }

@@ -6,7 +6,8 @@ import {
   ContentChild,
   TemplateRef,
   Output,
-  EventEmitter
+  EventEmitter,
+  SimpleChanges
 } from '@angular/core';
 import { scaleBand } from 'd3-scale';
 
@@ -25,6 +26,35 @@ interface RectItem {
   width: number;
   x: number;
   y: number;
+}
+
+export interface HeatMapOptions {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  gradient: boolean;
+  innerPadding: number | number[] | string | string[];
+  trimXAxisTicks: boolean;
+  trimYAxisTicks: boolean;
+  rotateXAxisTicks: boolean;
+  maxXAxisTickLength: number;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: any;
+  yAxisTickFormatting: any;
+  xAxisTicks: any[];
+  yAxisTicks: any[];
+  tooltipDisabled: boolean;
+  tooltipText: any;
+  min: number;
+  max: number;
+  activeEntries: any[];
+  wrapTicks: boolean;
 }
 
 @Component({
@@ -100,32 +130,7 @@ interface RectItem {
   standalone: false
 })
 export class HeatMapComponent extends BaseChartComponent {
-  @Input() legend: boolean;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean;
-  @Input() yAxis: boolean;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() gradient: boolean;
-  @Input() innerPadding: number | number[] | string | string[] = 8;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() tooltipDisabled: boolean = false;
-  @Input() tooltipText: any;
-  @Input() min: number;
-  @Input() max: number;
-  @Input() activeEntries: any[] = [];
-  @Input() wrapTicks = false;
+  @Input() config: HeatMapOptions;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -148,8 +153,106 @@ export class HeatMapComponent extends BaseChartComponent {
   legendOptions: LegendOptions;
   scaleType: ScaleType = ScaleType.Linear;
 
-  ngOnChanges(): void {
-    this.update();
+  get legend() {
+    return this.config?.legend;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get innerPadding() {
+    return this.config?.innerPadding ?? 8;
+  }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get tooltipText() {
+    return this.config?.tooltipText;
+  }
+  get min() {
+    return this.config?.min;
+  }
+  get max() {
+    return this.config?.max;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {

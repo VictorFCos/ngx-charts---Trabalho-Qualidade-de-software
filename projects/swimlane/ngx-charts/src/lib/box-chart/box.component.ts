@@ -14,12 +14,12 @@ import { select, BaseType } from 'd3-selection';
 import { interpolate } from 'd3-interpolate';
 import { easeSinInOut } from 'd3-ease';
 
-import { roundedRect } from '../common/shape.helper';
 import { id } from '../utils/id';
 import { IBoxModel } from '../models/chart-data.model';
 import { IPoint, IVector2D } from '../models/coordinates.model';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import { Gradient } from '../common/types/gradient.interface';
+import { getBoxRadius, getBoxPath, getBoxStartingPath, getBoxStartingLineCoordinates } from './box.helper';
 
 type LineCoordinates = [IVector2D, IVector2D, IVector2D, IVector2D];
 
@@ -193,14 +193,32 @@ export class BoxComponent implements OnChanges {
   }
 
   loadAnimation(): void {
-    this.boxPath = this.oldPath = this.getStartingPath();
-    this.oldLineCoordinates = this.getStartingLineCoordinates();
+    this.boxPath = this.oldPath = this.animations
+      ? getBoxStartingPath(this.width, this.lineCoordinates, this.roundEdges, this.edges)
+      : getBoxPath(
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+          getBoxRadius(this.roundEdges, this.height, this.width),
+          this.edges
+        );
+    this.oldLineCoordinates = this.animations
+      ? getBoxStartingLineCoordinates(this.lineCoordinates)
+      : [...this.lineCoordinates];
     setTimeout(this.update.bind(this), 100);
   }
 
   updatePathEl(): void {
     const nodeBar = select(this.nativeElm).selectAll('.bar');
-    const path = this.getPath();
+    const path = getBoxPath(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      getBoxRadius(this.roundEdges, this.height, this.width),
+      this.edges
+    );
     if (this.animations) {
       nodeBar
         .attr('d', this.oldPath)
@@ -283,54 +301,6 @@ export class BoxComponent implements OnChanges {
         return t < 1 ? 'M' + points.map((p: (t: number) => any[]) => p(t)).join('L') : d1;
       };
     };
-  }
-
-  getStartingPath(): string {
-    if (!this.animations) {
-      return this.getPath();
-    }
-
-    const radius = this.roundEdges ? 1 : 0;
-    const { x, y } = this.lineCoordinates[2].v1;
-
-    return roundedRect(x - this.width, y - 1, this.width, 2, radius, this.edges);
-  }
-
-  getPath(): string {
-    const radius = this.getRadius();
-    let path = '';
-
-    path = roundedRect(this.x, this.y, this.width, this.height, Math.min(this.height, radius), this.edges);
-
-    return path;
-  }
-
-  getStartingLineCoordinates(): LineCoordinates {
-    if (!this.animations) {
-      return [...this.lineCoordinates];
-    }
-
-    const lineCoordinates: LineCoordinates = cloneLineCoordinates(this.lineCoordinates);
-
-    lineCoordinates[1].v1.y =
-      lineCoordinates[1].v2.y =
-      lineCoordinates[3].v1.y =
-      lineCoordinates[3].v2.y =
-      lineCoordinates[0].v1.y =
-      lineCoordinates[0].v2.y =
-        lineCoordinates[2].v1.y;
-
-    return lineCoordinates;
-  }
-
-  getRadius(): number {
-    let radius = 0;
-
-    if (this.roundEdges && this.height > 5 && this.width > 5) {
-      radius = Math.floor(Math.min(5, this.height / 2, this.width / 2));
-    }
-
-    return radius;
   }
 
   getGradient(): Gradient[] {

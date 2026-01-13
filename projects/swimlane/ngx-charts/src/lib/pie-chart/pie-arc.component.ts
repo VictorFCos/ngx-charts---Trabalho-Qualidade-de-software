@@ -8,12 +8,11 @@ import {
   OnChanges,
   ChangeDetectionStrategy
 } from '@angular/core';
-import { interpolate } from 'd3-interpolate';
 import { select } from 'd3-selection';
-import { arc } from 'd3-shape';
 import { id } from '../utils/id';
 import { DataItem } from '../models/chart-data.model';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
+import { calculatePieArcPath, animatePieArc } from './pie-arc.helper';
 
 @Component({
   selector: 'g[ngx-charts-pie-arc]',
@@ -75,7 +74,24 @@ export class PieArcComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.update();
+    const updateFields = [
+      'startAngle',
+      'endAngle',
+      'innerRadius',
+      'outerRadius',
+      'cornerRadius',
+      'value',
+      'max',
+      'explodeSlices',
+      'gradient',
+      'animate',
+      'fill'
+    ];
+    const shouldUpdate = updateFields.some(f => changes[f]);
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   getGradient(): string {
@@ -87,81 +103,39 @@ export class PieArcComponent implements OnChanges {
   }
 
   update(): void {
-    const calc = this.calculateArc();
     this.startOpacity = 0.5;
     this.radialGradientId = 'linearGrad' + id().toString();
     this.gradientFill = `url(#${this.radialGradientId})`;
 
     if (this.animate) {
-      if (this.initialized) {
-        this.updateAnimation();
-      } else {
-        this.loadAnimation();
-        this.initialized = true;
-      }
+      animatePieArc(
+        this.element,
+        this.startAngle,
+        this.endAngle,
+        this.innerRadius,
+        this.outerRadius,
+        this.max,
+        this.value,
+        this.cornerRadius,
+        this.explodeSlices,
+        this.initialized,
+        select(this.element)
+          .selectAll('.arc')
+          .data([{ startAngle: this.startAngle, endAngle: this.endAngle }])
+      );
+      this.initialized = true;
     } else {
-      this.path = calc.startAngle(this.startAngle).endAngle(this.endAngle)();
+      this.path = calculatePieArcPath(
+        this.innerRadius,
+        this.outerRadius,
+        this.max,
+        this.value,
+        this.cornerRadius,
+        this.explodeSlices
+      )
+        .startAngle(this.startAngle)
+        .endAngle(this.endAngle)();
     }
-  }
-
-  calculateArc(): any {
-    let outerRadius = this.outerRadius;
-    if (this.explodeSlices && this.innerRadius === 0) {
-      outerRadius = (this.outerRadius * this.value) / this.max;
-    }
-
-    return arc().innerRadius(this.innerRadius).outerRadius(outerRadius).cornerRadius(this.cornerRadius);
-  }
-
-  loadAnimation(): void {
-    const node = select(this.element)
-      .selectAll('.arc')
-      .data([{ startAngle: this.startAngle, endAngle: this.endAngle }]);
-
-    const calc = this.calculateArc();
-
-    node
-      .transition()
-      .attrTween('d', function (d) {
-        (<any>this)._current = (<any>this)._current || d;
-        const copyOfD = Object.assign({}, d);
-        copyOfD.endAngle = copyOfD.startAngle;
-        const interpolater = interpolate(copyOfD, copyOfD);
-        (<any>this)._current = interpolater(0);
-        return function (t) {
-          return calc(interpolater(t));
-        };
-      })
-      .transition()
-      .duration(750)
-      .attrTween('d', function (d) {
-        (<any>this)._current = (<any>this)._current || d;
-        const interpolater = interpolate((<any>this)._current, d);
-        (<any>this)._current = interpolater(0);
-        return function (t) {
-          return calc(interpolater(t));
-        };
-      });
-  }
-
-  updateAnimation(): void {
-    const node = select(this.element)
-      .selectAll('.arc')
-      .data([{ startAngle: this.startAngle, endAngle: this.endAngle }]);
-
-    const calc = this.calculateArc();
-
-    node
-      .transition()
-      .duration(750)
-      .attrTween('d', function (d) {
-        (<any>this)._current = (<any>this)._current || d;
-        const interpolater = interpolate((<any>this)._current, d);
-        (<any>this)._current = interpolater(0);
-        return function (t) {
-          return calc(interpolater(t));
-        };
-      });
   }
 
   onClick(): void {

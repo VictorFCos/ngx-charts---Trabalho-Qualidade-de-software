@@ -1,12 +1,15 @@
-import { Component, Input, Output, EventEmitter, ElementRef, OnChanges, ChangeDetectionStrategy } from '@angular/core';
-import { select } from 'd3-selection';
+import { Component, Input, Output, EventEmitter, ElementRef, OnChanges, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { invertColor } from '../utils/color-utils';
-import { trimLabel } from '../common/trim-label.helper';
-import { escapeLabel } from '../common/label.helper';
 import { id } from '../utils/id';
 import { DataItem } from '../models/chart-data.model';
 import { Gradient } from '../common/types/gradient.interface';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
+import {
+  getTreeMapCellGradientStops,
+  getTreeMapCellFormattedValue,
+  getTreeMapCellFormattedLabel,
+  updateTreeMapCell
+} from './tree-map.helper';
 
 @Component({
   selector: 'g[ngx-charts-tree-map-cell]',
@@ -47,11 +50,8 @@ import { BarOrientation } from '../common/types/bar-orientation.enum';
             ngx-charts-count-up
             [countTo]="value"
             [valueFormatting]="valueFormatting"
-          >
-          </xhtml:span>
-          <xhtml:span *ngIf="!animations" class="treemap-val">
-            {{ formattedValue }}
-          </xhtml:span>
+          ></xhtml:span>
+          <xhtml:span *ngIf="!animations" class="treemap-val">{{ formattedValue }}</xhtml:span>
         </xhtml:p>
       </svg:foreignObject>
     </svg:g>
@@ -68,106 +68,49 @@ export class TreeMapCellComponent implements OnChanges {
   @Input() height: number;
   @Input() label: string;
   @Input() value: any;
-  // @Input() valueType;
   @Input() valueFormatting: any;
   @Input() labelFormatting: any;
   @Input() gradient: boolean = false;
   @Input() animations: boolean = true;
-
   @Output() select = new EventEmitter();
 
   gradientStops: Gradient[];
   gradientId: string;
   gradientUrl: string;
-
   element: HTMLElement;
-  transform: string;
   formattedLabel: string;
   formattedValue: string;
   initialized: boolean = false;
-
   orientation = BarOrientation;
 
   constructor(element: ElementRef) {
     this.element = element.nativeElement;
   }
 
-  ngOnChanges(): void {
-    this.update();
-
-    this.valueFormatting = this.valueFormatting || (value => value.toLocaleString());
-    const labelFormatting = this.labelFormatting || (cell => escapeLabel(trimLabel(cell.label, 55)));
-
-    const cellData = {
-      data: this.data,
-      label: this.label,
-      value: this.value
-    };
-
-    this.formattedValue = this.valueFormatting(cellData.value);
-    this.formattedLabel = labelFormatting(cellData);
-
-    this.gradientId = 'grad' + id().toString();
-    this.gradientUrl = `url(#${this.gradientId})`;
-    this.gradientStops = this.getGradientStops();
-  }
-
-  update(): void {
-    if (this.initialized) {
-      this.animateToCurrentForm();
-    } else {
-      if (this.animations) {
-        this.loadAnimation();
-      }
-      this.initialized = true;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.fill || changes.width || changes.height || changes.x || changes.y || changes.animations) {
+      updateTreeMapCell(this);
     }
-  }
 
-  loadAnimation(): void {
-    const node = select(this.element).select('.cell');
+    if (changes.value || changes.valueFormatting) {
+      this.formattedValue = getTreeMapCellFormattedValue(this.value, this.valueFormatting);
+    }
 
-    node.attr('opacity', 0).attr('x', this.x).attr('y', this.y);
+    if (changes.label || changes.labelFormatting || changes.data || changes.value) {
+      this.formattedLabel = getTreeMapCellFormattedLabel(this.label, this.labelFormatting, this.data, this.value);
+    }
 
-    this.animateToCurrentForm();
+    if (changes.fill || !this.initialized) {
+      this.gradientId = 'grad' + id().toString();
+      this.gradientUrl = `url(#${this.gradientId})`;
+      this.gradientStops = getTreeMapCellGradientStops(this.fill);
+    }
   }
 
   getTextColor(): string {
     return invertColor(this.fill);
   }
-
-  animateToCurrentForm(): void {
-    const node = select(this.element).select('.cell');
-
-    if (this.animations) {
-      node
-        .transition()
-        .duration(750)
-        .attr('opacity', 1)
-        .attr('x', this.x)
-        .attr('y', this.y)
-        .attr('width', this.width)
-        .attr('height', this.height);
-    } else {
-      node.attr('opacity', 1).attr('x', this.x).attr('y', this.y).attr('width', this.width).attr('height', this.height);
-    }
-  }
-
   onClick(): void {
     this.select.emit(this.data);
-  }
-
-  getGradientStops(): Gradient[] {
-    return [
-      {
-        offset: 0,
-        color: this.fill,
-        opacity: 0.3
-      },
-      {
-        offset: 100,
-        color: this.fill,
-        opacity: 1
-      }
-    ];
   }
 }

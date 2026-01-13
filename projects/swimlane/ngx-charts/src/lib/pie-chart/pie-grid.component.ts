@@ -6,7 +6,8 @@ import {
   ContentChild,
   TemplateRef,
   Output,
-  EventEmitter
+  EventEmitter,
+  SimpleChanges
 } from '@angular/core';
 import { min } from 'd3-array';
 import { format } from 'd3-format';
@@ -23,12 +24,21 @@ import { StyleTypes } from '../common/tooltip/style.type';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
+export interface PieGridConfig {
+  designatedTotal: number;
+  tooltipDisabled: boolean;
+  tooltipText: (o: any) => any;
+  label: string;
+  minWidth: number;
+  activeEntries: any[];
+}
+
 @Component({
   selector: 'ngx-charts-pie-grid',
   template: `
     <ngx-charts-chart [view]="[width, height]" [showLegend]="false" [animations]="animations">
       <svg:g [attr.transform]="transform" class="pie-grid chart">
-        <svg:g *ngFor="let series of series" class="pie-grid-item" [attr.transform]="series.transform">
+        <svg:g *ngFor="let series of series; trackBy: trackBy" class="pie-grid-item" [attr.transform]="series.transform">
           <svg:g
             ngx-charts-pie-grid-series
             [colors]="series.colors"
@@ -95,12 +105,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
   standalone: false
 })
 export class PieGridComponent extends BaseChartComponent {
-  @Input() designatedTotal: number;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() tooltipText: (o: any) => any;
-  @Input() label: string = 'Total';
-  @Input() minWidth: number = 150;
-  @Input() activeEntries: any[] = [];
+  @Input() config: PieGridConfig;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -118,8 +123,49 @@ export class PieGridComponent extends BaseChartComponent {
 
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
-  ngOnChanges(): void {
-    this.update();
+  get designatedTotal() {
+    return this.config?.designatedTotal;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get tooltipText() {
+    return this.config?.tooltipText;
+  }
+  set tooltipText(value: (o: any) => any) {
+    if (this.config) this.config.tooltipText = value;
+  }
+  get label() {
+    return this.config?.label ?? 'Total';
+  }
+  get minWidth() {
+    return this.config?.minWidth ?? 150;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {
@@ -208,6 +254,10 @@ export class PieGridComponent extends BaseChartComponent {
 
   getTotal(): any {
     return this.results.map(d => d.value).reduce((sum, d) => sum + d, 0);
+  }
+
+  trackBy(index, item): string {
+    return item.name;
   }
 
   onClick(data: DataItem): void {

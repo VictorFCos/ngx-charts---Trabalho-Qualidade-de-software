@@ -39,9 +39,7 @@ export interface AdvancedLegendItem {
       <div class="total-value" *ngIf="!animations">
         {{ valueFormatting ? valueFormatting(roundedTotal) : defaultValueFormatting(roundedTotal) }}
       </div>
-      <div class="total-label">
-        {{ label }}
-      </div>
+      <div class="total-label">{{ label }}</div>
       <div class="legend-items-container">
         <div class="legend-items">
           <div
@@ -90,54 +88,36 @@ export class AdvancedLegendComponent implements OnChanges {
   @Input() label: string = 'Total';
   @Input() animations: boolean = true;
   @Input() roundPercentages: boolean = true;
-
-  @Output() select: EventEmitter<DataItem> = new EventEmitter();
-  @Output() activate: EventEmitter<DataItem> = new EventEmitter();
-  @Output() deactivate: EventEmitter<DataItem> = new EventEmitter();
-
+  @Output() select = new EventEmitter();
+  @Output() activate = new EventEmitter();
+  @Output() deactivate = new EventEmitter();
   legendItems: AdvancedLegendItem[] = [];
   total: number;
   roundedTotal: number;
-
   @Input() valueFormatting: (value: StringOrNumberOrDate) => any;
   @Input() labelFormatting: (value: string) => string = label => label;
-  @Input() percentageFormatting: (value: number) => number = percentage => percentage;
-
+  @Input() percentageFormatting: (value: number) => any = percentage => percentage;
   defaultValueFormatting: (value: StringOrNumberOrDate) => string = value => value.toLocaleString();
 
   ngOnChanges(changes: SimpleChanges): void {
     this.update();
   }
-
-  getTotal(): number {
-    return this.data.map(d => Number(d.value)).reduce((sum, d) => sum + d, 0);
-  }
-
   update(): void {
-    this.total = this.getTotal();
+    this.total = this.data.map(d => Number(d.value)).reduce((sum, d) => sum + d, 0);
     this.roundedTotal = this.total;
-
-    this.legendItems = this.getLegendItems();
-  }
-
-  getLegendItems(): AdvancedLegendItem[] {
     const values = this.data.map(d => Number(d.value));
     const percentages = this.roundPercentages
       ? roundPercentagesWithDecimals(values)
-      : values.map(v => (v / this.total) * 100);
-
-    return (this.data as any).map((d, index) => {
+      : values.map(v => (this.total > 0 ? (v / this.total) * 100 : 0));
+    this.legendItems = (this.data as any).map((d, index) => {
       const label = formatLabel(d.name);
-      const value = d.value;
-      const color = this.colors.getColor(label);
-      const percentage = this.roundPercentages ? percentages[index] : this.getPercentage(values[index]);
+      const percentage = percentages[index];
       const formattedLabel = typeof this.labelFormatting === 'function' ? this.labelFormatting(label) : label;
-
       return {
-        _value: value,
+        _value: d.value,
         data: d,
-        value,
-        color,
+        value: d.value,
+        color: this.colors.getColor(label),
         label: formattedLabel,
         displayLabel: trimLabel(formattedLabel, 20),
         origialLabel: d.name,
@@ -147,11 +127,6 @@ export class AdvancedLegendComponent implements OnChanges {
       };
     });
   }
-
-  getPercentage(value: number): number {
-    return this.total > 0 ? (value / this.total) * 100 : 0;
-  }
-
   trackBy(index: number, item: AdvancedLegendItem) {
     return item.label;
   }
