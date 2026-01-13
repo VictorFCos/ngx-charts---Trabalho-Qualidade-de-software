@@ -20,62 +20,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
 
 @Component({
   selector: 'ngx-charts-box-chart',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [animations]="animations"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)"
-    >
-      <svg:g [attr.transform]="transform" class="box-chart chart">
-        <svg:g
-          ngx-charts-x-axis
-          [showGridLines]="showGridLines"
-          [dims]="dims"
-          [xScale]="xScale"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateXAxisHeight($event)"
-        />
-        <svg:g
-          ngx-charts-y-axis
-          [showGridLines]="showGridLines"
-          [dims]="dims"
-          [yScale]="yScale"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        />
-      </svg:g>
-      <svg:g [attr.transform]="transform">
-        <svg:g *ngFor="let result of results; trackBy: trackBy">
-          <svg:g
-            ngx-charts-box-series
-            [xScale]="xScale"
-            [yScale]="yScale"
-            [colors]="colors"
-            [roundEdges]="roundEdges"
-            [strokeColor]="strokeColor"
-            [strokeWidth]="strokeWidth"
-            [tooltipDisabled]="tooltipDisabled"
-            [tooltipTemplate]="tooltipTemplate"
-            [series]="result"
-            [dims]="dims"
-            [animations]="animations"
-            [gradient]="gradient"
-            (activate)="onActivate($event)"
-            (deactivate)="onDeactivate($event)"
-            (select)="onClick($event)"
-          />
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './box-chart.component.html',
   styleUrls: ['../common/base-chart.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
@@ -166,7 +111,8 @@ export class BoxChartComponent extends BaseChartComponent {
     this.setColors();
 
     this.legendOptions = this.getLegendOptions();
-    this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
+    this.transform = `translate(${this.dims.xOffset
+      }, ${this.margin[0]})`;
   }
 
   setColors(): void {
@@ -249,7 +195,7 @@ export class BoxChartComponent extends BaseChartComponent {
   }
 
   getSeriesDomain(): string[] {
-    return this.results.map(d => `${d.name}`);
+    return this.results.map(d => `${d.name} `);
   }
 
   updateYAxisWidth({ width }): void {

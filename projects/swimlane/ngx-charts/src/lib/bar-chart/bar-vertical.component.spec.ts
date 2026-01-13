@@ -42,7 +42,8 @@ describe('<ngx-charts-bar-vertical>', () => {
                 [animations]="false"
                 [view]="[400,800]"
                 [scheme]="colorScheme"
-                [results]="single">
+                [results]="single"
+                [config]="{results: single}">
               </ngx-charts-bar-vertical>`
         }
       });
@@ -87,7 +88,7 @@ describe('<ngx-charts-bar-vertical>', () => {
                 [view]="[400,800]"
                 [scheme]="colorScheme"
                 [results]="single"
-                [barPadding]="0">
+                [config]="{results: single, barPadding: 0}">
               </ngx-charts-bar-vertical>`
         }
       }).compileComponents();
@@ -113,7 +114,7 @@ describe('<ngx-charts-bar-vertical>', () => {
             [view]="[400,800]"
             [scheme]="colorScheme"
             [results]="single"
-            [barPadding]="20">
+            [config]="{results: single, barPadding: 20}">
           </ngx-charts-bar-vertical>`
         }
       }).compileComponents();
@@ -134,6 +135,13 @@ describe('<ngx-charts-bar-vertical>', () => {
       axisTick.queryAll(By.css('tspan')).map(entry => entry.nativeElement.textContent.trim());
 
     it('should wrap tick if there is available space', () => {
+      const testData = [
+        { name: 'Lorem Ipsum', value: 40632 },
+        { name: 'Lorem Ipsum is simply', value: 50000 },
+        { name: 'Lorem Ipsum is simply dummy text', value: 36240 },
+        { name: 'Lorem Ipsum is simply dummy text of the printing', value: 3000 },
+        { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', value: 5655 }
+      ];
       TestBed.overrideComponent(TestComponent, {
         set: {
           template: `
@@ -141,21 +149,16 @@ describe('<ngx-charts-bar-vertical>', () => {
             [animations]="false"
             [view]="[400, 300]"
             [scheme]="colorScheme"
-            [results]="[
-              { name: 'Lorem Ipsum', value: 40632 },
-              { name: 'Lorem Ipsum is simply', value: 50000 },
-              { name: 'Lorem Ipsum is simply dummy text', value: 36240 },
-              { name: 'Lorem Ipsum is simply dummy text of the printing', value: 3000 },
-              { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', value: 5655 },
-            ]"
-            [xAxis]="true"
-            [yAxis]="true"
-            [wrapTicks]="true">
+            [results]="single"
+            [config]="{results: single, xAxis: true, yAxis: true, wrapTicks: true}">
           </ngx-charts-bar-vertical>`
         }
-      }).compileComponents();
+      });
+      // In the original spec, it seems it was using a local variable or member for results.
+      // I'll adjust to use 'single' for simplicity in this test override if needed, or define it.
 
       const fixture = TestBed.createComponent(TestComponent);
+      fixture.componentInstance.single = testData;
       fixture.detectChanges();
 
       const xAxisTicks = fixture.debugElement.query(By.directive(XAxisTicksComponent));
@@ -186,6 +189,13 @@ describe('<ngx-charts-bar-vertical>', () => {
     });
 
     it('should show a max of 5 lines for a wrapped tick', () => {
+      const testData = [
+        { name: 'Lorem Ipsum', value: 40632 },
+        {
+          name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+          value: 5655
+        }
+      ];
       TestBed.overrideComponent(TestComponent, {
         set: {
           template: `
@@ -193,19 +203,15 @@ describe('<ngx-charts-bar-vertical>', () => {
             [animations]="false"
             [view]="[400, 300]"
             [scheme]="colorScheme"
-            [results]="[
-              { name: 'Lorem Ipsum', value: 40632 },
-              { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', value: 5655 },
-            ]"
-            [xAxis]="true"
-            [yAxis]="true"
-            [wrapTicks]="true"
+            [results]="single"
+            [config]="{results: single, xAxis: true, yAxis: true, wrapTicks: true}"
           >
           </ngx-charts-bar-vertical>`
         }
-      }).compileComponents();
+      });
 
       const fixture = TestBed.createComponent(TestComponent);
+      fixture.componentInstance.single = testData;
       fixture.detectChanges();
 
       const xAxisTicks = fixture.debugElement.query(By.directive(XAxisTicksComponent));

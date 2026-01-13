@@ -6,7 +6,8 @@ import {
   EventEmitter,
   ChangeDetectionStrategy,
   ContentChild,
-  TemplateRef
+  TemplateRef,
+  SimpleChanges
 } from '@angular/core';
 import { scaleBand, scaleLinear } from 'd3-scale';
 
@@ -19,120 +20,54 @@ import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { select } from 'd3-selection';
 
+export interface BarChartConfig {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  tooltipDisabled: boolean;
+  gradient: boolean;
+  referenceLines: any[];
+  showRefLines: boolean;
+  showRefLabels: boolean;
+  showGridLines: boolean;
+  activeEntries: any[];
+  schemeType: ScaleType;
+  trimXAxisTicks: boolean;
+  trimYAxisTicks: boolean;
+  rotateXAxisTicks: boolean;
+  maxXAxisTickLength: number;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: any;
+  yAxisTickFormatting: any;
+  xAxisTicks: any[];
+  yAxisTicks: any[];
+  barPadding: number;
+  roundDomains: boolean;
+  roundEdges: boolean;
+  yScaleMax: number;
+  yScaleMin: number;
+  showDataLabel: boolean;
+  dataLabelFormatting: any;
+  noBarWhenZero: boolean;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-bar-vertical',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event, true)"
-      (legendLabelDeactivate)="onDeactivate($event, true)"
-    >
-      <svg:g [attr.transform]="transform" class="bar-chart chart">
-        <svg:g
-          ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [xAxisOffset]="dataLabelMaxHeight.negative"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateXAxisHeight($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [referenceLines]="referenceLines"
-          [showRefLines]="showRefLines"
-          [showRefLabels]="showRefLabels"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-series-vertical
-          [xScale]="xScale"
-          [yScale]="yScale"
-          [colors]="colors"
-          [series]="results"
-          [dims]="dims"
-          [gradient]="gradient"
-          [tooltipDisabled]="tooltipDisabled"
-          [tooltipTemplate]="tooltipTemplate"
-          [showDataLabel]="showDataLabel"
-          [dataLabelFormatting]="dataLabelFormatting"
-          [activeEntries]="activeEntries"
-          [roundEdges]="roundEdges"
-          [animations]="animations"
-          [noBarWhenZero]="noBarWhenZero"
-          (activate)="onActivate($event)"
-          (deactivate)="onDeactivate($event)"
-          (select)="onClick($event)"
-          (dataLabelHeightChanged)="onDataLabelMaxHeightChanged($event)"
-        ></svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './bar-vertical.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })
 export class BarVerticalComponent extends BaseChartComponent {
-  @Input() legend = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() gradient: boolean;
-  @Input() referenceLines: any[];
-  @Input() showRefLines;
-  @Input() showRefLabels;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() barPadding = 8;
-  @Input() roundDomains: boolean = false;
-  @Input() roundEdges: boolean = true;
-  @Input() yScaleMax: number;
-  @Input() yScaleMin: number;
-  @Input() showDataLabel: boolean = false;
-  @Input() dataLabelFormatting: any;
-  @Input() noBarWhenZero: boolean = true;
-  @Input() wrapTicks = false;
+  @Input() config: BarChartConfig;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -152,8 +87,137 @@ export class BarVerticalComponent extends BaseChartComponent {
   legendOptions: LegendOptions;
   dataLabelMaxHeight: any = { negative: 0, positive: 0 };
 
-  ngOnChanges(): void {
-    this.update();
+  // Getters to maintain template compatibility and default values
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get referenceLines() {
+    return this.config?.referenceLines;
+  }
+  get showRefLines() {
+    return this.config?.showRefLines;
+  }
+  get showRefLabels() {
+    return this.config?.showRefLabels;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  // schemeType is inherited from BaseChartComponent, so we don't define a getter/setter here to avoid TS2611.
+  // We sync it in ngOnChanges.
+
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get barPadding() {
+    return this.config?.barPadding ?? 8;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get roundEdges() {
+    return this.config?.roundEdges ?? true;
+  }
+  get yScaleMax() {
+    return this.config?.yScaleMax;
+  }
+  get yScaleMin() {
+    return this.config?.yScaleMin;
+  }
+  get showDataLabel() {
+    return this.config?.showDataLabel ?? false;
+  }
+  get dataLabelFormatting() {
+    return this.config?.dataLabelFormatting;
+  }
+  get noBarWhenZero() {
+    return this.config?.noBarWhenZero ?? true;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+        if (this.config && this.config.schemeType) {
+          this.schemeType = this.config.schemeType;
+        }
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {

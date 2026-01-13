@@ -19,6 +19,7 @@ class TestComponent {
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
+  config: any = {};
 }
 
 describe('<ngx-charts-heat-map>', () => {
@@ -39,7 +40,8 @@ describe('<ngx-charts-heat-map>', () => {
                 [animations]="false"
                 [view]="[400,800]"
                 [scheme]="colorScheme"
-                [results]="multi">
+                [results]="multi"
+                [config]="config">
               </ngx-charts-heat-map>`
         }
       }).compileComponents();
@@ -85,7 +87,7 @@ describe('<ngx-charts-heat-map>', () => {
                 [view]="[400,800]"
                 [scheme]="colorScheme"
                 [results]="multi"
-                [gradient]="true">
+                [config]="{ gradient: true }">
               </ngx-charts-heat-map>`
         }
       }).compileComponents();
@@ -111,7 +113,7 @@ describe('<ngx-charts-heat-map>', () => {
             [view]="[400,800]"
             [scheme]="colorScheme"
             [results]="multi"
-            [innerPadding]="0">
+            [config]="{ innerPadding: 0 }">
           </ngx-charts-heat-map>`
         }
       }).compileComponents();
@@ -138,7 +140,7 @@ describe('<ngx-charts-heat-map>', () => {
             [view]="[400,800]"
             [scheme]="colorScheme"
             [results]="multi"
-            [innerPadding]="20">
+            [config]="{ innerPadding: 20 }">
           </ngx-charts-heat-map>`
         }
       }).compileComponents();
@@ -165,7 +167,7 @@ describe('<ngx-charts-heat-map>', () => {
               [view]="[400,800]"
               [scheme]="colorScheme"
               [results]="multi"
-              [innerPadding]="[50,40]">
+              [config]="{ innerPadding: [50, 40] }">
             </ngx-charts-heat-map>`
         }
       }).compileComponents();

@@ -8,7 +8,8 @@ import {
   ChangeDetectionStrategy,
   ContentChild,
   TemplateRef,
-  TrackByFunction
+  TrackByFunction,
+  SimpleChanges
 } from '@angular/core';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { CurveFactory, curveLinear } from 'd3-shape';
@@ -25,186 +26,55 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { select } from 'd3-selection';
 
+export interface AreaChartOptions {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  baseValue: any;
+  autoScale: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  timeline: boolean;
+  gradient: boolean;
+  showGridLines: boolean;
+  curve: CurveFactory;
+  activeEntries: any[];
+  schemeType: ScaleType;
+  trimXAxisTicks: boolean;
+  trimYAxisTicks: boolean;
+  rotateXAxisTicks: boolean;
+  maxXAxisTickLength: number;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: any;
+  yAxisTickFormatting: any;
+  xAxisTicks: any[];
+  yAxisTicks: any[];
+  roundDomains: boolean;
+  tooltipDisabled: boolean;
+  referenceLines: any[];
+  showRefLines: boolean;
+  showRefLabels: boolean;
+  xScaleMin: any;
+  xScaleMax: any;
+  yScaleMin: number;
+  yScaleMax: number;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-area-chart',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)"
-    >
-      <svg:defs>
-        <svg:clipPath [attr.id]="clipPathId">
-          <svg:rect
-            [attr.width]="dims.width + 10"
-            [attr.height]="dims.height + 10"
-            [attr.transform]="'translate(-5, -5)'"
-          />
-        </svg:clipPath>
-      </svg:defs>
-      <svg:g [attr.transform]="transform" class="area-chart chart">
-        <svg:g
-          ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateXAxisHeight($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [referenceLines]="referenceLines"
-          [showRefLines]="showRefLines"
-          [showRefLabels]="showRefLabels"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        ></svg:g>
-        <svg:g [attr.clip-path]="clipPath">
-          <svg:g *ngFor="let series of results; trackBy: trackBy">
-            <svg:g
-              ngx-charts-area-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [baseValue]="baseValue"
-              [colors]="colors"
-              [data]="series"
-              [activeEntries]="activeEntries"
-              [scaleType]="scaleType"
-              [gradient]="gradient"
-              [curve]="curve"
-              [animations]="animations"
-            />
-          </svg:g>
-
-          <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
-            <svg:g
-              ngx-charts-tooltip-area
-              [dims]="dims"
-              [xSet]="xSet"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [results]="results"
-              [colors]="colors"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="seriesTooltipTemplate"
-              (hover)="updateHoveredVertical($event)"
-            />
-
-            <svg:g *ngFor="let series of results">
-              <svg:g
-                ngx-charts-circle-series
-                [xScale]="xScale"
-                [yScale]="yScale"
-                [colors]="colors"
-                [activeEntries]="activeEntries"
-                [data]="series"
-                [scaleType]="scaleType"
-                [visibleValue]="hoveredVertical"
-                [tooltipDisabled]="tooltipDisabled"
-                [tooltipTemplate]="tooltipTemplate"
-                (select)="onClick($event, series)"
-                (activate)="onActivate($event)"
-                (deactivate)="onDeactivate($event)"
-              />
-            </svg:g>
-          </svg:g>
-        </svg:g>
-      </svg:g>
-      <svg:g
-        ngx-charts-timeline
-        *ngIf="timeline && scaleType != 'ordinal'"
-        [attr.transform]="timelineTransform"
-        [results]="results"
-        [view]="[timelineWidth, height]"
-        [height]="timelineHeight"
-        [scheme]="scheme"
-        [customColors]="customColors"
-        [legend]="legend"
-        [scaleType]="scaleType"
-        (onDomainChange)="updateDomain($event)"
-      >
-        <svg:g *ngFor="let series of results; trackBy: trackBy">
-          <svg:g
-            ngx-charts-area-series
-            [xScale]="timelineXScale"
-            [yScale]="timelineYScale"
-            [baseValue]="baseValue"
-            [colors]="colors"
-            [data]="series"
-            [scaleType]="scaleType"
-            [gradient]="gradient"
-            [curve]="curve"
-            [animations]="animations"
-          />
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './area-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })
 export class AreaChartComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean = false;
-  @Input() yAxis: boolean = false;
-  @Input() baseValue: any = 'auto';
-  @Input() autoScale: boolean = false;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() timeline: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() curve: CurveFactory = curveLinear;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() roundDomains: boolean = false;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() referenceLines: any[];
-  @Input() showRefLines: boolean = false;
-  @Input() showRefLabels: boolean = false;
-  @Input() xScaleMin: any;
-  @Input() xScaleMax: any;
-  @Input() yScaleMin: number;
-  @Input() yScaleMax: number;
-  @Input() wrapTicks = false;
+  @Input() config: AreaChartOptions;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -239,6 +109,138 @@ export class AreaChartComponent extends BaseChartComponent {
   timelineXDomain: any[];
   timelineTransform: any;
   timelinePadding: number = 10;
+
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis ?? false;
+  }
+  get yAxis() {
+    return this.config?.yAxis ?? false;
+  }
+  get baseValue() {
+    return this.config?.baseValue ?? 'auto';
+  }
+  get autoScale() {
+    return this.config?.autoScale ?? false;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get timeline() {
+    return this.config?.timeline ?? false;
+  }
+  get gradient() {
+    return this.config?.gradient;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get curve() {
+    return this.config?.curve ?? curveLinear;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get trimXAxisTicks() {
+    return this.config?.trimXAxisTicks ?? true;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get rotateXAxisTicks() {
+    return this.config?.rotateXAxisTicks ?? true;
+  }
+  get maxXAxisTickLength() {
+    return this.config?.maxXAxisTickLength ?? 16;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get xAxisTicks() {
+    return this.config?.xAxisTicks;
+  }
+  get yAxisTicks() {
+    return this.config?.yAxisTicks;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get referenceLines() {
+    return this.config?.referenceLines;
+  }
+  get showRefLines() {
+    return this.config?.showRefLines ?? false;
+  }
+  get showRefLabels() {
+    return this.config?.showRefLabels ?? false;
+  }
+  get xScaleMin() {
+    return this.config?.xScaleMin;
+  }
+  get xScaleMax() {
+    return this.config?.xScaleMax;
+  }
+  get yScaleMin() {
+    return this.config?.yScaleMin;
+  }
+  get yScaleMax() {
+    return this.config?.yScaleMax;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+        if (this.config && this.config.schemeType) {
+          this.schemeType = this.config.schemeType;
+        }
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
+  }
 
   update(): void {
     super.update();

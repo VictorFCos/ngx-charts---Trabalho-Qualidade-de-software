@@ -24,140 +24,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
 
 @Component({
   selector: 'ngx-charts-area-chart-stacked',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)"
-    >
-      <svg:defs>
-        <svg:clipPath [attr.id]="clipPathId">
-          <svg:rect
-            [attr.width]="dims.width + 10"
-            [attr.height]="dims.height + 10"
-            [attr.transform]="'translate(-5, -5)'"
-          />
-        </svg:clipPath>
-      </svg:defs>
-      <svg:g [attr.transform]="transform" class="area-chart chart">
-        <svg:g
-          ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateXAxisHeight($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        ></svg:g>
-        <svg:g [attr.clip-path]="clipPath">
-          <svg:g *ngFor="let series of results; trackBy: trackBy">
-            <svg:g
-              ngx-charts-area-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [scaleType]="scaleType"
-              [gradient]="gradient"
-              [activeEntries]="activeEntries"
-              [stacked]="true"
-              [curve]="curve"
-              [animations]="animations"
-            />
-          </svg:g>
-
-          <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
-            <svg:g
-              ngx-charts-tooltip-area
-              [dims]="dims"
-              [xSet]="xSet"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [results]="results"
-              [colors]="colors"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="seriesTooltipTemplate"
-              (hover)="updateHoveredVertical($event)"
-            />
-
-            <svg:g *ngFor="let series of results; trackBy: trackBy">
-              <svg:g
-                ngx-charts-circle-series
-                [type]="seriesType.Stacked"
-                [xScale]="xScale"
-                [yScale]="yScale"
-                [colors]="colors"
-                [activeEntries]="activeEntries"
-                [data]="series"
-                [scaleType]="scaleType"
-                [visibleValue]="hoveredVertical"
-                [tooltipDisabled]="tooltipDisabled"
-                [tooltipTemplate]="tooltipTemplate"
-                (select)="onClick($event, series)"
-                (activate)="onActivate($event)"
-                (deactivate)="onDeactivate($event)"
-              />
-            </svg:g>
-          </svg:g>
-        </svg:g>
-      </svg:g>
-      <svg:g
-        ngx-charts-timeline
-        *ngIf="timeline && scaleType != 'ordinal'"
-        [attr.transform]="timelineTransform"
-        [results]="results"
-        [view]="[timelineWidth, height]"
-        [height]="timelineHeight"
-        [scheme]="scheme"
-        [customColors]="customColors"
-        [legend]="legend"
-        [scaleType]="scaleType"
-        (onDomainChange)="updateDomain($event)"
-      >
-        <svg:g *ngFor="let series of results; trackBy: trackBy">
-          <svg:g
-            ngx-charts-area-series
-            [xScale]="timelineXScale"
-            [yScale]="timelineYScale"
-            [colors]="colors"
-            [data]="series"
-            [scaleType]="scaleType"
-            [gradient]="gradient"
-            [stacked]="true"
-            [curve]="curve"
-            [animations]="animations"
-          />
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './area-chart-stacked.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -299,7 +166,8 @@ export class AreaChartStackedComponent extends BaseChartComponent {
     this.setColors();
     this.legendOptions = this.getLegendOptions();
 
-    this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
+    this.transform = `translate(${this.dims.xOffset
+      }, ${this.margin[0]})`;
 
     this.clipPathId = 'clip' + id().toString();
     this.clipPath = `url(#${this.clipPathId})`;
@@ -311,7 +179,7 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       this.timelineXDomain = this.getXDomain();
       this.timelineXScale = this.getXScale(this.timelineXDomain, this.timelineWidth);
       this.timelineYScale = this.getYScale(this.yDomain, this.timelineHeight);
-      this.timelineTransform = `translate(${this.dims.xOffset}, ${-this.margin[2]})`;
+      this.timelineTransform = `translate(${this.dims.xOffset}, ${- this.margin[2]})`;
     }
   }
 
@@ -436,7 +304,7 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   }
 
   trackBy(index, item): string {
-    return `${item.name}`;
+    return `${item.name} `;
   }
 
   setColors(): void {

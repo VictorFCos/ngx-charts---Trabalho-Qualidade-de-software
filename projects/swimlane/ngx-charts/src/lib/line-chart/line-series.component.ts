@@ -1,13 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
-import { area, line } from 'd3-shape';
-
-import { id } from '../utils/id';
-import { sortLinear, sortByTime, sortByDomain } from '../utils/sort';
 import { ColorHelper } from '../common/color.helper';
 import { Series } from '../models/chart-data.model';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { Gradient } from '../common/types/gradient.interface';
+import { updateLineSeries } from './line-series.helper';
 
 @Component({
   selector: 'g[ngx-charts-line-series]',
@@ -84,134 +81,42 @@ export class LineSeriesComponent implements OnChanges {
   gradientStops: Gradient[];
   areaGradientStops: Gradient[];
   stroke: string;
-
   barOrientation = BarOrientation;
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.update();
-  }
+    let shouldUpdate = false;
 
-  update(): void {
-    this.updateGradients();
-
-    const data = this.sortData(this.data.series);
-
-    const lineGen = this.getLineGenerator();
-    this.path = lineGen(data) || '';
-
-    const areaGen = this.getAreaGenerator();
-    this.areaPath = areaGen(data) || '';
-
-    if (this.hasRange) {
-      const range = this.getRangeGenerator();
-      this.outerPath = range(data) || '';
-    }
-
-    if (this.hasGradient) {
-      this.stroke = this.gradientUrl;
-      const values = this.data.series.map(d => d.value);
-      const max = Math.max(...values);
-      const min = Math.min(...values);
-      if (max === min) {
-        this.stroke = this.colors.getColor(max);
+    for (const propName in changes) {
+      if (propName === 'activeEntries') {
+        const current = changes[propName].currentValue;
+        const previous = changes[propName].previousValue;
+        if (!this.areActiveEntriesEqual(previous, current)) {
+          shouldUpdate = true;
+        }
+      } else {
+        shouldUpdate = true;
       }
-    } else {
-      this.stroke = this.colors.getColor(this.data.name);
+    }
+
+    if (shouldUpdate) {
+      this.update();
     }
   }
 
-  getLineGenerator(): any {
-    return line<any>()
-      .x(d => {
-        const label = d.name;
-        let value;
-        if (this.scaleType === ScaleType.Time) {
-          value = this.xScale(label);
-        } else if (this.scaleType === ScaleType.Linear) {
-          value = this.xScale(Number(label));
-        } else {
-          value = this.xScale(label);
-        }
-        return value;
-      })
-      .y(d => this.yScale(d.value))
-      .curve(this.curve);
+  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
+    if (prev === curr) return true;
+    if (!prev || !curr) return false;
+    if (prev.length !== curr.length) return false;
+    if (prev.length === 0 && curr.length === 0) return true;
+    return prev.every((v, i) => v === curr[i]);
   }
-
-  getRangeGenerator(): any {
-    return area<any>()
-      .x(d => {
-        const label = d.name;
-        let value;
-        if (this.scaleType === ScaleType.Time) {
-          value = this.xScale(label);
-        } else if (this.scaleType === ScaleType.Linear) {
-          value = this.xScale(Number(label));
-        } else {
-          value = this.xScale(label);
-        }
-        return value;
-      })
-      .y0(d => this.yScale(typeof d.min === 'number' ? d.min : d.value))
-      .y1(d => this.yScale(typeof d.max === 'number' ? d.max : d.value))
-      .curve(this.curve);
+  update(): void {
+    updateLineSeries(this);
   }
-
-  getAreaGenerator(): any {
-    const xProperty = d => {
-      const label = d.name;
-      return this.xScale(label);
-    };
-
-    return area<any>()
-      .x(xProperty)
-      .y0(() => this.yScale.range()[0])
-      .y1(d => this.yScale(d.value))
-      .curve(this.curve);
-  }
-
-  sortData(data) {
-    if (this.scaleType === ScaleType.Linear) {
-      data = sortLinear(data, 'name');
-    } else if (this.scaleType === ScaleType.Time) {
-      data = sortByTime(data, 'name');
-    } else {
-      data = sortByDomain(data, 'name', 'asc', this.xScale.domain());
-    }
-
-    return data;
-  }
-
-  updateGradients() {
-    if (this.colors.scaleType === ScaleType.Linear) {
-      this.hasGradient = true;
-      this.gradientId = 'grad' + id().toString();
-      this.gradientUrl = `url(#${this.gradientId})`;
-      const values = this.data.series.map(d => d.value);
-      const max = Math.max(...values);
-      const min = Math.min(...values);
-      this.gradientStops = this.colors.getLinearGradientStops(max, min);
-      this.areaGradientStops = this.colors.getLinearGradientStops(max);
-    } else {
-      this.hasGradient = false;
-      this.gradientStops = undefined;
-      this.areaGradientStops = undefined;
-    }
-  }
-
   isActive(entry): boolean {
-    if (!this.activeEntries) return false;
-    const item = this.activeEntries.find(d => {
-      return entry.name === d.name;
-    });
-    return item !== undefined;
+    return this.activeEntries ? this.activeEntries.some(d => entry.name === d.name) : false;
   }
-
   isInactive(entry): boolean {
-    if (!this.activeEntries || this.activeEntries.length === 0) return false;
-    const item = this.activeEntries.find(d => {
-      return entry.name === d.name;
-    });
-    return item === undefined;
+    return this.activeEntries?.length > 0 ? !this.activeEntries.some(d => entry.name === d.name) : false;
   }
 }

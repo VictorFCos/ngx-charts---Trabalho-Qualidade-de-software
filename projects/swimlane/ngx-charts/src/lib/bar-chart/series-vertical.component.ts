@@ -7,7 +7,8 @@ import {
   ChangeDetectionStrategy,
   TemplateRef,
   PLATFORM_ID,
-  Inject
+  Inject,
+  SimpleChanges
 } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { formatLabel, escapeLabel } from '../common/label.helper';
@@ -25,84 +26,7 @@ import { isPlatformServer } from '@angular/common';
 
 @Component({
   selector: 'g[ngx-charts-series-vertical]',
-  template: `
-    <svg:g *ngIf="!isSSR">
-      <svg:g
-        ngx-charts-bar
-        *ngFor="let bar of bars; trackBy: trackBy"
-        [@animationState]="'active'"
-        [@.disabled]="!animations"
-        [width]="bar.width"
-        [height]="bar.height"
-        [x]="bar.x"
-        [y]="bar.y"
-        [fill]="bar.color"
-        [stops]="bar.gradientStops"
-        [data]="bar.data"
-        [orientation]="barOrientation.Vertical"
-        [roundEdges]="bar.roundEdges"
-        [gradient]="gradient"
-        [ariaLabel]="bar.ariaLabel"
-        [isActive]="isActive(bar.data)"
-        (select)="onClick($event)"
-        (activate)="activate.emit($event)"
-        (deactivate)="deactivate.emit($event)"
-        ngx-tooltip
-        [tooltipDisabled]="tooltipDisabled"
-        [tooltipPlacement]="tooltipPlacement"
-        [tooltipType]="tooltipType"
-        [tooltipTitle]="tooltipTemplate ? undefined : bar.tooltipText"
-        [tooltipTemplate]="tooltipTemplate"
-        [tooltipContext]="bar.data"
-        [noBarWhenZero]="noBarWhenZero"
-        [animations]="animations"
-      ></svg:g>
-    </svg:g>
-    <svg:g *ngIf="isSSR">
-      <svg:g
-        ngx-charts-bar
-        *ngFor="let bar of bars; trackBy: trackBy"
-        [width]="bar.width"
-        [height]="bar.height"
-        [x]="bar.x"
-        [y]="bar.y"
-        [fill]="bar.color"
-        [stops]="bar.gradientStops"
-        [data]="bar.data"
-        [orientation]="barOrientation.Vertical"
-        [roundEdges]="bar.roundEdges"
-        [gradient]="gradient"
-        [ariaLabel]="bar.ariaLabel"
-        [isActive]="isActive(bar.data)"
-        (select)="onClick($event)"
-        (activate)="activate.emit($event)"
-        (deactivate)="deactivate.emit($event)"
-        ngx-tooltip
-        [tooltipDisabled]="tooltipDisabled"
-        [tooltipPlacement]="tooltipPlacement"
-        [tooltipType]="tooltipType"
-        [tooltipTitle]="tooltipTemplate ? undefined : bar.tooltipText"
-        [tooltipTemplate]="tooltipTemplate"
-        [tooltipContext]="bar.data"
-        [noBarWhenZero]="noBarWhenZero"
-        [animations]="animations"
-      ></svg:g>
-    </svg:g>
-    <svg:g *ngIf="showDataLabel">
-      <svg:g
-        ngx-charts-bar-label
-        *ngFor="let b of barsForDataLabels; let i = index; trackBy: trackDataLabelBy"
-        [barX]="b.x"
-        [barY]="b.y"
-        [barWidth]="b.width"
-        [barHeight]="b.height"
-        [value]="b.total"
-        [valueFormatting]="dataLabelFormatting"
-        [orientation]="barOrientation.Vertical"
-        (dimensionsChanged)="dataLabelHeightChanged.emit({ size: $event, index: i })"
-      />
-    </svg:g>
-  `,
+  templateUrl: './series-vertical.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('animationState', [
@@ -149,7 +73,7 @@ export class SeriesVerticalComponent implements OnChanges {
 
   isSSR = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: any) { }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
@@ -157,8 +81,32 @@ export class SeriesVerticalComponent implements OnChanges {
     }
   }
 
-  ngOnChanges(): void {
-    this.update();
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    for (const propName in changes) {
+      if (propName === 'activeEntries') {
+        const current = changes[propName].currentValue;
+        const previous = changes[propName].previousValue;
+        if (!this.areActiveEntriesEqual(previous, current)) {
+          shouldUpdate = true;
+        }
+      } else {
+        shouldUpdate = true;
+      }
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
+  }
+
+  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
+    if (prev === curr) return true;
+    if (!prev || !curr) return false;
+    if (prev.length !== curr.length) return false;
+    if (prev.length === 0 && curr.length === 0) return true;
+    return prev.every((v, i) => v === curr[i]);
   }
 
   update(): void {
@@ -264,8 +212,7 @@ export class SeriesVerticalComponent implements OnChanges {
         ? undefined
         : `
         <span class="tooltip-label">${escapeLabel(tooltipLabel)}</span>
-        <span class="tooltip-val">${
-          this.dataLabelFormatting ? this.dataLabelFormatting(value) : value.toLocaleString()
+        <span class="tooltip-val">${this.dataLabelFormatting ? this.dataLabelFormatting(value) : value.toLocaleString()
         }</span>
       `;
 

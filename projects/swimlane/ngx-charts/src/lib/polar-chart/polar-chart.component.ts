@@ -7,7 +7,8 @@ import {
   ChangeDetectionStrategy,
   ContentChild,
   TemplateRef,
-  OnInit
+  OnInit,
+  SimpleChanges
 } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
@@ -26,118 +27,39 @@ import { isPlatformServer } from '@angular/common';
 
 const twoPI = 2 * Math.PI;
 
+export interface PolarChartConfig {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  xAxis: boolean;
+  yAxis: boolean;
+  showXAxisLabel: boolean;
+  showYAxisLabel: boolean;
+  xAxisLabel: string;
+  yAxisLabel: string;
+  autoScale: boolean;
+  showGridLines: boolean;
+  curve: any;
+  activeEntries: any[];
+  schemeType: ScaleType;
+  rangeFillOpacity: number;
+  trimYAxisTicks: boolean;
+  maxYAxisTickLength: number;
+  xAxisTickFormatting: (o: any) => any;
+  yAxisTickFormatting: (o: any) => any;
+  roundDomains: boolean;
+  tooltipDisabled: boolean;
+  showSeriesOnHover: boolean;
+  gradient: boolean;
+  yAxisMinScale: number;
+  labelTrim: boolean;
+  labelTrimSize: number;
+  wrapTicks: boolean;
+}
+
 @Component({
   selector: 'ngx-charts-polar-chart',
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      [animations]="animations"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)"
-    >
-      <svg:g class="polar-chart chart" [attr.transform]="transform">
-        <svg:g [attr.transform]="transformPlot">
-          <svg:circle class="polar-chart-background" cx="0" cy="0" [attr.r]="this.outerRadius" />
-          <svg:g *ngIf="showGridLines">
-            <svg:circle
-              *ngFor="let r of radiusTicks"
-              class="gridline-path radial-gridline-path"
-              cx="0"
-              cy="0"
-              [attr.r]="r"
-            />
-          </svg:g>
-          <svg:g *ngIf="xAxis">
-            <svg:g
-              ngx-charts-pie-label
-              *ngFor="let tick of thetaTicks"
-              [data]="tick"
-              [radius]="outerRadius"
-              [label]="tick.label"
-              [max]="outerRadius"
-              [value]="showGridLines ? 1 : outerRadius"
-              [explodeSlices]="true"
-              [animations]="animations"
-              [labelTrim]="labelTrim"
-              [labelTrimSize]="labelTrimSize"
-            ></svg:g>
-          </svg:g>
-        </svg:g>
-        <svg:g
-          ngx-charts-y-axis
-          [attr.transform]="transformYAxis"
-          *ngIf="yAxis"
-          [yScale]="yAxisScale"
-          [dims]="yAxisDims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [wrapTicks]="wrapTicks"
-          (dimensionsChanged)="updateYAxisWidth($event)"
-        ></svg:g>
-        <svg:g
-          ngx-charts-axis-label
-          *ngIf="xAxis && showXAxisLabel"
-          [label]="xAxisLabel"
-          [offset]="labelOffset"
-          [orient]="orientation.Bottom"
-          [height]="dims.height"
-          [width]="dims.width"
-        ></svg:g>
-        <svg:g *ngIf="!isSSR" [attr.transform]="transformPlot">
-          <svg:g *ngFor="let series of results; trackBy: trackBy" [@animationState]="'active'">
-            <svg:g
-              ngx-charts-polar-series
-              [gradient]="gradient"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [activeEntries]="activeEntries"
-              [scaleType]="scaleType"
-              [curve]="curve"
-              [rangeFillOpacity]="rangeFillOpacity"
-              [animations]="animations"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="tooltipTemplate"
-              (select)="onClick($event)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
-          </svg:g>
-        </svg:g>
-        <svg:g *ngIf="isSSR" [attr.transform]="transformPlot">
-          <svg:g *ngFor="let series of results; trackBy: trackBy">
-            <svg:g
-              ngx-charts-polar-series
-              [gradient]="gradient"
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [activeEntries]="activeEntries"
-              [scaleType]="scaleType"
-              [curve]="curve"
-              [rangeFillOpacity]="rangeFillOpacity"
-              [animations]="animations"
-              [tooltipDisabled]="tooltipDisabled"
-              [tooltipTemplate]="tooltipTemplate"
-              (select)="onClick($event)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
-          </svg:g>
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `,
+  templateUrl: './polar-chart.component.html',
   styleUrls: [
     '../common/base-chart.component.scss',
     '../pie-chart/pie-chart.component.scss',
@@ -163,33 +85,7 @@ const twoPI = 2 * Math.PI;
   standalone: false
 })
 export class PolarChartComponent extends BaseChartComponent implements OnInit {
-  @Input() legend: boolean;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean;
-  @Input() yAxis: boolean;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() autoScale: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() curve: any = curveCardinalClosed;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() rangeFillOpacity: number = 0.15;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting?: (o: any) => string;
-  @Input() yAxisTickFormatting?: (o: any) => string;
-  @Input() roundDomains: boolean = false;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() showSeriesOnHover: boolean = true;
-  @Input() gradient: boolean = false;
-  @Input() yAxisMinScale: number = 0;
-  @Input() labelTrim: boolean = true;
-  @Input() labelTrimSize: number = 10;
-  @Input() wrapTicks = false;
+  @Input() config: PolarChartConfig;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -225,14 +121,115 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   isSSR = false;
 
+  get legend() {
+    return this.config?.legend;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get xAxis() {
+    return this.config?.xAxis;
+  }
+  get yAxis() {
+    return this.config?.yAxis;
+  }
+  get showXAxisLabel() {
+    return this.config?.showXAxisLabel;
+  }
+  get showYAxisLabel() {
+    return this.config?.showYAxisLabel;
+  }
+  get xAxisLabel() {
+    return this.config?.xAxisLabel;
+  }
+  get yAxisLabel() {
+    return this.config?.yAxisLabel;
+  }
+  get autoScale() {
+    return this.config?.autoScale;
+  }
+  get showGridLines() {
+    return this.config?.showGridLines ?? true;
+  }
+  get curve() {
+    return this.config?.curve ?? curveCardinalClosed;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get rangeFillOpacity() {
+    return this.config?.rangeFillOpacity ?? 0.15;
+  }
+  get trimYAxisTicks() {
+    return this.config?.trimYAxisTicks ?? true;
+  }
+  get maxYAxisTickLength() {
+    return this.config?.maxYAxisTickLength ?? 16;
+  }
+  get xAxisTickFormatting() {
+    return this.config?.xAxisTickFormatting;
+  }
+  get yAxisTickFormatting() {
+    return this.config?.yAxisTickFormatting;
+  }
+  get roundDomains() {
+    return this.config?.roundDomains ?? false;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get showSeriesOnHover() {
+    return this.config?.showSeriesOnHover ?? true;
+  }
+  get gradient() {
+    return this.config?.gradient ?? false;
+  }
+  get yAxisMinScale() {
+    return this.config?.yAxisMinScale ?? 0;
+  }
+  get labelTrim() {
+    return this.config?.labelTrim ?? true;
+  }
+  get labelTrimSize() {
+    return this.config?.labelTrimSize ?? 10;
+  }
+  get wrapTicks() {
+    return this.config?.wrapTicks ?? false;
+  }
+
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
       this.isSSR = true;
     }
   }
 
-  ngOnChanges(): void {
-    this.update();
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+        if (this.config && this.config.schemeType) {
+          this.schemeType = this.config.schemeType;
+        }
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {

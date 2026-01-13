@@ -16,7 +16,7 @@ import { ColorHelper } from '../common/color.helper';
 import { PlacementTypes } from './tooltip/position';
 import { StyleTypes } from './tooltip/style.type';
 import { ViewDimensions } from './types/view-dimension.interface';
-import { ScaleType } from './types/scale-type.enum';
+import { getTooltipValues, findClosestPointIndex, getTooltipAreaText, tooltipAreaMove } from './tooltip.helper';
 
 export interface Tooltip {
   color: string;
@@ -116,148 +116,44 @@ export class TooltipArea {
 
   constructor(@Inject(PLATFORM_ID) private platformId: any) {}
 
-  getValues(xVal): Tooltip[] {
-    const results = [];
-
-    for (const group of this.results) {
-      const item = group.series.find(d => d.name.toString() === xVal.toString());
-      let groupName = group.name;
-      if (groupName instanceof Date) {
-        groupName = groupName.toLocaleDateString();
-      }
-
-      if (item) {
-        const label = item.name;
-        let val = item.value;
-        if (this.showPercentage) {
-          val = (item.d1 - item.d0).toFixed(2) + '%';
-        }
-        let color;
-        if (this.colors.scaleType === ScaleType.Linear) {
-          let v = val;
-          if (item.d1) {
-            v = item.d1;
-          }
-          color = this.colors.getColor(v);
-        } else {
-          color = this.colors.getColor(group.name);
-        }
-
-        const data = Object.assign({}, item, {
-          value: val,
-          name: label,
-          series: groupName,
-          min: item.min,
-          max: item.max,
-          color
-        });
-
-        results.push(data);
-      }
-    }
-
-    return results;
-  }
-
   mouseMove(event) {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
+    const { anchorPos, anchorValues, closestPoint } = tooltipAreaMove(
+      event,
+      this.xSet,
+      this.xScale,
+      this.dims,
+      this.results,
+      this.colors,
+      this.showPercentage
+    );
+    this.anchorPos = anchorPos;
+    this.anchorValues = anchorValues;
 
-    const xPos = event.pageX - event.target.getBoundingClientRect().left;
-
-    const closestIndex = this.findClosestPointIndex(xPos);
-    const closestPoint = this.xSet[closestIndex];
-    this.anchorPos = this.xScale(closestPoint);
-    this.anchorPos = Math.max(0, this.anchorPos);
-    this.anchorPos = Math.min(this.dims.width, this.anchorPos);
-
-    this.anchorValues = this.getValues(closestPoint);
     if (this.anchorPos !== this.lastAnchorPos) {
-      const ev = createMouseEvent('mouseleave');
-      this.tooltipAnchor.nativeElement.dispatchEvent(ev);
+      this.tooltipAnchor.nativeElement.dispatchEvent(createMouseEvent('mouseleave'));
       this.anchorOpacity = 0.7;
-      this.hover.emit({
-        value: closestPoint
-      });
+      this.hover.emit({ value: closestPoint });
       this.showTooltip();
-
       this.lastAnchorPos = this.anchorPos;
     }
   }
 
-  findClosestPointIndex(xPos: number): number {
-    let minIndex = 0;
-    let maxIndex = this.xSet.length - 1;
-    let minDiff = Number.MAX_VALUE;
-    let closestIndex = 0;
-
-    while (minIndex <= maxIndex) {
-      const currentIndex = ((minIndex + maxIndex) / 2) | 0;
-      const currentElement = this.xScale(this.xSet[currentIndex]);
-
-      const curDiff = Math.abs(currentElement - xPos);
-
-      if (curDiff < minDiff) {
-        minDiff = curDiff;
-        closestIndex = currentIndex;
-      }
-
-      if (currentElement < xPos) {
-        minIndex = currentIndex + 1;
-      } else if (currentElement > xPos) {
-        maxIndex = currentIndex - 1;
-      } else {
-        minDiff = 0;
-        closestIndex = currentIndex;
-        break;
-      }
-    }
-
-    return closestIndex;
-  }
-
   showTooltip(): void {
-    const event = createMouseEvent('mouseenter');
-    this.tooltipAnchor.nativeElement.dispatchEvent(event);
+    if (isPlatformBrowser(this.platformId)) {
+      this.tooltipAnchor.nativeElement.dispatchEvent(createMouseEvent('mouseenter'));
+    }
   }
 
   hideTooltip(): void {
-    const event = createMouseEvent('mouseleave');
-    this.tooltipAnchor.nativeElement.dispatchEvent(event);
+    if (isPlatformBrowser(this.platformId)) {
+      this.tooltipAnchor.nativeElement.dispatchEvent(createMouseEvent('mouseleave'));
+    }
     this.anchorOpacity = 0;
     this.lastAnchorPos = -1;
   }
 
   getToolTipText(tooltipItem: Tooltip): string {
-    let result: string = '';
-    if (tooltipItem.series !== undefined) {
-      result += tooltipItem.series;
-    } else {
-      result += '???';
-    }
-    result += ': ';
-    if (tooltipItem.value !== undefined) {
-      result += tooltipItem.value.toLocaleString();
-    }
-    if (tooltipItem.min !== undefined || tooltipItem.max !== undefined) {
-      result += ' (';
-      if (tooltipItem.min !== undefined) {
-        if (tooltipItem.max === undefined) {
-          result += '≥';
-        }
-        result += tooltipItem.min.toLocaleString();
-        if (tooltipItem.max !== undefined) {
-          result += ' - ';
-        }
-      } else if (tooltipItem.max !== undefined) {
-        result += '≤';
-      }
-      if (tooltipItem.max !== undefined) {
-        result += tooltipItem.max.toLocaleString();
-      }
-      result += ')';
-    }
-    return result;
+    return getTooltipAreaText(tooltipItem);
   }
 }

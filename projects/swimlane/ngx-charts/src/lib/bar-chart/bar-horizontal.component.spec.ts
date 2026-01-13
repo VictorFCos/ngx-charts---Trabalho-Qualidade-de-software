@@ -22,6 +22,7 @@ class TestComponent {
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
+  config: any = {};
 }
 
 describe('<ngx-charts-bar-horizontal>', () => {
@@ -42,7 +43,8 @@ describe('<ngx-charts-bar-horizontal>', () => {
                 [animations]="false"
                 [view]="[400,800]"
                 [scheme]="colorScheme"
-                [results]="single">
+                [results]="single"
+                [config]="config">
               </ngx-charts-bar-horizontal>`
         }
       }).compileComponents();
@@ -87,7 +89,7 @@ describe('<ngx-charts-bar-horizontal>', () => {
                 [view]="[400,800]"
                 [scheme]="colorScheme"
                 [results]="single"
-                [barPadding]="0">
+                [config]="{ barPadding: 0 }">
               </ngx-charts-bar-horizontal>`
         }
       }).compileComponents();
@@ -113,7 +115,7 @@ describe('<ngx-charts-bar-horizontal>', () => {
             [view]="[400,800]"
             [scheme]="colorScheme"
             [results]="single"
-            [barPadding]="20">
+            [config]="{ barPadding: 20 }">
           </ngx-charts-bar-horizontal>`
         }
       }).compileComponents();
@@ -148,9 +150,7 @@ describe('<ngx-charts-bar-horizontal>', () => {
               { name: 'Lorem Ipsum is simply dummy text of the printing', value: 3000 },
               { name: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', value: 5655 },
             ]"
-            [xAxis]="true"
-            [yAxis]="true"
-            [wrapTicks]="true"
+            [config]="{ xAxis: true, yAxis: true, wrapTicks: true }"
           >
           </ngx-charts-bar-horizontal>`
         }

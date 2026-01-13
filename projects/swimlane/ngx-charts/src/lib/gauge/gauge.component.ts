@@ -9,10 +9,10 @@ import {
   EventEmitter,
   ViewEncapsulation,
   ContentChild,
-  TemplateRef
+  TemplateRef,
+  SimpleChanges
 } from '@angular/core';
 import { scaleLinear } from 'd3-scale';
-
 import { BaseChartComponent } from '../common/base-chart.component';
 import { calculateViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
@@ -20,10 +20,32 @@ import { ArcItem } from './gauge-arc.component';
 import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
+import { getGaugeValueDomain, getGaugeDisplayValue, getGaugeArcs } from './gauge.helper';
 
 interface Arcs {
   backgroundArc: ArcItem;
   valueArc: ArcItem;
+}
+
+export interface GaugeOptions {
+  legend: boolean;
+  legendTitle: string;
+  legendPosition: LegendPosition;
+  min: number;
+  max: number;
+  textValue: string;
+  units: string;
+  bigSegments: number;
+  smallSegments: number;
+  showAxis: boolean;
+  startAngle: number;
+  angleSpan: number;
+  activeEntries: any[];
+  axisTickFormatting: any;
+  tooltipDisabled: boolean;
+  valueFormatting: (value: any) => string;
+  showText: boolean;
+  margin: number[];
 }
 
 @Component({
@@ -57,7 +79,6 @@ interface Arcs {
             (deactivate)="onDeactivate($event)"
           ></svg:g>
         </svg:g>
-
         <svg:g
           ngx-charts-gauge-axis
           *ngIf="showAxis"
@@ -71,7 +92,6 @@ interface Arcs {
           [startAngle]="startAngle"
           [tickFormatting]="axisTickFormatting"
         ></svg:g>
-
         <svg:text
           #textEl
           *ngIf="showText"
@@ -91,45 +111,20 @@ interface Arcs {
   standalone: false
 })
 export class GaugeComponent extends BaseChartComponent implements AfterViewInit {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() min: number = 0;
-  @Input() max: number = 100;
-  @Input() textValue: string;
-  @Input() units: string;
-  @Input() bigSegments: number = 10;
-  @Input() smallSegments: number = 5;
-  @Input() declare results: any[];
-  @Input() showAxis: boolean = true;
-  @Input() startAngle: number = -120;
-  @Input() angleSpan: number = 240;
-  @Input() activeEntries: any[] = [];
-  @Input() axisTickFormatting: any;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() valueFormatting: (value: any) => string;
-  @Input() showText: boolean = true;
-
-  // Specify margins
-  @Input() margin: number[];
-
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
-
+  @Input() config: GaugeOptions;
+  @Output() activate = new EventEmitter();
+  @Output() deactivate = new EventEmitter();
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
-
   @ViewChild('textEl') textEl: ElementRef;
 
   dims: ViewDimensions;
   domain: any[];
   valueDomain: [number, number];
   valueScale: any;
-
   colors: ColorHelper;
   transform: string;
-
   outerRadius: number;
-  textRadius: number; // max available radius for the text
+  textRadius: number;
   resizeScale: number = 1;
   rotation: string = '';
   textTransform: string = 'scale(1, 1)';
@@ -138,10 +133,83 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   displayValue: string;
   legendOptions: LegendOptions;
 
-  ngOnChanges(): void {
-    this.update();
+  get legend() {
+    return this.config?.legend ?? false;
+  }
+  get legendTitle() {
+    return this.config?.legendTitle ?? 'Legend';
+  }
+  get legendPosition() {
+    return this.config?.legendPosition ?? LegendPosition.Right;
+  }
+  get min() {
+    return this.config?.min ?? 0;
+  }
+  get max() {
+    return this.config?.max ?? 100;
+  }
+  get textValue() {
+    return this.config?.textValue;
+  }
+  get units() {
+    return this.config?.units;
+  }
+  get bigSegments() {
+    return this.config?.bigSegments ?? 10;
+  }
+  get smallSegments() {
+    return this.config?.smallSegments ?? 5;
+  }
+  get showAxis() {
+    return this.config?.showAxis ?? true;
+  }
+  get startAngle() {
+    return this.config?.startAngle ?? -120;
+  }
+  get angleSpan() {
+    return this.config?.angleSpan ?? 240;
+  }
+  get activeEntries() {
+    return this.config?.activeEntries ?? [];
+  }
+  set activeEntries(value: any[]) {
+    if (this.config) this.config.activeEntries = value;
+  }
+  get axisTickFormatting() {
+    return this.config?.axisTickFormatting;
+  }
+  get tooltipDisabled() {
+    return this.config?.tooltipDisabled ?? false;
+  }
+  get valueFormatting() {
+    return this.config?.valueFormatting;
+  }
+  get showText() {
+    return this.config?.showText ?? true;
+  }
+  get margin() {
+    return this.config?.margin;
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
+  }
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
     setTimeout(() => this.scaleText());
@@ -149,24 +217,8 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
 
   update(): void {
     super.update();
-
-    if (!this.showAxis) {
-      if (!this.margin) {
-        this.margin = [10, 20, 10, 20];
-      }
-    } else {
-      if (!this.margin) {
-        this.margin = [60, 100, 60, 100];
-      }
-    }
-
-    // make the starting angle positive
-    if (this.startAngle < 0) {
-      this.startAngle = (this.startAngle % 360) + 360;
-    }
-
-    this.angleSpan = Math.min(this.angleSpan, 360);
-
+    if (!this.margin)
+      this.config = { ...this.config, margin: this.showAxis ? [60, 100, 60, 100] : [10, 20, 10, 20] } as any;
     this.dims = calculateViewDimensions({
       width: this.width,
       height: this.height,
@@ -174,188 +226,66 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
       showLegend: this.legend,
       legendPosition: this.legendPosition
     });
-
-    this.domain = this.getDomain();
-    this.valueDomain = this.getValueDomain();
-    this.valueScale = this.getValueScale();
-    this.displayValue = this.getDisplayValue();
-
+    this.domain = this.results.map(d => d.name);
+    this.valueDomain = getGaugeValueDomain(this.results, this.min, this.max);
+    this.valueScale = scaleLinear()
+      .range([0, Math.min(this.angleSpan, 360)])
+      .nice()
+      .domain(this.valueDomain);
+    this.displayValue = getGaugeDisplayValue(this.results, this.textValue, this.valueFormatting);
     this.outerRadius = Math.min(this.dims.width, this.dims.height) / 2;
-
-    this.arcs = this.getArcs();
-
-    this.setColors();
-    this.legendOptions = this.getLegendOptions();
-
-    const xOffset = this.margin[3] + this.dims.width / 2;
-    const yOffset = this.margin[0] + this.dims.height / 2;
-
-    this.transform = `translate(${xOffset}, ${yOffset})`;
-    this.rotation = `rotate(${this.startAngle})`;
-    setTimeout(() => this.scaleText(), 50);
-  }
-
-  getArcs(): any[] {
-    const arcs = [];
-
-    const availableRadius = this.outerRadius * 0.7;
-
-    const radiusPerArc = Math.min(availableRadius / this.results.length, 10);
-    const arcWidth = radiusPerArc * 0.7;
-    this.textRadius = this.outerRadius - this.results.length * radiusPerArc;
-    this.cornerRadius = Math.floor(arcWidth / 2);
-
-    let i = 0;
-    for (const d of this.results) {
-      const outerRadius = this.outerRadius - i * radiusPerArc;
-      const innerRadius = outerRadius - arcWidth;
-
-      const backgroundArc = {
-        endAngle: (this.angleSpan * Math.PI) / 180,
-        innerRadius,
-        outerRadius,
-        data: {
-          value: this.max,
-          name: d.name
-        }
-      };
-
-      const valueArc = {
-        endAngle: (Math.min(this.valueScale(d.value), this.angleSpan) * Math.PI) / 180,
-        innerRadius,
-        outerRadius,
-        data: {
-          value: d.value,
-          name: d.name
-        }
-      };
-
-      const arc = {
-        backgroundArc,
-        valueArc
-      };
-
-      arcs.push(arc);
-      i++;
-    }
-
-    return arcs;
-  }
-
-  getDomain(): string[] {
-    return this.results.map(d => d.name);
-  }
-
-  getValueDomain(): [number, number] {
-    const values = this.results.map(d => d.value);
-    const dataMin = Math.min(...values);
-    const dataMax = Math.max(...values);
-
-    if (this.min !== undefined) {
-      this.min = Math.min(this.min, dataMin);
-    } else {
-      this.min = dataMin;
-    }
-
-    if (this.max !== undefined) {
-      this.max = Math.max(this.max, dataMax);
-    } else {
-      this.max = dataMax;
-    }
-
-    return [this.min, this.max];
-  }
-
-  getValueScale(): any {
-    return scaleLinear().range([0, this.angleSpan]).nice().domain(this.valueDomain);
-  }
-
-  getDisplayValue(): string {
-    const value = this.results.map(d => d.value).reduce((a, b) => a + b, 0);
-
-    if (this.textValue && 0 !== this.textValue.length) {
-      return this.textValue.toLocaleString();
-    }
-
-    if (this.valueFormatting) {
-      return this.valueFormatting(value);
-    }
-
-    return value.toLocaleString();
-  }
-
-  scaleText(repeat: boolean = true): void {
-    if (!this.showText) {
-      return;
-    }
-    const { width } = this.textEl.nativeElement.getBoundingClientRect();
-    const oldScale = this.resizeScale;
-
-    if (width === 0) {
-      this.resizeScale = 1;
-    } else {
-      const availableSpace = this.textRadius;
-      this.resizeScale = Math.floor((availableSpace / (width / this.resizeScale)) * 100) / 100;
-    }
-
-    if (this.resizeScale !== oldScale) {
-      this.textTransform = `scale(${this.resizeScale}, ${this.resizeScale})`;
-      this.cd.markForCheck();
-      if (repeat) {
-        setTimeout(() => this.scaleText(false), 50);
-      }
-    }
-  }
-
-  onClick(data): void {
-    this.select.emit(data);
-  }
-
-  getLegendOptions(): LegendOptions {
-    return {
+    this.arcs = getGaugeArcs(this.results, this.outerRadius, Math.min(this.angleSpan, 360), this.valueScale, this.max);
+    this.cornerRadius = Math.floor((Math.min((this.outerRadius * 0.7) / this.results.length, 10) * 0.7) / 2);
+    this.textRadius =
+      this.outerRadius - this.results.length * Math.min((this.outerRadius * 0.7) / this.results.length, 10);
+    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain, this.customColors);
+    this.legendOptions = {
       scaleType: ScaleType.Ordinal,
       colors: this.colors,
       domain: this.domain,
       title: this.legendTitle,
       position: this.legendPosition
     };
+    this.transform = `translate(${this.margin[3] + this.dims.width / 2}, ${this.margin[0] + this.dims.height / 2})`;
+    this.rotation = `rotate(${this.startAngle < 0 ? (this.startAngle % 360) + 360 : this.startAngle})`;
+    setTimeout(() => this.scaleText(), 50);
   }
 
-  setColors(): void {
-    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain, this.customColors);
-  }
-
-  onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
-      return d.name === item.name && d.value === item.value;
-    });
-    if (idx > -1) {
-      return;
+  scaleText(repeat: boolean = true): void {
+    if (!this.showText || !this.textEl) return;
+    const { width } = this.textEl.nativeElement.getBoundingClientRect();
+    const oldScale = this.resizeScale;
+    this.resizeScale = width === 0 ? 1 : Math.floor((this.textRadius / (width / this.resizeScale)) * 100) / 100;
+    if (this.resizeScale !== oldScale) {
+      this.textTransform = `scale(${this.resizeScale}, ${this.resizeScale})`;
+      this.cd.markForCheck();
+      if (repeat) setTimeout(() => this.scaleText(false), 50);
     }
-
-    this.activeEntries = [item, ...this.activeEntries];
-    this.activate.emit({ value: item, entries: this.activeEntries });
   }
 
+  onClick(data): void {
+    this.select.emit(data);
+  }
+  onActivate(item): void {
+    const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
+    if (idx === -1) {
+      this.activeEntries = [item, ...this.activeEntries];
+      this.activate.emit({ value: item, entries: this.activeEntries });
+    }
+  }
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
-      return d.name === item.name && d.value === item.value;
-    });
-
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
-
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
+    if (idx > -1) {
+      this.activeEntries.splice(idx, 1);
+      this.activeEntries = [...this.activeEntries];
+      this.deactivate.emit({ value: item, entries: this.activeEntries });
+    }
   }
-
   isActive(entry): boolean {
-    if (!this.activeEntries) return false;
-    const item = this.activeEntries.find(d => {
-      return entry.name === d.name && entry.series === d.series;
-    });
-    return item !== undefined;
+    return this.activeEntries
+      ? this.activeEntries.some(d => entry.name === d.name && entry.series === d.series)
+      : false;
   }
-
   trackBy(index: number, item: Arcs): any {
     return item.valueArc.data.name;
   }
