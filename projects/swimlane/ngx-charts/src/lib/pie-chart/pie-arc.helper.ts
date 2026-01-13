@@ -47,16 +47,12 @@ export function animatePieArc(
       });
   } else {
     node
-      .transition()
-      .attrTween('d', function (d) {
+      .attr('d', function (d) {
         (<any>this)._current = (<any>this)._current || d;
         const copyOfD = Object.assign({}, d);
         copyOfD.endAngle = copyOfD.startAngle;
-        const interpolater = interpolate(copyOfD, copyOfD);
-        (<any>this)._current = interpolater(0);
-        return function (t) {
-          return calc(interpolater(t));
-        };
+        (<any>this)._current = copyOfD;
+        return calc(copyOfD);
       })
       .transition()
       .duration(750)

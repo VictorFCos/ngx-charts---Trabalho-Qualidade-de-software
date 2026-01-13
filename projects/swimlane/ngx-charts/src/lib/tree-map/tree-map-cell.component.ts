@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, OnChanges, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { invertColor } from '../utils/color-utils';
 import { id } from '../utils/id';
 import { DataItem } from '../models/chart-data.model';
@@ -87,13 +87,24 @@ export class TreeMapCellComponent implements OnChanges {
     this.element = element.nativeElement;
   }
 
-  ngOnChanges(): void {
-    updateTreeMapCell(this);
-    this.formattedValue = getTreeMapCellFormattedValue(this.value, this.valueFormatting);
-    this.formattedLabel = getTreeMapCellFormattedLabel(this.label, this.labelFormatting, this.data, this.value);
-    this.gradientId = 'grad' + id().toString();
-    this.gradientUrl = `url(#${this.gradientId})`;
-    this.gradientStops = getTreeMapCellGradientStops(this.fill);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.fill || changes.width || changes.height || changes.x || changes.y || changes.animations) {
+      updateTreeMapCell(this);
+    }
+
+    if (changes.value || changes.valueFormatting) {
+      this.formattedValue = getTreeMapCellFormattedValue(this.value, this.valueFormatting);
+    }
+
+    if (changes.label || changes.labelFormatting || changes.data || changes.value) {
+      this.formattedLabel = getTreeMapCellFormattedLabel(this.label, this.labelFormatting, this.data, this.value);
+    }
+
+    if (changes.fill || !this.initialized) {
+      this.gradientId = 'grad' + id().toString();
+      this.gradientUrl = `url(#${this.gradientId})`;
+      this.gradientStops = getTreeMapCellGradientStops(this.fill);
+    }
   }
 
   getTextColor(): string {

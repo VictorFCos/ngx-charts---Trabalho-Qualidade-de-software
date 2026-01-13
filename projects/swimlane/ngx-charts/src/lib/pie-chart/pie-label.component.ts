@@ -70,8 +70,27 @@ export class PieLabelComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.setTransforms();
-    this.update();
+    const updateFields = ['data', 'radius', 'label', 'color', 'max', 'value', 'explodeSlices', 'labelTrim', 'labelTrimSize'];
+    const shouldUpdate = updateFields.some(f => changes[f]);
+
+    if (shouldUpdate) {
+      // Check for data equality if it's the only change
+      if (Object.keys(changes).length === 1 && changes.data) {
+        const prev = changes.data.previousValue;
+        const curr = changes.data.currentValue;
+        if (prev && curr &&
+          prev.data === curr.data &&
+          prev.index === curr.index &&
+          prev.pos[0] === curr.pos[0] &&
+          prev.pos[1] === curr.pos[1] &&
+          prev.value === curr.value) {
+          return;
+        }
+      }
+
+      this.setTransforms();
+      this.update();
+    }
   }
 
   setTransforms() {

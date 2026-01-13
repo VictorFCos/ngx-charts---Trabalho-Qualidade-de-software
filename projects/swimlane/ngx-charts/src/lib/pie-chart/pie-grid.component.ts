@@ -6,7 +6,8 @@ import {
   ContentChild,
   TemplateRef,
   Output,
-  EventEmitter
+  EventEmitter,
+  SimpleChanges
 } from '@angular/core';
 import { min } from 'd3-array';
 import { format } from 'd3-format';
@@ -37,7 +38,7 @@ export interface PieGridConfig {
   template: `
     <ngx-charts-chart [view]="[width, height]" [showLegend]="false" [animations]="animations">
       <svg:g [attr.transform]="transform" class="pie-grid chart">
-        <svg:g *ngFor="let series of series" class="pie-grid-item" [attr.transform]="series.transform">
+        <svg:g *ngFor="let series of series; trackBy: trackBy" class="pie-grid-item" [attr.transform]="series.transform">
           <svg:g
             ngx-charts-pie-grid-series
             [colors]="series.colors"
@@ -147,8 +148,24 @@ export class PieGridComponent extends BaseChartComponent {
     if (this.config) this.config.activeEntries = value;
   }
 
-  ngOnChanges(): void {
-    this.update();
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+      }
+    }
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {
@@ -237,6 +254,10 @@ export class PieGridComponent extends BaseChartComponent {
 
   getTotal(): any {
     return this.results.map(d => d.value).reduce((sum, d) => sum + d, 0);
+  }
+
+  trackBy(index, item): string {
+    return item.name;
   }
 
   onClick(data: DataItem): void {

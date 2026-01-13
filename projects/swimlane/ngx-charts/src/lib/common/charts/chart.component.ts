@@ -69,7 +69,31 @@ export class ChartComponent implements OnChanges {
   readonly LegendType = LegendType;
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.update();
+    let shouldUpdate = false;
+
+    for (const propName in changes) {
+      if (propName === 'activeEntries') {
+        const current = changes[propName].currentValue;
+        const previous = changes[propName].previousValue;
+        if (!this.areActiveEntriesEqual(previous, current)) {
+          shouldUpdate = true;
+        }
+      } else {
+        shouldUpdate = true;
+      }
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
+  }
+
+  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
+    if (prev === curr) return true;
+    if (!prev || !curr) return false;
+    if (prev.length !== curr.length) return false;
+    if (prev.length === 0 && curr.length === 0) return true;
+    return prev.every((v, i) => v === curr[i]);
   }
 
   update(): void {

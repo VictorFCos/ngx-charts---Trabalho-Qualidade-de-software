@@ -74,7 +74,24 @@ export class PieArcComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.update();
+    const updateFields = [
+      'startAngle',
+      'endAngle',
+      'innerRadius',
+      'outerRadius',
+      'cornerRadius',
+      'value',
+      'max',
+      'explodeSlices',
+      'gradient',
+      'animate',
+      'fill'
+    ];
+    const shouldUpdate = updateFields.some(f => changes[f]);
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   getGradient(): string {

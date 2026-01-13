@@ -7,7 +7,8 @@ import {
   ChangeDetectionStrategy,
   ContentChild,
   TemplateRef,
-  OnInit
+  OnInit,
+  SimpleChanges
 } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
@@ -317,11 +318,27 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
     }
   }
 
-  ngOnChanges(): void {
-    if (this.config && this.config.schemeType) {
-      this.schemeType = this.config.schemeType;
+  ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdate = false;
+
+    // Check config for content changes
+    if (changes.config) {
+      if (!this.areConfigsEqual(changes.config.previousValue, changes.config.currentValue)) {
+        shouldUpdate = true;
+        if (this.config && this.config.schemeType) {
+          this.schemeType = this.config.schemeType;
+        }
+      }
     }
-    this.update();
+
+    // Checks if any other input changed
+    if (Object.keys(changes).some(k => k !== 'config')) {
+      shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   update(): void {
