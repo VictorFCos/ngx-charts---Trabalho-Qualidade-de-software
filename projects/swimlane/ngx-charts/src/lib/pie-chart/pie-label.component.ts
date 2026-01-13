@@ -8,56 +8,19 @@ import {
   PLATFORM_ID,
   Inject
 } from '@angular/core';
-import { arc, DefaultArcObject } from 'd3-shape';
 
 import { trimLabel } from '../common/trim-label.helper';
 import { TextAnchor } from '../common/types/text-anchor.enum';
-import { DataItem } from '../models/chart-data.model';
-
-export interface PieData extends DefaultArcObject {
-  data: DataItem;
-  index: number;
-  pos: [number, number];
-  value: number;
-}
+import { PieLabelConfig, calculateLine, getTextAnchor } from './pie-label.helper';
 
 @Component({
   selector: 'g[ngx-charts-pie-label]',
-  template: `
-    <title>{{ label }}</title>
-    <svg:g [attr.transform]="attrTransform" [style.transform]="styleTransform" [style.transition]="textTransition">
-      <svg:text
-        class="pie-label"
-        [class.animation]="animations"
-        dy=".35em"
-        [style.textAnchor]="textAnchor()"
-        [style.shapeRendering]="'crispEdges'"
-      >
-        {{ labelTrim ? trimLabel(label, labelTrimSize) : label }}
-      </svg:text>
-    </svg:g>
-    <svg:path
-      [attr.d]="line"
-      [attr.stroke]="color"
-      fill="none"
-      class="pie-label-line line"
-      [class.animation]="animations"
-    ></svg:path>
-  `,
+  templateUrl: './pie-label.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
 export class PieLabelComponent implements OnChanges {
-  @Input() data: PieData;
-  @Input() radius: number;
-  @Input() label: string;
-  @Input() color: string;
-  @Input() max: number;
-  @Input() value: number;
-  @Input() explodeSlices: boolean;
-  @Input() animations: boolean = true;
-  @Input() labelTrim: boolean = true;
-  @Input() labelTrimSize: number = 10;
+  @Input() config: PieLabelConfig;
 
   trimLabel: (label: string, max?: number) => string;
   line: string;
@@ -65,80 +28,53 @@ export class PieLabelComponent implements OnChanges {
   attrTransform: string;
   textTransition: string;
 
+  // Getters for template compatibility
+  get label() { return this.config.label; }
+  get labelTrim() { return this.config.labelTrim; }
+  get labelTrimSize() { return this.config.labelTrimSize; }
+  get animations() { return this.config.animations; }
+  get color() { return this.config.color; }
+
   constructor(@Inject(PLATFORM_ID) public platformId: any) {
     this.trimLabel = trimLabel;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const updateFields = ['data', 'radius', 'label', 'color', 'max', 'value', 'explodeSlices', 'labelTrim', 'labelTrimSize'];
-    const shouldUpdate = updateFields.some(f => changes[f]);
-
-    if (shouldUpdate) {
-      // Check for data equality if it's the only change
-      if (Object.keys(changes).length === 1 && changes.data) {
-        const prev = changes.data.previousValue;
-        const curr = changes.data.currentValue;
-        if (prev && curr &&
-          prev.data === curr.data &&
-          prev.index === curr.index &&
-          prev.pos[0] === curr.pos[0] &&
-          prev.pos[1] === curr.pos[1] &&
-          prev.value === curr.value) {
-          return;
-        }
-      }
-
+    if (changes.config) {
+      // Check for data equality if it's the only change (simplified check via config reference)
+      // Ideally strict equality check on config properties would be better but for now rely on OnPush and input change.
       this.setTransforms();
       this.update();
     }
   }
 
   setTransforms() {
+    const textX = this.config.data.pos[0];
+    const textY = this.config.data.pos[1];
+
     if (isPlatformServer(this.platformId)) {
-      this.styleTransform = `translate3d(${this.textX}px,${this.textY}px, 0)`;
-      this.attrTransform = `translate(${this.textX},${this.textY})`;
-      this.textTransition = !this.animations ? null : 'transform 0.75s';
+      this.styleTransform = `translate3d(${textX}px,${textY}px, 0)`;
+      this.attrTransform = `translate(${textX},${textY})`;
+      this.textTransition = !this.config.animations ? null : 'transform 0.75s';
     } else {
       const isIE = /(edge|msie|trident)/i.test(navigator.userAgent);
-      this.styleTransform = isIE ? null : `translate3d(${this.textX}px,${this.textY}px, 0)`;
-      this.attrTransform = !isIE ? null : `translate(${this.textX},${this.textY})`;
-      this.textTransition = isIE || !this.animations ? null : 'transform 0.75s';
+      this.styleTransform = isIE ? null : `translate3d(${textX}px,${textY}px, 0)`;
+      this.attrTransform = !isIE ? null : `translate(${textX},${textY})`;
+      this.textTransition = isIE || !this.config.animations ? null : 'transform 0.75s';
     }
   }
 
   update(): void {
-    let startRadius = this.radius;
-    if (this.explodeSlices) {
-      startRadius = (this.radius * this.value) / this.max;
-    }
-
-    const innerArc = arc().innerRadius(startRadius).outerRadius(startRadius);
-
-    // Calculate innerPos then scale outer position to match label position
-    const innerPos = innerArc.centroid(this.data);
-
-    let scale = this.data.pos[1] / innerPos[1];
-    if (this.data.pos[1] === 0 || innerPos[1] === 0) {
-      scale = 1;
-    }
-    const outerPos = [scale * innerPos[0], scale * innerPos[1]];
-
-    this.line = `M${innerPos}L${outerPos}L${this.data.pos}`;
-  }
-
-  get textX(): number {
-    return this.data.pos[0];
-  }
-
-  get textY(): number {
-    return this.data.pos[1];
+    this.line = calculateLine(
+      this.config.data,
+      this.config.radius,
+      this.config.max,
+      this.config.value,
+      this.config.explodeSlices
+    );
   }
 
   textAnchor(): TextAnchor {
-    return this.midAngle(this.data) < Math.PI ? TextAnchor.Start : TextAnchor.End;
-  }
-
-  midAngle(d): number {
-    return d.startAngle + (d.endAngle - d.startAngle) / 2;
+    return getTextAnchor(this.config.data);
   }
 }

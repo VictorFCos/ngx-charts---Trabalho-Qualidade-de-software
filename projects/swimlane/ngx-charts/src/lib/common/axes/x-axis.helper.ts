@@ -3,6 +3,25 @@ import { TextAnchor } from '../types/text-anchor.enum';
 import { getTickLines, reduceTicks } from './ticks.helper';
 import { roundedRect } from '../../common/shape.helper';
 
+export interface XAxisTicksConfig {
+  scale: any;
+  orient: Orientation;
+  tickArguments: number[];
+  tickValues: any[];
+  tickStroke: string;
+  trimTicks: boolean;
+  maxTickLength: number;
+  tickFormatting: any;
+  showGridLines: boolean;
+  gridLineHeight: number;
+  width: number;
+  rotateTicks: boolean;
+  wrapTicks: boolean;
+  referenceLines: any[];
+  showRefLabels: boolean;
+  showRefLines: boolean;
+}
+
 export function getXAxisRotationAngle(
   ticks: any[],
   tickFormat: (o: any) => string,
@@ -118,22 +137,34 @@ export function getXAxisHeight(ticksElement: any): number {
 }
 
 export function updateXAxisTicks(component: any): void {
-  const scale = component.scale;
+  // Use config if available
+  const scale = component.config ? component.config.scale : component.scale;
+  const width = component.config ? component.config.width : component.width;
+  const tickValues = component.config ? component.config.tickValues : component.tickValues;
+  const tickFormatting = component.config ? component.config.tickFormatting : component.tickFormatting;
+  const tickArguments = component.config ? component.config.tickArguments : component.tickArguments;
+  const rotateTicks = component.config ? component.config.rotateTicks : component.rotateTicks;
+  const trimTicks = component.config ? component.config.trimTicks : component.trimTicks;
+  const maxTickLength = component.config ? component.config.maxTickLength : component.maxTickLength;
+  const showRefLines = component.config ? component.config.showRefLines : component.showRefLines;
+  const referenceLines = component.config ? component.config.referenceLines : component.referenceLines;
+  const gridLineHeight = component.config ? component.config.gridLineHeight : component.gridLineHeight;
+
   component.adjustedScale = scale.bandwidth ? d => scale(d) + scale.bandwidth() * 0.5 : scale;
-  component.ticks = getXAxisTicks(scale, component.tickValues, component.width);
+  component.ticks = getXAxisTicks(scale, tickValues, width);
   component.tickSpacing = Math.max(component.innerTickSize, 0) + component.tickPadding;
   component.tickFormat =
-    component.tickFormatting ||
+    tickFormatting ||
     (scale.tickFormat
-      ? scale.tickFormat(...(component.tickArguments || []))
+      ? scale.tickFormat(...(tickArguments || []))
       : d => (d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString()));
-  const angle = component.rotateTicks
+  const angle = rotateTicks
     ? getXAxisRotationAngle(
         component.ticks,
         component.tickFormat,
-        component.trimTicks,
+        trimTicks,
         component.tickTrim.bind(component),
-        component.width,
+        width,
         component.maxAllowedLength
       )
     : null;
@@ -148,20 +179,20 @@ export function updateXAxisTicks(component: any): void {
     const tickLines = component.tickChunks(longestTick);
     const labelHeight = 14 * (tickLines.length || 1);
     component.maxPossibleLengthForTickIfWrapped = scale.bandwidth
-      ? Math.max(Math.floor(scale.bandwidth() / 7), component.maxTickLength)
-      : component.maxTickLength;
+      ? Math.max(Math.floor(scale.bandwidth() / 7), maxTickLength)
+      : maxTickLength;
     component.approxHeight = Math.min(
       angle !== 0
-        ? Math.max(Math.abs(Math.sin((angle * Math.PI) / 180)) * component.maxTickLength * 7, 10)
+        ? Math.max(Math.abs(Math.sin((angle * Math.PI) / 180)) * maxTickLength * 7, 10)
         : labelHeight,
       200
     );
   }
-  if (component.showRefLines && component.referenceLines) {
+  if (showRefLines && referenceLines) {
     const { refMin, refMax, referenceLineLength, referenceAreaPath } = setXAxisReferenceLines(
-      component.referenceLines,
+      referenceLines,
       component.adjustedScale,
-      component.gridLineHeight
+      gridLineHeight
     );
     component.refMin = refMin;
     component.refMax = refMax;

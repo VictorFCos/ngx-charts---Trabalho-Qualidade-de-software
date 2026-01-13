@@ -17,6 +17,7 @@ import { calculateViewDimensions } from '../common/view-dimensions.helper';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { LegendPosition, LegendOptions } from '../common/types/legend.model';
 import { ScaleType } from '../common/types/scale-type.enum';
+import { BoxSeriesConfig } from './box-series.helper';
 
 @Component({
   selector: 'ngx-charts-box-chart',
@@ -69,6 +70,8 @@ export class BoxChartComponent extends BaseChartComponent {
   /** Legend Options object to handle positioning, title, colors and domain. */
   legendOptions: LegendOptions;
 
+  boxSeriesConfig: BoxSeriesConfig;
+
   xScale: ScaleBand<string>;
   yScale: ScaleLinear<number, number>;
   xDomain: StringOrNumberOrDate[];
@@ -113,6 +116,22 @@ export class BoxChartComponent extends BaseChartComponent {
     this.legendOptions = this.getLegendOptions();
     this.transform = `translate(${this.dims.xOffset
       }, ${this.margin[0]})`;
+
+    this.boxSeriesConfig = {
+      dims: this.dims,
+      xScale: this.xScale,
+      yScale: this.yScale,
+      colors: this.colors,
+      animations: this.animations,
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+      tooltipDisabled: this.tooltipDisabled,
+      tooltipTemplate: this.tooltipTemplate,
+      tooltipPlacement: undefined,
+      tooltipType: undefined,
+      roundEdges: this.roundEdges,
+      gradient: this.gradient
+    };
   }
 
   setColors(): void {

@@ -10,21 +10,10 @@ import {
 } from '@angular/core';
 import { ColorHelper } from '../common/color.helper';
 import { escapeLabel } from '../common/label.helper';
-import { DataItem } from '../models/chart-data.model';
 import { StyleTypes } from '../common/tooltip/style.type';
 import { PlacementTypes } from '../common/tooltip/position';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
-
-interface TreeMapCell {
-  data: DataItem;
-  fill: string;
-  height: number;
-  label: string;
-  value: any;
-  width: number;
-  x: number;
-  y: number;
-}
+import { TreeMapCellConfig } from './tree-map.helper';
 
 @Component({
   selector: 'g[ngx-charts-tree-map-cell-series]',
@@ -32,18 +21,7 @@ interface TreeMapCell {
     <svg:g
       ngx-charts-tree-map-cell
       *ngFor="let c of cells; trackBy: trackBy"
-      [data]="c.data"
-      [x]="c.x"
-      [y]="c.y"
-      [width]="c.width"
-      [height]="c.height"
-      [fill]="c.fill"
-      [label]="c.label"
-      [value]="c.value"
-      [valueFormatting]="valueFormatting"
-      [labelFormatting]="labelFormatting"
-      [gradient]="gradient"
-      [animations]="animations"
+      [config]="c"
       (select)="onClick($event)"
       ngx-tooltip
       [tooltipDisabled]="tooltipDisabled"
@@ -70,7 +48,7 @@ export class TreeMapCellSeriesComponent implements OnChanges {
 
   @Output() select = new EventEmitter();
 
-  cells: TreeMapCell[];
+  cells: TreeMapCellConfig[];
   styleTypes = StyleTypes;
   placementTypes = PlacementTypes;
 
@@ -78,7 +56,7 @@ export class TreeMapCellSeriesComponent implements OnChanges {
     this.cells = this.getCells();
   }
 
-  getCells(): TreeMapCell[] {
+  getCells(): TreeMapCellConfig[] {
     return this.data.children
       .filter(d => {
         return d.depth === 1;
@@ -94,7 +72,11 @@ export class TreeMapCellSeriesComponent implements OnChanges {
           height: d.y1 - d.y0,
           fill: this.colors.getColor(label),
           label,
-          value: d.value
+          value: d.value,
+          valueFormatting: this.valueFormatting,
+          labelFormatting: this.labelFormatting,
+          gradient: this.gradient,
+          animations: this.animations
         };
       });
   }

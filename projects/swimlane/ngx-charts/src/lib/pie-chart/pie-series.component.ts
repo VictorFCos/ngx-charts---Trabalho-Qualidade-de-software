@@ -14,7 +14,7 @@ import { ColorHelper } from '../common/color.helper';
 
 import { formatLabel, escapeLabel } from '../common/label.helper';
 import { DataItem } from '../models/chart-data.model';
-import { PieData } from './pie-label.component';
+import { PieData } from './pie-label.helper';
 import { PlacementTypes } from '../common/tooltip/position';
 import { StyleTypes } from '../common/tooltip/style.type';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
@@ -26,31 +26,37 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
       <svg:g
         ngx-charts-pie-label
         *ngIf="labelVisible(arc)"
-        [data]="arc"
-        [radius]="outerRadius"
-        [color]="color(arc)"
-        [label]="labelText(arc)"
-        [labelTrim]="trimLabels"
-        [labelTrimSize]="maxLabelLength"
-        [max]="max"
-        [value]="arc.value"
-        [explodeSlices]="explodeSlices"
-        [animations]="animations"
+        [config]="{
+          data: arc,
+          radius: outerRadius,
+          color: color(arc),
+          label: labelText(arc),
+          labelTrim: trimLabels,
+          labelTrimSize: maxLabelLength,
+          max: max,
+          value: arc.value,
+          explodeSlices: explodeSlices,
+          animations: animations
+        }"
       ></svg:g>
       <svg:g
         ngx-charts-pie-arc
-        [startAngle]="arc.startAngle"
-        [endAngle]="arc.endAngle"
-        [innerRadius]="innerRadius"
-        [outerRadius]="outerRadius"
-        [fill]="color(arc)"
-        [value]="arc.data.value"
-        [gradient]="gradient"
-        [data]="arc.data"
-        [max]="max"
-        [explodeSlices]="explodeSlices"
-        [isActive]="isActive(arc.data)"
-        [animate]="animations"
+        [config]="{
+          startAngle: arc.startAngle,
+          endAngle: arc.endAngle,
+          innerRadius: innerRadius,
+          outerRadius: outerRadius,
+          fill: color(arc),
+          value: arc.data.value,
+          gradient: gradient,
+          data: arc.data,
+          max: max,
+          explodeSlices: explodeSlices,
+          isActive: isActive(arc.data),
+          animate: animations,
+          pointerEvents: true,
+          cornerRadius: 0
+        }"
         (select)="onClick($event)"
         (activate)="activate.emit($event)"
         (deactivate)="deactivate.emit($event)"

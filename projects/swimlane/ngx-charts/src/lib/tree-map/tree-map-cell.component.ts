@@ -1,78 +1,24 @@
 import { Component, Input, Output, EventEmitter, ElementRef, OnChanges, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { invertColor } from '../utils/color-utils';
 import { id } from '../utils/id';
-import { DataItem } from '../models/chart-data.model';
 import { Gradient } from '../common/types/gradient.interface';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import {
   getTreeMapCellGradientStops,
   getTreeMapCellFormattedValue,
   getTreeMapCellFormattedLabel,
-  updateTreeMapCell
+  updateTreeMapCell,
+  TreeMapCellConfig
 } from './tree-map.helper';
 
 @Component({
   selector: 'g[ngx-charts-tree-map-cell]',
-  template: `
-    <svg:g>
-      <defs *ngIf="gradient">
-        <svg:g
-          ngx-charts-svg-linear-gradient
-          [orientation]="orientation.Vertical"
-          [name]="gradientId"
-          [stops]="gradientStops"
-        />
-      </defs>
-      <svg:rect
-        [attr.fill]="gradient ? gradientUrl : fill"
-        [attr.width]="width"
-        [attr.height]="height"
-        [attr.x]="x"
-        [attr.y]="y"
-        class="cell"
-        (click)="onClick()"
-      />
-      <svg:foreignObject
-        *ngIf="width >= 70 && height >= 35"
-        [attr.x]="x"
-        [attr.y]="y"
-        [attr.width]="width"
-        [attr.height]="height"
-        class="treemap-label"
-        [style.pointer-events]="'none'"
-      >
-        <xhtml:p [style.color]="getTextColor()" [style.height]="height + 'px'" [style.width]="width + 'px'">
-          <xhtml:span class="treemap-label" [innerHTML]="formattedLabel"> </xhtml:span>
-          <xhtml:br />
-          <xhtml:span
-            *ngIf="animations"
-            class="treemap-val"
-            ngx-charts-count-up
-            [countTo]="value"
-            [valueFormatting]="valueFormatting"
-          ></xhtml:span>
-          <xhtml:span *ngIf="!animations" class="treemap-val">{{ formattedValue }}</xhtml:span>
-        </xhtml:p>
-      </svg:foreignObject>
-    </svg:g>
-  `,
+  templateUrl: './tree-map-cell.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
 export class TreeMapCellComponent implements OnChanges {
-  @Input() data: DataItem;
-  @Input() fill: string;
-  @Input() x: number;
-  @Input() y: number;
-  @Input() width: number;
-  @Input() height: number;
-  @Input() label: string;
-  @Input() value: number;
-  // @Input() valueType;
-  @Input() valueFormatting?: (value: any) => string;
-  @Input() labelFormatting?: (cell: any) => string;
-  @Input() gradient: boolean = false;
-  @Input() animations: boolean = true;
+  @Input() config: TreeMapCellConfig;
   @Output() select = new EventEmitter();
 
   gradientStops: Gradient[];
@@ -84,34 +30,44 @@ export class TreeMapCellComponent implements OnChanges {
   initialized: boolean = false;
   orientation = BarOrientation;
 
+  // Added getters to maintain compatibility with the extracted template
+  get data() { return this.config.data; }
+  get fill() { return this.config.fill; }
+  get x() { return this.config.x; }
+  get y() { return this.config.y; }
+  get width() { return this.config.width; }
+  get height() { return this.config.height; }
+  get label() { return this.config.label; }
+  get value() { return this.config.value; }
+  get valueFormatting() { return this.config.valueFormatting; }
+  get gradient() { return this.config.gradient; }
+  get animations() { return this.config.animations; }
+
   constructor(element: ElementRef) {
     this.element = element.nativeElement;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.fill || changes.width || changes.height || changes.x || changes.y || changes.animations) {
-      updateTreeMapCell(this);
-    }
+    if (changes.config) {
+        updateTreeMapCell(this);
+        this.formattedValue = getTreeMapCellFormattedValue(this.config.value, this.config.valueFormatting);
+        this.formattedLabel = getTreeMapCellFormattedLabel(this.config.label, this.config.labelFormatting, this.config.data, this.config.value);
 
-    if (changes.value || changes.valueFormatting) {
-      this.formattedValue = getTreeMapCellFormattedValue(this.value, this.valueFormatting);
-    }
-
-    if (changes.label || changes.labelFormatting || changes.data || changes.value) {
-      this.formattedLabel = getTreeMapCellFormattedLabel(this.label, this.labelFormatting, this.data, this.value);
-    }
-
-    if (changes.fill || !this.initialized) {
-      this.gradientId = 'grad' + id().toString();
-      this.gradientUrl = `url(#${this.gradientId})`;
-      this.gradientStops = getTreeMapCellGradientStops(this.fill);
+        if (!this.initialized) {
+            this.gradientId = 'grad' + id().toString();
+            this.gradientUrl = `url(#${this.gradientId})`;
+            this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
+            this.initialized = true;
+        } else if (changes.config.currentValue.fill !== changes.config.previousValue?.fill) {
+             this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
+        }
     }
   }
 
   getTextColor(): string {
-    return invertColor(this.fill);
+    return invertColor(this.config.fill);
   }
   onClick(): void {
-    this.select.emit(this.data);
+    this.select.emit(this.config.data);
   }
 }

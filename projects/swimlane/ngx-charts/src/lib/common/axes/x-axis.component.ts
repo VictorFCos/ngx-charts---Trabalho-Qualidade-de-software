@@ -20,22 +20,24 @@ import { ViewDimensions } from '../types/view-dimension.interface';
       <svg:g
         ngx-charts-x-axis-ticks
         *ngIf="xScale"
-        [trimTicks]="trimTicks"
-        [rotateTicks]="rotateTicks"
-        [maxTickLength]="maxTickLength"
-        [tickFormatting]="tickFormatting"
-        [tickArguments]="tickArguments"
-        [tickStroke]="tickStroke"
-        [scale]="xScale"
-        [orient]="xOrient"
-        [showGridLines]="showGridLines"
-        [gridLineHeight]="dims.height"
-        [referenceLines]="referenceLines"
-        [showRefLines]="showRefLines"
-        [showRefLabels]="showRefLabels"
-        [width]="dims.width"
-        [tickValues]="ticks"
-        [wrapTicks]="wrapTicks"
+        [config]="{
+          scale: xScale,
+          orient: xOrient,
+          tickArguments: tickArguments,
+          tickValues: ticks,
+          tickStroke: tickStroke,
+          trimTicks: trimTicks,
+          maxTickLength: maxTickLength,
+          tickFormatting: tickFormatting,
+          showGridLines: showGridLines,
+          gridLineHeight: dims.height,
+          width: dims.width,
+          rotateTicks: rotateTicks,
+          wrapTicks: wrapTicks,
+          referenceLines: referenceLines,
+          showRefLabels: showRefLabels,
+          showRefLines: showRefLines
+        }"
         (dimensionsChanged)="emitTicksHeight($event)"
       />
       <svg:g
