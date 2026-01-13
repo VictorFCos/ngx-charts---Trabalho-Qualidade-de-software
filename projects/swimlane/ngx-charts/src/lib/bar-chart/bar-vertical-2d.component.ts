@@ -56,7 +56,7 @@ export class BarVertical2DComponent extends BaseChartComponent {
   @Input() scaleType: ScaleType = ScaleType.Ordinal;
   @Input() gradient: boolean;
   @Input() showGridLines: boolean = true;
-  @Input() activeEntries: any[] = [];
+  @Input() activeEntries: unknown[] = [];
   @Input() schemeType: ScaleType = ScaleType.Ordinal;
   @Input() trimXAxisTicks: boolean = true;
   @Input() trimYAxisTicks: boolean = true;
@@ -77,8 +77,8 @@ export class BarVertical2DComponent extends BaseChartComponent {
   @Input() noBarWhenZero: boolean = true;
   @Input() wrapTicks = false;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
   @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
@@ -305,13 +305,15 @@ export class BarVertical2DComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = this.activeEntries.filter(i => {
-      if (fromLegend) {
-        return i.label !== item.name;
-      } else {
-        return !(i.name === item.name && i.series === item.series);
+    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+      i => {
+        if (fromLegend) {
+          return i.label !== item.name;
+        } else {
+          return !(i.name === item.name && i.series === item.series);
+        }
       }
-    });
+    );
 
     this.deactivate.emit({ value: item, entries: this.activeEntries });
   }

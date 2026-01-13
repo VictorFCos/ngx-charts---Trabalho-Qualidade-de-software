@@ -21,7 +21,7 @@ export interface AdvancedLegendItem {
   data: DataItem;
   label: string;
   displayLabel: string;
-  originalLabel: string;
+  originalLabel: StringOrNumberOrDate;
   percentage: string;
 }
 
@@ -94,9 +94,9 @@ export class AdvancedLegendComponent implements OnChanges {
   legendItems: AdvancedLegendItem[] = [];
   total: number;
   roundedTotal: number;
-  @Input() valueFormatting: (value: StringOrNumberOrDate) => any;
+  @Input() valueFormatting: (value: StringOrNumberOrDate) => string;
   @Input() labelFormatting: (value: string) => string = label => label;
-  @Input() percentageFormatting: (value: number) => any = percentage => percentage;
+  @Input() percentageFormatting: (value: number) => string = percentage => percentage.toString();
   defaultValueFormatting: (value: StringOrNumberOrDate) => string = value => value.toLocaleString();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -109,7 +109,7 @@ export class AdvancedLegendComponent implements OnChanges {
     const percentages = this.roundPercentages
       ? roundPercentagesWithDecimals(values)
       : values.map(v => (this.total > 0 ? (v / this.total) * 100 : 0));
-    this.legendItems = (this.data as any).map((d, index) => {
+    this.legendItems = this.data.map((d, index) => {
       const label = formatLabel(d.name);
       const percentage = percentages[index];
       const formattedLabel = typeof this.labelFormatting === 'function' ? this.labelFormatting(label) : label;
@@ -120,7 +120,7 @@ export class AdvancedLegendComponent implements OnChanges {
         color: this.colors.getColor(label),
         label: formattedLabel,
         displayLabel: trimLabel(formattedLabel, 20),
-        origialLabel: d.name,
+        originalLabel: d.name,
         percentage: this.percentageFormatting
           ? this.percentageFormatting(parseFloat(percentage.toLocaleString()))
           : percentage.toLocaleString()

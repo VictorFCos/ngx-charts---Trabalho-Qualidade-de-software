@@ -38,8 +38,8 @@ export interface LineChartOptions {
   timeline: boolean;
   gradient: boolean;
   showGridLines: boolean;
-  curve: any;
-  activeEntries: any[];
+  curve: unknown;
+  activeEntries: unknown[];
   schemeType: ScaleType;
   rangeFillOpacity: number;
   trimXAxisTicks: boolean;
@@ -47,14 +47,14 @@ export interface LineChartOptions {
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: (o: unknown) => string;
+  yAxisTickFormatting: (o: unknown) => string;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   roundDomains: boolean;
   tooltipDisabled: boolean;
   showRefLines: boolean;
-  referenceLines: any;
+  referenceLines: unknown;
   showRefLabels: boolean;
   xScaleMin: number;
   xScaleMax: number;
@@ -76,16 +76,16 @@ export interface LineChartOptions {
 })
 export class LineChartComponent extends BaseChartComponent implements OnInit {
   @Input() config: LineChartOptions;
-  @Output() activate = new EventEmitter();
-  @Output() deactivate = new EventEmitter();
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
-  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<any>;
+  @Output() activate = new EventEmitter<unknown>();
+  @Output() deactivate = new EventEmitter<unknown>();
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
+  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   xSet: any;
-  xDomain: any;
+  xDomain: unknown;
   yDomain: [number, number];
-  seriesDomain: any;
+  seriesDomain: unknown;
   yScale: any;
   xScale: any;
   colors: ColorHelper;
@@ -148,13 +148,18 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   get showGridLines() {
     return this.config?.showGridLines ?? true;
   }
+  @Input()
   get curve() {
     return this.config?.curve ?? curveLinear;
   }
+  set curve(val: unknown) {
+    if (this.config) this.config.curve = val;
+  }
+  @Input()
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get rangeFillOpacity() {
@@ -175,11 +180,19 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   get maxYAxisTickLength() {
     return this.config?.maxYAxisTickLength ?? 16;
   }
+  @Input()
   get xAxisTickFormatting() {
     return this.config?.xAxisTickFormatting;
   }
+  set xAxisTickFormatting(val: (o: unknown) => string) {
+    if (this.config) this.config.xAxisTickFormatting = val;
+  }
+  @Input()
   get yAxisTickFormatting() {
     return this.config?.yAxisTickFormatting;
+  }
+  set yAxisTickFormatting(val: (o: unknown) => string) {
+    if (this.config) this.config.yAxisTickFormatting = val;
   }
   get xAxisTicks() {
     return this.config?.xAxisTicks;
@@ -196,8 +209,12 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   get showRefLines() {
     return this.config?.showRefLines ?? false;
   }
+  @Input()
   get referenceLines() {
     return this.config?.referenceLines;
+  }
+  set referenceLines(val: unknown) {
+    if (this.config) this.config.referenceLines = val;
   }
   get showRefLabels() {
     return this.config?.showRefLabels ?? true;
@@ -269,7 +286,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     this.yDomain = yDom.domain;
     this.hasRange = yDom.hasRange;
     this.seriesDomain = this.results.map(d => d.name);
-    this.xScale = getLineChartXScale(this.xDomain, this.dims.width, this.scaleType, this.roundDomains);
+    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.roundDomains);
     this.yScale = scaleLinear().range([this.dims.height, 0]).domain(this.yDomain);
     if (this.roundDomains) this.yScale = this.yScale.nice();
     if (this.timeline) {
@@ -281,13 +298,13 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     this.colors = new ColorHelper(
       this.scheme,
       this.schemeType,
-      this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain,
+      (this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain) as string[],
       this.customColors
     );
     this.legendOptions = {
       scaleType: this.schemeType,
       colors: this.schemeType === ScaleType.Ordinal ? this.colors : this.colors.scale,
-      domain: this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain,
+      domain: (this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain) as unknown[],
       title: this.schemeType === ScaleType.Ordinal ? this.legendTitle : undefined,
       position: this.legendPosition
     };
@@ -299,7 +316,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   updateDomain(domain): void {
     this.filteredDomain = domain;
     this.xDomain = this.filteredDomain;
-    this.xScale = getLineChartXScale(this.xDomain, this.dims.width, this.scaleType, this.roundDomains);
+    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.roundDomains);
   }
   updateHoveredVertical(item): void {
     this.hoveredVertical = item.value;
@@ -325,13 +342,19 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   }
   onActivate(item): void {
     this.deactivateAll();
-    if (!this.activeEntries.some(d => d.name === item.name && d.value === item.value)) {
+    if (
+      !(this.activeEntries as unknown as { name: string; value: unknown }[]).some(
+        d => d.name === item.name && d.value === item.value
+      )
+    ) {
       this.activeEntries = [item];
       this.activate.emit({ value: item, entries: this.activeEntries });
     }
   }
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(
+      d => d.name === item.name && d.value === item.value
+    );
     if (idx > -1) {
       this.activeEntries.splice(idx, 1);
       this.activeEntries = [...this.activeEntries];

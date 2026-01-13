@@ -30,29 +30,29 @@ export interface BarHorizontalChartOptions {
   xAxisLabel: string;
   yAxisLabel: string;
   tooltipDisabled: boolean;
-  referenceLines: any;
+  referenceLines: unknown;
   showRefLines: boolean;
   showRefLabels: boolean;
   gradient: boolean;
   showGridLines: boolean;
-  activeEntries: any[];
+  activeEntries: unknown[];
   schemeType: ScaleType;
   trimXAxisTicks: boolean;
   trimYAxisTicks: boolean;
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: (val: unknown) => string;
+  yAxisTickFormatting: (val: unknown) => string;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   barPadding: number;
   roundDomains: boolean;
   roundEdges: boolean;
   xScaleMax: number;
   xScaleMin: number;
   showDataLabel: boolean;
-  dataLabelFormatting: any;
+  dataLabelFormatting: (val: unknown) => string;
   noBarWhenZero: boolean;
   wrapTicks: boolean;
 }
@@ -68,14 +68,14 @@ export interface BarHorizontalChartOptions {
 export class BarHorizontalComponent extends BaseChartComponent {
   @Input() config: BarHorizontalChartOptions;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
-  yScale: any;
-  xScale: any;
+  yScale: Function;
+  xScale: Function;
   xDomain: [number, number];
   yDomain: string[];
   transform: string;
@@ -84,7 +84,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: LegendOptions;
-  dataLabelMaxWidth: any = { negative: 0, positive: 0 };
+  dataLabelMaxWidth: { negative: number; positive: number } = { negative: 0, positive: 0 };
 
   get legend() {
     return this.config?.legend ?? false;
@@ -134,7 +134,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get trimXAxisTicks() {
@@ -256,7 +256,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
     }
   }
 
-  getXScale(): any {
+  getXScale() {
     this.xDomain = this.getXDomain();
 
     const scale = scaleLinear().range([0, this.dims.width]).domain(this.xDomain);
@@ -264,7 +264,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
     return this.roundDomains ? scale.nice() : scale;
   }
 
-  getYScale(): any {
+  getYScale() {
     this.yDomain = this.getYDomain();
     const spacing = this.yDomain.length / (this.dims.height / this.barPadding + 1);
 
@@ -348,7 +348,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -368,7 +368,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 

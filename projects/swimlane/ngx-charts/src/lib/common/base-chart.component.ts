@@ -16,7 +16,7 @@ import {
   OnInit
 } from '@angular/core';
 
-import { fromEvent as observableFromEvent } from 'rxjs';
+import { fromEvent as observableFromEvent, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { VisibilityObserver } from '../utils/visibility-observer';
 import { isDate } from '../utils/types';
@@ -34,21 +34,21 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy, 
   @Input() view: [number, number];
   @Input() scheme: string | Color = 'cool';
   @Input() schemeType: ScaleType = ScaleType.Ordinal;
-  @Input() customColors: any;
+  @Input() customColors: unknown;
   @Input() animations: boolean = true;
 
   @Output() select = new EventEmitter();
 
   width: number;
   height: number;
-  resizeSubscription: any;
+  resizeSubscription: Subscription;
   visibilityObserver: VisibilityObserver;
 
   constructor(
     protected chartElement: ElementRef,
     protected zone: NgZone,
     protected cd: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) public platformId: any
+    @Inject(PLATFORM_ID) public platformId: Object
   ) { }
 
   ngOnInit() {
@@ -181,7 +181,7 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy, 
    *
    * @memberOf BaseChart
    */
-  private cloneData(data): any {
+  private cloneData(data: unknown[]): unknown[] {
     const results = [];
 
     for (const item of data) {
@@ -220,12 +220,12 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy, 
 
     return results;
   }
-  protected areConfigsEqual(prev: any, curr: any): boolean {
+  protected areConfigsEqual(prev: unknown, curr: unknown): boolean {
     if (prev === curr) return true;
     if (!prev || !curr) return false;
 
-    const keysPrev = Object.keys(prev);
-    const keysCurr = Object.keys(curr);
+    const keysPrev = Object.keys(prev as object);
+    const keysCurr = Object.keys(curr as object);
 
     if (keysPrev.length !== keysCurr.length) return false;
 

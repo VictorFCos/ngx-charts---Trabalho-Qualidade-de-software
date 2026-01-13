@@ -69,11 +69,11 @@ export class TreeMapCellComponent implements OnChanges {
   @Input() label: string;
   @Input() value: number;
   // @Input() valueType;
-  @Input() valueFormatting?: (value: any) => string;
-  @Input() labelFormatting?: (cell: any) => string;
+  @Input() valueFormatting?: (value: unknown) => string;
+  @Input() labelFormatting?: (cell: unknown) => string;
   @Input() gradient: boolean = false;
   @Input() animations: boolean = true;
-  @Output() select = new EventEmitter();
+  @Output() select = new EventEmitter<unknown>();
 
   gradientStops: Gradient[];
   gradientId: string;

@@ -26,12 +26,12 @@ export interface PieChartConfig {
   doughnut: boolean;
   arcWidth: number;
   gradient: boolean;
-  activeEntries: any[];
+  activeEntries: unknown[];
   tooltipDisabled: boolean;
-  labelFormatting: any;
+  labelFormatting: (o: unknown) => string;
   trimLabels: boolean;
   maxLabelLength: number;
-  tooltipText: any;
+  tooltipText: (o: unknown) => string;
   margins: number[];
 }
 
@@ -46,12 +46,12 @@ export interface PieChartConfig {
 export class PieChartComponent extends BaseChartComponent {
   @Input() config: PieChartConfig;
 
-  @Output() dblclick = new EventEmitter();
-  @Output() select = new EventEmitter();
-  @Output() activate = new EventEmitter();
-  @Output() deactivate = new EventEmitter();
+  @Output() dblclick = new EventEmitter<unknown>();
+  @Output() select = new EventEmitter<unknown>();
+  @Output() activate = new EventEmitter<unknown>();
+  @Output() deactivate = new EventEmitter<unknown>();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   translation: string;
   outerRadius: number;
@@ -89,7 +89,7 @@ export class PieChartComponent extends BaseChartComponent {
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get tooltipDisabled() {
@@ -211,7 +211,7 @@ export class PieChartComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -231,7 +231,7 @@ export class PieChartComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 

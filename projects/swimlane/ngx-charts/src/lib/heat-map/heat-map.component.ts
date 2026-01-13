@@ -45,15 +45,15 @@ export interface HeatMapOptions {
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: (o: unknown) => string;
+  yAxisTickFormatting: (o: unknown) => string;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   tooltipDisabled: boolean;
-  tooltipText: any;
+  tooltipText: (o: unknown) => string;
   min: number;
   max: number;
-  activeEntries: any[];
+  activeEntries: unknown[];
   wrapTicks: boolean;
 }
 
@@ -132,19 +132,19 @@ export interface HeatMapOptions {
 export class HeatMapComponent extends BaseChartComponent {
   @Input() config: HeatMapOptions;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   xDomain: string[];
   yDomain: string[];
-  valueDomain: any[];
+  valueDomain: unknown[];
   xScale: any;
   yScale: any;
   colors: ColorHelper;
-  colorScale: any;
+  colorScale: unknown;
   transform: string;
   rects: RectItem[];
   margin: number[] = [10, 20, 10, 20];
@@ -225,10 +225,11 @@ export class HeatMapComponent extends BaseChartComponent {
   get max() {
     return this.config?.max;
   }
+  @Input()
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get wrapTicks() {
@@ -285,10 +286,10 @@ export class HeatMapComponent extends BaseChartComponent {
       let min = this.min;
       let max = this.max;
       if (!this.min) {
-        min = Math.min(0, ...this.valueDomain);
+        min = Math.min(0, ...(this.valueDomain as number[]));
       }
       if (!this.max) {
-        max = Math.max(...this.valueDomain);
+        max = Math.max(...(this.valueDomain as number[]));
       }
       this.valueDomain = [min, max];
     }
@@ -328,7 +329,7 @@ export class HeatMapComponent extends BaseChartComponent {
     return domain;
   }
 
-  getValueDomain(): any[] {
+  getValueDomain(): unknown[] {
     const domain = [];
 
     for (const group of this.results) {
@@ -408,7 +409,7 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   setColors(): void {
-    this.colors = new ColorHelper(this.scheme, this.scaleType, this.valueDomain);
+    this.colors = new ColorHelper(this.scheme, this.scaleType, this.valueDomain as string[] | number[]);
   }
 
   getLegendOptions(): LegendOptions {
@@ -458,13 +459,15 @@ export class HeatMapComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = this.activeEntries.filter(i => {
-      if (fromLegend) {
-        return i.label !== item.name;
-      } else {
-        return !(i.name === item.name && i.series === item.series);
+    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+      i => {
+        if (fromLegend) {
+          return i.label !== item.name;
+        } else {
+          return !(i.name === item.name && i.series === item.series);
+        }
       }
-    });
+    );
 
     this.deactivate.emit({ value: item, entries: this.activeEntries });
   }

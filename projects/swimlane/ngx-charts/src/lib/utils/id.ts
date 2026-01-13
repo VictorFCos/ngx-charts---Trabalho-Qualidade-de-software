@@ -1,4 +1,4 @@
-const cache = {};
+const cache: Record<string, boolean> = {};
 
 /**
  * Generates a short id.

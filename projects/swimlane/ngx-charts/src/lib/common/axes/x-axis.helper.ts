@@ -3,9 +3,51 @@ import { TextAnchor } from '../types/text-anchor.enum';
 import { getTickLines, reduceTicks } from './ticks.helper';
 import { roundedRect } from '../../common/shape.helper';
 
+export interface ScaleType {
+  bandwidth: () => number;
+  ticks: (count: number) => unknown[];
+  domain: () => unknown[];
+  tickFormat: (...args: unknown[]) => (d: unknown) => string;
+  step: () => number;
+  (d: unknown): number;
+}
+
+export interface XAxisComponentInterface {
+  scale: Function;
+  adjustedScale: Function;
+  tickValues: unknown[];
+  width: number;
+  tickSpacing: number;
+  innerTickSize: number;
+  tickPadding: number;
+  tickFormatting: unknown;
+  tickArguments: number[];
+  tickFormat: (o: unknown) => string;
+  rotateTicks: boolean;
+  trimTicks: boolean;
+  tickTrim: (label: string) => string;
+  maxAllowedLength: number;
+  textTransform: string;
+  textAnchor: TextAnchor;
+  verticalSpacing: number;
+  ticks: unknown[];
+  isWrapTicksSupported: boolean;
+  tickChunks: (label: string) => string[];
+  maxPossibleLengthForTickIfWrapped: number;
+  maxTickLength: number;
+  approxHeight: number;
+  showRefLines: boolean;
+  referenceLines: unknown[];
+  refMin: number;
+  refMax: number;
+  referenceLineLength: number;
+  referenceAreaPath: string;
+  gridLineHeight: number;
+}
+
 export function getXAxisRotationAngle(
-  ticks: any[],
-  tickFormat: (o: any) => string,
+  ticks: unknown[],
+  tickFormat: (o: unknown) => string,
   trimTicks: boolean,
   tickTrim: (label: string) => string,
   width: number,
@@ -39,18 +81,19 @@ export function getXAxisRotationAngle(
   return angle;
 }
 
-export function getXAxisTicks(scale: any, tickValues: any[], width: number): any[] {
-  let ticks;
+export function getXAxisTicks(scale: Function, tickValues: unknown[], width: number): unknown[] {
+  let ticks: unknown[];
   const maxTicks = Math.floor(width / 20);
   const maxScaleTicks = Math.floor(width / 100);
+  const s = scale as unknown as ScaleType;
 
   if (tickValues) {
     ticks = tickValues;
-  } else if (scale.ticks) {
-    ticks = scale.ticks.apply(scale, [maxScaleTicks]);
+  } else if (s.ticks) {
+    ticks = s.ticks(maxScaleTicks);
   } else {
-    ticks = scale.domain();
-    ticks = reduceTicks(ticks, maxTicks);
+    ticks = s.domain();
+    ticks = reduceTicks(ticks as unknown[], maxTicks);
   }
 
   return ticks;
@@ -117,35 +160,35 @@ export function getXAxisHeight(ticksElement: any): number {
   return parseInt(ticksElement.nativeElement.getBoundingClientRect().height, 10);
 }
 
-export function updateXAxisTicks(component: any): void {
-  const scale = component.scale;
-  component.adjustedScale = scale.bandwidth ? d => scale(d) + scale.bandwidth() * 0.5 : scale;
+export function updateXAxisTicks(component: XAxisComponentInterface): void {
+  const scale = component.scale as unknown as ScaleType;
+  component.adjustedScale = scale.bandwidth ? (d: unknown) => scale(d) + scale.bandwidth() * 0.5 : scale;
   component.ticks = getXAxisTicks(scale, component.tickValues, component.width);
   component.tickSpacing = Math.max(component.innerTickSize, 0) + component.tickPadding;
   component.tickFormat =
-    component.tickFormatting ||
+    (component.tickFormatting as (o: unknown) => string) ||
     (scale.tickFormat
       ? scale.tickFormat(...(component.tickArguments || []))
-      : d => (d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString()));
+      : (d: unknown) => (d instanceof Date ? d.toLocaleDateString() : (d as any).toLocaleString()));
   const angle = component.rotateTicks
     ? getXAxisRotationAngle(
-        component.ticks,
-        component.tickFormat,
-        component.trimTicks,
-        component.tickTrim.bind(component),
-        component.width,
-        component.maxAllowedLength
-      )
+      component.ticks,
+      component.tickFormat,
+      component.trimTicks,
+      component.tickTrim.bind(component),
+      component.width,
+      component.maxAllowedLength
+    )
     : null;
   component.textTransform = angle && angle !== 0 ? `rotate(${angle})` : '';
   component.textAnchor = angle && angle !== 0 ? TextAnchor.End : TextAnchor.Middle;
   if (angle && angle !== 0) component.verticalSpacing = 10;
   if (component.isWrapTicksSupported) {
     const longestTick = component.ticks.reduce(
-      (earlier, current) => (current.length > earlier.length ? current : earlier),
+      (earlier: any, current: any) => (current.length > earlier.length ? current : earlier),
       ''
     );
-    const tickLines = component.tickChunks(longestTick);
+    const tickLines = component.tickChunks(longestTick as string);
     const labelHeight = 14 * (tickLines.length || 1);
     component.maxPossibleLengthForTickIfWrapped = scale.bandwidth
       ? Math.max(Math.floor(scale.bandwidth() / 7), component.maxTickLength)

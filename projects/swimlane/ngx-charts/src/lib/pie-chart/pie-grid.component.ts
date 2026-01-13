@@ -27,10 +27,10 @@ import { ScaleType } from '../common/types/scale-type.enum';
 export interface PieGridConfig {
   designatedTotal: number;
   tooltipDisabled: boolean;
-  tooltipText: (o: any) => any;
+  tooltipText: (o: unknown) => string;
   label: string;
   minWidth: number;
-  activeEntries: any[];
+  activeEntries: unknown[];
 }
 
 @Component({
@@ -105,15 +105,15 @@ export interface PieGridConfig {
   standalone: false
 })
 export class PieGridComponent extends BaseChartComponent {
-  @Input() config: PieGridConfig;
+  @Input() config: PieGridConfig = {} as PieGridConfig;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
   dims: ViewDimensions;
   data: PieGridData[];
   transform: string;
-  series: any[];
+  series: unknown[];
   domain: string[];
   colorScale: ColorHelper;
   margin: number[] = [20, 20, 20, 20];
@@ -121,31 +121,54 @@ export class PieGridComponent extends BaseChartComponent {
   placementTypes = PlacementTypes;
   styleTypes = StyleTypes;
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
+  @Input()
   get designatedTotal() {
-    return this.config?.designatedTotal;
+    return this.config.designatedTotal;
   }
+  set designatedTotal(val: number) {
+    this.config.designatedTotal = val;
+  }
+
+  @Input()
   get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
+    return this.config.tooltipDisabled ?? false;
   }
+  set tooltipDisabled(val: boolean) {
+    this.config.tooltipDisabled = val;
+  }
+
+  @Input()
   get tooltipText() {
-    return this.config?.tooltipText;
+    return this.config.tooltipText || this.defaultTooltipText.bind(this);
   }
-  set tooltipText(value: (o: any) => any) {
-    if (this.config) this.config.tooltipText = value;
+  set tooltipText(value: (o: unknown) => string) {
+    this.config.tooltipText = value;
   }
+
+  @Input()
   get label() {
-    return this.config?.label ?? 'Total';
+    return this.config.label ?? 'Total';
   }
+  set label(val: string) {
+    this.config.label = val;
+  }
+
+  @Input()
   get minWidth() {
-    return this.config?.minWidth ?? 150;
+    return this.config.minWidth ?? 150;
   }
+  set minWidth(val: number) {
+    this.config.minWidth = val;
+  }
+
+  @Input()
   get activeEntries() {
-    return this.config?.activeEntries ?? [];
+    return this.config.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
-    if (this.config) this.config.activeEntries = value;
+  set activeEntries(value: unknown[]) {
+    this.config.activeEntries = value;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -186,8 +209,6 @@ export class PieGridComponent extends BaseChartComponent {
 
     this.series = this.getSeries();
     this.setColors();
-
-    this.tooltipText = this.tooltipText || this.defaultTooltipText;
   }
 
   defaultTooltipText({ data }): string {
@@ -203,7 +224,7 @@ export class PieGridComponent extends BaseChartComponent {
     return this.results.map(d => d.label);
   }
 
-  getSeries(): any[] {
+  getSeries(): unknown[] {
     const total = this.designatedTotal ? this.designatedTotal : this.getTotal();
 
     return this.data.map(d => {
@@ -252,7 +273,7 @@ export class PieGridComponent extends BaseChartComponent {
     });
   }
 
-  getTotal(): any {
+  getTotal(): number {
     return this.results.map(d => d.value).reduce((sum, d) => sum + d, 0);
   }
 
@@ -277,7 +298,7 @@ export class PieGridComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -297,7 +318,7 @@ export class PieGridComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 

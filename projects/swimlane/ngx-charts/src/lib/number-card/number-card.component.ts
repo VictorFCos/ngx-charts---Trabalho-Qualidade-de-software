@@ -41,15 +41,15 @@ export class NumberCardComponent extends BaseChartComponent {
   @Input() emptyColor: string = 'rgba(0, 0, 0, 0)';
   @Input() innerPadding: number = 15;
   @Input() textColor: string;
-  @Input() valueFormatting: any;
-  @Input() labelFormatting: any;
+  @Input() valueFormatting: (o: unknown) => string;
+  @Input() labelFormatting: (o: unknown) => string;
   @Input() designatedTotal: number;
 
   dims: ViewDimensions;
   data: CardModel[];
   colors: ColorHelper;
   transform: string;
-  domain: any[];
+  domain: string[];
   margin: number[] = [10, 10, 10, 10];
 
   ngOnChanges(): void {

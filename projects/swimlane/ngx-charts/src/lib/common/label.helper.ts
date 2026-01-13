@@ -1,9 +1,11 @@
+import { StringOrNumberOrDate } from '../models/chart-data.model';
+
 /**
  * Formats a label given a date, number or string.
  *
  * @export
  */
-export function formatLabel(label: any): string {
+export function formatLabel(label: StringOrNumberOrDate): string {
   if (label instanceof Date) {
     label = label.toLocaleDateString();
   } else {
@@ -18,7 +20,7 @@ export function formatLabel(label: any): string {
  *
  * @export
  */
-export function escapeLabel(label: any): string {
+export function escapeLabel(label: StringOrNumberOrDate): string {
   return label.toLocaleString().replace(/[&'`"<>]/g, match => {
     return {
       '&': '&amp;',

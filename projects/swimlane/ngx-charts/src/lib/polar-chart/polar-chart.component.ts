@@ -39,14 +39,14 @@ export interface PolarChartConfig {
   yAxisLabel: string;
   autoScale: boolean;
   showGridLines: boolean;
-  curve: any;
-  activeEntries: any[];
+  curve: unknown;
+  activeEntries: unknown[];
   schemeType: ScaleType;
   rangeFillOpacity: number;
   trimYAxisTicks: boolean;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: (o: any) => any;
-  yAxisTickFormatting: (o: any) => any;
+  xAxisTickFormatting: (o: unknown) => string;
+  yAxisTickFormatting: (o: unknown) => string;
   roundDomains: boolean;
   tooltipDisabled: boolean;
   showSeriesOnHover: boolean;
@@ -85,19 +85,19 @@ export interface PolarChartConfig {
   standalone: false
 })
 export class PolarChartComponent extends BaseChartComponent implements OnInit {
-  @Input() config: PolarChartConfig;
+  @Input() config: PolarChartConfig = {} as PolarChartConfig;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   yAxisDims: ViewDimensions;
   labelOffset: number;
-  xDomain: any[];
-  yDomain: any[];
-  seriesDomain: any[];
+  xDomain: unknown[];
+  yDomain: unknown[];
+  seriesDomain: unknown[];
   yScale: any; // -> rScale
   xScale: any; // -> tScale
   yAxisScale: any; // -> yScale
@@ -111,8 +111,8 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   margin: number[] = [10, 20, 10, 20];
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
-  filteredDomain: any;
-  legendOptions: any;
+  filteredDomain: unknown;
+  legendOptions: unknown;
   thetaTicks: any[];
   radiusTicks: number[];
   outerRadius: number;
@@ -121,86 +121,212 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   isSSR = false;
 
+  @Input()
   get legend() {
-    return this.config?.legend;
+    return this.config.legend;
   }
+  set legend(val: boolean) {
+    this.config.legend = val;
+  }
+
+  @Input()
   get legendTitle() {
-    return this.config?.legendTitle ?? 'Legend';
+    return this.config.legendTitle ?? 'Legend';
   }
+  set legendTitle(val: string) {
+    this.config.legendTitle = val;
+  }
+
+  @Input()
   get legendPosition() {
-    return this.config?.legendPosition ?? LegendPosition.Right;
+    return this.config.legendPosition ?? LegendPosition.Right;
   }
+  set legendPosition(val: LegendPosition) {
+    this.config.legendPosition = val;
+  }
+
+  @Input()
   get xAxis() {
-    return this.config?.xAxis;
+    return this.config.xAxis;
   }
+  set xAxis(val: boolean) {
+    this.config.xAxis = val;
+  }
+
+  @Input()
   get yAxis() {
-    return this.config?.yAxis;
+    return this.config.yAxis;
   }
+  set yAxis(val: boolean) {
+    this.config.yAxis = val;
+  }
+
+  @Input()
   get showXAxisLabel() {
-    return this.config?.showXAxisLabel;
+    return this.config.showXAxisLabel;
   }
+  set showXAxisLabel(val: boolean) {
+    this.config.showXAxisLabel = val;
+  }
+
+  @Input()
   get showYAxisLabel() {
-    return this.config?.showYAxisLabel;
+    return this.config.showYAxisLabel;
   }
+  set showYAxisLabel(val: boolean) {
+    this.config.showYAxisLabel = val;
+  }
+
+  @Input()
   get xAxisLabel() {
-    return this.config?.xAxisLabel;
+    return this.config.xAxisLabel;
   }
+  set xAxisLabel(val: string) {
+    this.config.xAxisLabel = val;
+  }
+
+  @Input()
   get yAxisLabel() {
-    return this.config?.yAxisLabel;
+    return this.config.yAxisLabel;
   }
+  set yAxisLabel(val: string) {
+    this.config.yAxisLabel = val;
+  }
+
+  @Input()
   get autoScale() {
-    return this.config?.autoScale;
+    return this.config.autoScale;
   }
+  set autoScale(val: boolean) {
+    this.config.autoScale = val;
+  }
+
+  @Input()
   get showGridLines() {
-    return this.config?.showGridLines ?? true;
+    return this.config.showGridLines ?? true;
   }
+  set showGridLines(val: boolean) {
+    this.config.showGridLines = val;
+  }
+
+  @Input()
   get curve() {
-    return this.config?.curve ?? curveCardinalClosed;
+    return this.config.curve ?? curveCardinalClosed;
   }
+  set curve(val: unknown) {
+    this.config.curve = val;
+  }
+
+  @Input()
   get activeEntries() {
-    return this.config?.activeEntries ?? [];
+    return this.config.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
-    if (this.config) this.config.activeEntries = value;
+  set activeEntries(value: unknown[]) {
+    this.config.activeEntries = value;
   }
+
+  @Input()
   get rangeFillOpacity() {
-    return this.config?.rangeFillOpacity ?? 0.15;
+    return this.config.rangeFillOpacity ?? 0.15;
   }
+  set rangeFillOpacity(val: number) {
+    this.config.rangeFillOpacity = val;
+  }
+
+  @Input()
   get trimYAxisTicks() {
-    return this.config?.trimYAxisTicks ?? true;
+    return this.config.trimYAxisTicks ?? true;
   }
+  set trimYAxisTicks(val: boolean) {
+    this.config.trimYAxisTicks = val;
+  }
+
+  @Input()
   get maxYAxisTickLength() {
-    return this.config?.maxYAxisTickLength ?? 16;
+    return this.config.maxYAxisTickLength ?? 16;
   }
+  set maxYAxisTickLength(val: number) {
+    this.config.maxYAxisTickLength = val;
+  }
+
+  @Input()
   get xAxisTickFormatting() {
-    return this.config?.xAxisTickFormatting;
+    return this.config.xAxisTickFormatting;
   }
+  set xAxisTickFormatting(val: (o: unknown) => string) {
+    this.config.xAxisTickFormatting = val;
+  }
+
+  @Input()
   get yAxisTickFormatting() {
-    return this.config?.yAxisTickFormatting;
+    return this.config.yAxisTickFormatting;
   }
+  set yAxisTickFormatting(val: (o: unknown) => string) {
+    this.config.yAxisTickFormatting = val;
+  }
+
+  @Input()
   get roundDomains() {
-    return this.config?.roundDomains ?? false;
+    return this.config.roundDomains ?? false;
   }
+  set roundDomains(val: boolean) {
+    this.config.roundDomains = val;
+  }
+
+  @Input()
   get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
+    return this.config.tooltipDisabled ?? false;
   }
+  set tooltipDisabled(val: boolean) {
+    this.config.tooltipDisabled = val;
+  }
+
+  @Input()
   get showSeriesOnHover() {
-    return this.config?.showSeriesOnHover ?? true;
+    return this.config.showSeriesOnHover ?? true;
   }
+  set showSeriesOnHover(val: boolean) {
+    this.config.showSeriesOnHover = val;
+  }
+
+  @Input()
   get gradient() {
-    return this.config?.gradient ?? false;
+    return this.config.gradient ?? false;
   }
+  set gradient(val: boolean) {
+    this.config.gradient = val;
+  }
+
+  @Input()
   get yAxisMinScale() {
-    return this.config?.yAxisMinScale ?? 0;
+    return this.config.yAxisMinScale ?? 0;
   }
+  set yAxisMinScale(val: number) {
+    this.config.yAxisMinScale = val;
+  }
+
+  @Input()
   get labelTrim() {
-    return this.config?.labelTrim ?? true;
+    return this.config.labelTrim ?? true;
   }
+  set labelTrim(val: boolean) {
+    this.config.labelTrim = val;
+  }
+
+  @Input()
   get labelTrimSize() {
-    return this.config?.labelTrimSize ?? 10;
+    return this.config.labelTrimSize ?? 10;
   }
+  set labelTrimSize(val: number) {
+    this.config.labelTrimSize = val;
+  }
+
+  @Input()
   get wrapTicks() {
-    return this.config?.wrapTicks ?? false;
+    return this.config.wrapTicks ?? false;
+  }
+  set wrapTicks(val: boolean) {
+    this.config.wrapTicks = val;
   }
 
   ngOnInit() {
@@ -281,7 +407,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   setScales() {
     const xValues = this.getXValues();
     this.scaleType = getScaleType(xValues);
-    this.xDomain = this.filteredDomain || this.getXDomain(xValues);
+    this.xDomain = (this.filteredDomain as unknown[]) || this.getXDomain(xValues);
 
     this.yDomain = this.getYDomain();
     this.seriesDomain = this.getSeriesDomain();
@@ -309,7 +435,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
     const outerRadius = this.outerRadius;
     const s = 1.1;
 
-    this.thetaTicks = this.xDomain.map(d => {
+    this.thetaTicks = (this.xDomain as any[]).map(d => {
       const startAngle = this.xScale(d);
       const dd = s * outerRadius * (startAngle > Math.PI ? -1 : 1);
       const label = tickFormat(d);
@@ -448,7 +574,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   setColors(): void {
     const domain = this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain.reverse();
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.schemeType, domain as string[] | number[], this.customColors);
   }
 
   getLegendOptions() {
@@ -481,7 +607,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   }
 
   onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
     if (idx > -1) {
@@ -492,7 +618,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   }
 
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
 

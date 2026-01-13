@@ -2,21 +2,29 @@
  * Throttle a function
  *
  */
-export function throttle(func: any, wait: number, options?: any) {
+/**
+ * Throttle a function
+ *
+ */
+export function throttle(
+  func: (...args: unknown[]) => unknown,
+  wait: number,
+  options: { leading?: boolean; trailing?: boolean } = {}
+) {
   options = options || {};
-  let context;
-  let args;
-  let result;
-  let timeout = null;
+  let context: unknown;
+  let args: unknown[];
+  let result: unknown;
+  let timeout: any = null;
   let previous = 0;
 
   function later() {
     previous = options.leading === false ? 0 : +new Date();
     timeout = null;
-    result = func.apply(context, args);
+    result = (func as Function).apply(context, args);
   }
 
-  return function () {
+  return function (this: unknown, ...params: unknown[]) {
     const now = +new Date();
 
     if (!previous && options.leading === false) {
@@ -27,13 +35,13 @@ export function throttle(func: any, wait: number, options?: any) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     context = this;
     // eslint-disable-next-line prefer-rest-params
-    args = arguments;
+    args = params;
 
     if (remaining <= 0) {
       clearTimeout(timeout);
       timeout = null;
       previous = now;
-      result = func.apply(context, args);
+      result = (func as Function).apply(context, args);
     } else if (!timeout && options.trailing !== false) {
       timeout = setTimeout(later, remaining);
     }
@@ -50,8 +58,8 @@ export function throttle(func: any, wait: number, options?: any) {
  *    myFn() { ... }
  *  }
  */
-export function throttleable(duration: number, options?: any) {
-  return function innerDecorator(target, key, descriptor) {
+export function throttleable(duration: number, options?: { leading?: boolean; trailing?: boolean }) {
+  return function innerDecorator(target: any, key: string | symbol, descriptor: PropertyDescriptor) {
     return {
       configurable: true,
       enumerable: descriptor.enumerable,

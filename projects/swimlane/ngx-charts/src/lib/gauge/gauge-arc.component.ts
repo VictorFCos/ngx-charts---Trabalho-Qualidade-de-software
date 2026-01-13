@@ -60,13 +60,13 @@ export class GaugeArcComponent {
   @Input() colors: ColorHelper;
   @Input() isActive: boolean = false;
   @Input() tooltipDisabled: boolean = false;
-  @Input() valueFormatting: (value: any) => string;
-  @Input() tooltipTemplate: TemplateRef<any>;
+  @Input() valueFormatting: (value: unknown) => string;
+  @Input() tooltipTemplate: TemplateRef<unknown>;
   @Input() animations: boolean = true;
 
-  @Output() select = new EventEmitter();
-  @Output() activate = new EventEmitter();
-  @Output() deactivate = new EventEmitter();
+  @Output() select = new EventEmitter<unknown>();
+  @Output() activate = new EventEmitter<unknown>();
+  @Output() deactivate = new EventEmitter<unknown>();
 
   placementTypes = PlacementTypes;
   styleTypes = StyleTypes;

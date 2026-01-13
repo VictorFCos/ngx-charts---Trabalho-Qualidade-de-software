@@ -32,7 +32,7 @@ export interface AreaChartOptions {
   legendPosition: LegendPosition;
   xAxis: boolean;
   yAxis: boolean;
-  baseValue: any;
+  baseValue: unknown;
   autoScale: boolean;
   showXAxisLabel: boolean;
   showYAxisLabel: boolean;
@@ -42,24 +42,24 @@ export interface AreaChartOptions {
   gradient: boolean;
   showGridLines: boolean;
   curve: CurveFactory;
-  activeEntries: any[];
+  activeEntries: unknown[];
   schemeType: ScaleType;
   trimXAxisTicks: boolean;
   trimYAxisTicks: boolean;
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: (o: unknown) => string;
+  yAxisTickFormatting: (o: unknown) => string;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   roundDomains: boolean;
   tooltipDisabled: boolean;
-  referenceLines: any[];
+  referenceLines: unknown[];
   showRefLines: boolean;
   showRefLabels: boolean;
-  xScaleMin: any;
-  xScaleMax: any;
+  xScaleMin: unknown;
+  xScaleMax: unknown;
   yScaleMin: number;
   yScaleMax: number;
   wrapTicks: boolean;
@@ -76,15 +76,15 @@ export interface AreaChartOptions {
 export class AreaChartComponent extends BaseChartComponent {
   @Input() config: AreaChartOptions;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
-  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
+  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   xSet: any;
-  xDomain: any[];
+  xDomain: unknown[];
   yDomain: [number, number];
   seriesDomain: string[];
   xScale: any;
@@ -106,8 +106,8 @@ export class AreaChartComponent extends BaseChartComponent {
   timelineHeight: number = 50;
   timelineXScale: any;
   timelineYScale: any;
-  timelineXDomain: any[];
-  timelineTransform: any;
+  timelineXDomain: unknown[];
+  timelineTransform: string;
   timelinePadding: number = 10;
 
   get legend() {
@@ -158,7 +158,7 @@ export class AreaChartComponent extends BaseChartComponent {
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get trimXAxisTicks() {
@@ -300,7 +300,7 @@ export class AreaChartComponent extends BaseChartComponent {
     }
   }
 
-  getXDomain(): any[] {
+  getXDomain(): unknown[] {
     let values = getUniqueXDomainValues(this.results);
 
     this.scaleType = getScaleType(values);
@@ -355,7 +355,7 @@ export class AreaChartComponent extends BaseChartComponent {
       values.push(0);
     }
     if (this.baseValue !== 'auto') {
-      values.push(this.baseValue);
+      values.push(this.baseValue as number);
     }
 
     const min = this.yScaleMin ? this.yScaleMin : Math.min(...values);
@@ -450,7 +450,7 @@ export class AreaChartComponent extends BaseChartComponent {
       domain = this.yDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.schemeType, domain as any, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
@@ -483,7 +483,7 @@ export class AreaChartComponent extends BaseChartComponent {
   }
 
   onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
     if (idx > -1) {
@@ -495,7 +495,7 @@ export class AreaChartComponent extends BaseChartComponent {
   }
 
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
 

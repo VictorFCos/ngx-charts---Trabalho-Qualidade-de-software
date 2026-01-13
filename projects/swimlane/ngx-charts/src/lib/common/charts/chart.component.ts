@@ -54,7 +54,7 @@ export class ChartComponent implements OnChanges {
   @Input() showLegend: boolean = false;
   @Input() legendOptions: LegendOptions;
   @Input() legendType: LegendType;
-  @Input() activeEntries: any[];
+  @Input() activeEntries: unknown[];
   @Input() animations: boolean = true;
 
   @Output() legendLabelClick = new EventEmitter<string>();
@@ -88,7 +88,7 @@ export class ChartComponent implements OnChanges {
     }
   }
 
-  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
+  areActiveEntriesEqual(prev: unknown[], curr: unknown[]): boolean {
     if (prev === curr) return true;
     if (!prev || !curr) return false;
     if (prev.length !== curr.length) return false;

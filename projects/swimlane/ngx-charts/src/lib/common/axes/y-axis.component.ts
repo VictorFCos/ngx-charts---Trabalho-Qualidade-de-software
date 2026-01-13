@@ -57,18 +57,18 @@ export class YAxisComponent implements OnChanges {
   @Input() trimTicks: boolean;
   @Input() maxTickLength: number;
   @Input() tickFormatting;
-  @Input() ticks: any[];
+  @Input() ticks: unknown[];
   @Input() showGridLines: boolean = false;
   @Input() showLabel: boolean;
   @Input() labelText: string;
-  @Input() yAxisTickCount: any;
+  @Input() yAxisTickCount: unknown;
   @Input() yOrient: Orientation = Orientation.Left;
-  @Input() referenceLines;
+  @Input() referenceLines: unknown[];
   @Input() showRefLines: boolean;
   @Input() showRefLabels: boolean;
   @Input() yAxisOffset: number = 0;
   @Input() wrapTicks = false;
-  @Output() dimensionsChanged = new EventEmitter();
+  @Output() dimensionsChanged = new EventEmitter<{ width: number }>();
 
   yAxisClassName: string = 'y axis';
   tickArguments: number[];
@@ -97,11 +97,11 @@ export class YAxisComponent implements OnChanges {
     }
 
     if (this.yAxisTickCount !== undefined) {
-      this.tickArguments = [this.yAxisTickCount];
+      this.tickArguments = [this.yAxisTickCount as number];
     }
   }
 
-  emitTicksWidth({ width }): void {
+  emitTicksWidth({ width }: { width: number }): void {
     if (width !== this.labelOffset && this.yOrient === Orientation.Right) {
       this.labelOffset = width + this.labelOffset;
       setTimeout(() => {

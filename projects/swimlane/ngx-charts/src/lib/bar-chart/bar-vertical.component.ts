@@ -32,28 +32,28 @@ export interface BarChartConfig {
   yAxisLabel: string;
   tooltipDisabled: boolean;
   gradient: boolean;
-  referenceLines: any[];
+  referenceLines: unknown[];
   showRefLines: boolean;
   showRefLabels: boolean;
   showGridLines: boolean;
-  activeEntries: any[];
+  activeEntries: unknown[];
   schemeType: ScaleType;
   trimXAxisTicks: boolean;
   trimYAxisTicks: boolean;
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: unknown;
+  yAxisTickFormatting: unknown;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   barPadding: number;
   roundDomains: boolean;
   roundEdges: boolean;
   yScaleMax: number;
   yScaleMin: number;
   showDataLabel: boolean;
-  dataLabelFormatting: any;
+  dataLabelFormatting: unknown;
   noBarWhenZero: boolean;
   wrapTicks: boolean;
 }
@@ -69,23 +69,23 @@ export interface BarChartConfig {
 export class BarVerticalComponent extends BaseChartComponent {
   @Input() config: BarChartConfig;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   xScale: any;
   yScale: any;
-  xDomain: any;
-  yDomain: any;
+  xDomain: string[];
+  yDomain: [number, number];
   transform: string;
   colors: ColorHelper;
   margin: number[] = [10, 20, 10, 20];
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: LegendOptions;
-  dataLabelMaxHeight: any = { negative: 0, positive: 0 };
+  dataLabelMaxHeight: { negative: number; positive: number } = { negative: 0, positive: 0 };
 
   // Getters to maintain template compatibility and default values
   get legend() {
@@ -136,7 +136,7 @@ export class BarVerticalComponent extends BaseChartComponent {
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   // schemeType is inherited from BaseChartComponent, so we don't define a getter/setter here to avoid TS2611.
@@ -275,7 +275,7 @@ export class BarVerticalComponent extends BaseChartComponent {
     return this.roundDomains ? scale.nice() : scale;
   }
 
-  getXDomain(): any[] {
+  getXDomain(): string[] {
     return this.results.map(d => d.label);
   }
 
@@ -284,12 +284,12 @@ export class BarVerticalComponent extends BaseChartComponent {
 
     let min = this.yScaleMin ? Math.min(this.yScaleMin, ...values) : Math.min(0, ...values);
     if (this.yAxisTicks && !this.yAxisTicks.some(isNaN)) {
-      min = Math.min(min, ...this.yAxisTicks);
+      min = Math.min(min, ...(this.yAxisTicks as number[]));
     }
 
     let max = this.yScaleMax ? Math.max(this.yScaleMax, ...values) : Math.max(0, ...values);
     if (this.yAxisTicks && !this.yAxisTicks.some(isNaN)) {
-      max = Math.max(max, ...this.yAxisTicks);
+      max = Math.max(max, ...(this.yAxisTicks as number[]));
     }
     return [min, max];
   }
@@ -311,7 +311,7 @@ export class BarVerticalComponent extends BaseChartComponent {
 
   getLegendOptions() {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: this.schemeType,
       colors: undefined,
       domain: [],
       title: undefined,
@@ -358,7 +358,7 @@ export class BarVerticalComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
@@ -378,7 +378,7 @@ export class BarVerticalComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 

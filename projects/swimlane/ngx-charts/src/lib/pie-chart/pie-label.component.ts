@@ -65,7 +65,7 @@ export class PieLabelComponent implements OnChanges {
   attrTransform: string;
   textTransition: string;
 
-  constructor(@Inject(PLATFORM_ID) public platformId: any) {
+  constructor(@Inject(PLATFORM_ID) public platformId: Object) {
     this.trimLabel = trimLabel;
   }
 
@@ -138,7 +138,7 @@ export class PieLabelComponent implements OnChanges {
     return this.midAngle(this.data) < Math.PI ? TextAnchor.Start : TextAnchor.End;
   }
 
-  midAngle(d): number {
+  midAngle(d: DefaultArcObject): number {
     return d.startAngle + (d.endAngle - d.startAngle) / 2;
   }
 }

@@ -85,7 +85,7 @@ export class LegendComponent implements OnChanges {
     }
   }
 
-  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
+  areActiveEntriesEqual(prev: unknown[], curr: unknown[]): boolean {
     if (prev === curr) return true;
     if (!prev || !curr) return false;
     if (prev.length !== curr.length) return false;

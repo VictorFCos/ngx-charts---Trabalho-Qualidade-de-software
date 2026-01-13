@@ -148,33 +148,33 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
   @Input() tooltipDisabled: boolean = false;
   @Input() gradient: boolean;
   @Input() showGridLines: boolean = true;
-  @Input() activeEntries: any[] = [];
+  @Input() activeEntries: unknown[] = [];
   @Input() schemeType: ScaleType = ScaleType.Ordinal;
   @Input() trimXAxisTicks: boolean = true;
   @Input() trimYAxisTicks: boolean = true;
   @Input() rotateXAxisTicks: boolean = true;
   @Input() maxXAxisTickLength: number = 16;
   @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
+  @Input() xAxisTickFormatting: (val: unknown) => string;
+  @Input() yAxisTickFormatting: (val: unknown) => string;
+  @Input() xAxisTicks: unknown[];
+  @Input() yAxisTicks: unknown[];
   @Input() barPadding: number = 8;
   @Input() roundDomains: boolean = false;
   @Input() noBarWhenZero: boolean = true;
   @Input() wrapTicks = false;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   groupDomain: string[];
   innerDomain: string[];
   valueDomain: [number, number] = [0, 100];
-  xScale: any;
-  yScale: any;
+  xScale: Function;
+  yScale: Function;
   transform: string;
   colors: ColorHelper;
   margin: number[] = [10, 20, 10, 20];
@@ -247,13 +247,13 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
     return domain;
   }
 
-  getXScale(): any {
+  getXScale() {
     const spacing = this.groupDomain.length / (this.dims.width / this.barPadding + 1);
 
     return scaleBand().rangeRound([0, this.dims.width]).paddingInner(spacing).domain(this.groupDomain);
   }
 
-  getYScale(): any {
+  getYScale() {
     const scale = scaleLinear().range([this.dims.height, 0]).domain(this.valueDomain);
     return this.roundDomains ? scale.nice() : scale;
   }
@@ -342,13 +342,15 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = this.activeEntries.filter(i => {
-      if (fromLegend) {
-        return i.label !== item.name;
-      } else {
-        return !(i.name === item.name && i.series === item.series);
+    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+      i => {
+        if (fromLegend) {
+          return i.label !== item.name;
+        } else {
+          return !(i.name === item.name && i.series === item.series);
+        }
       }
-    });
+    );
 
     this.deactivate.emit({ value: item, entries: this.activeEntries });
   }

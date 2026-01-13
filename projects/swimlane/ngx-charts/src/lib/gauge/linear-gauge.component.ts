@@ -113,7 +113,7 @@ export class LinearGaugeComponent extends BaseChartComponent implements AfterVie
   @Input() value: number = 0;
   @Input() units: string;
   @Input() previousValue: number;
-  @Input() valueFormatting: any;
+  @Input() valueFormatting: (value: unknown) => string;
 
   @ViewChild('valueTextEl') valueTextEl: ElementRef;
   @ViewChild('unitsTextEl') unitsTextEl: ElementRef;
