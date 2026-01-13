@@ -1,6 +1,25 @@
 import { arc } from 'd3-shape';
 import { interpolate } from 'd3-interpolate';
 
+import { DataItem } from '../models/chart-data.model';
+
+export interface PieArcConfig {
+  fill: string;
+  startAngle: number;
+  endAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  cornerRadius: number;
+  value: number;
+  max: number;
+  data: DataItem;
+  explodeSlices: boolean;
+  gradient: boolean;
+  animate: boolean;
+  pointerEvents: boolean;
+  isActive: boolean;
+}
+
 export function calculatePieArcPath(
   innerRadius: number,
   outerRadius: number,

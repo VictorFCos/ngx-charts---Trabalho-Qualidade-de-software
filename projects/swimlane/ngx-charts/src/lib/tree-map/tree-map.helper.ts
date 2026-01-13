@@ -3,7 +3,24 @@ import { trimLabel } from '../common/trim-label.helper';
 import { escapeLabel } from '../common/label.helper';
 import { select } from 'd3-selection';
 
-export function getTreeMapCellGradientStops(fill: string): Gradient[] {
+import { DataItem } from '../models/chart-data.model';
+
+export interface TreeMapCellConfig {
+  data: DataItem;
+  fill: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label: string;
+  value: number;
+  valueFormatting?: (value: any) => string;
+  labelFormatting?: (cell: any) => string;
+  gradient: boolean;
+  animations: boolean;
+}
+
+export function getTreeMapCellGradientStops(fill: string): any[] {
   return [
     {
       offset: 0,

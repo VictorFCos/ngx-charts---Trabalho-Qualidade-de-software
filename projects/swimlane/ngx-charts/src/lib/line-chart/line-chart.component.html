@@ -57,16 +57,18 @@
             <svg:g *ngFor="let series of results; trackBy: trackBy" [@animationState]="'active'">
               <svg:g
                 ngx-charts-line-series
-                [xScale]="xScale"
-                [yScale]="yScale"
-                [colors]="colors"
-                [data]="series"
-                [activeEntries]="activeEntries"
-                [scaleType]="scaleType"
-                [curve]="curve"
-                [rangeFillOpacity]="rangeFillOpacity"
-                [hasRange]="hasRange"
-                [animations]="animations"
+                [config]="{
+                  xScale: xScale,
+                  yScale: yScale,
+                  colors: colors,
+                  data: series,
+                  activeEntries: activeEntries,
+                  scaleType: scaleType,
+                  curve: curve,
+                  rangeFillOpacity: rangeFillOpacity,
+                  hasRange: hasRange,
+                  animations: animations
+                }"
               />
             </svg:g>
           </svg:g>
@@ -74,16 +76,18 @@
             <svg:g *ngFor="let series of results; trackBy: trackBy">
               <svg:g
                 ngx-charts-line-series
-                [xScale]="xScale"
-                [yScale]="yScale"
-                [colors]="colors"
-                [data]="series"
-                [activeEntries]="activeEntries"
-                [scaleType]="scaleType"
-                [curve]="curve"
-                [rangeFillOpacity]="rangeFillOpacity"
-                [hasRange]="hasRange"
-                [animations]="animations"
+                [config]="{
+                  xScale: xScale,
+                  yScale: yScale,
+                  colors: colors,
+                  data: series,
+                  activeEntries: activeEntries,
+                  scaleType: scaleType,
+                  curve: curve,
+                  rangeFillOpacity: rangeFillOpacity,
+                  hasRange: hasRange,
+                  animations: animations
+                }"
               />
             </svg:g>
           </svg:g>
@@ -138,14 +142,18 @@
         <svg:g *ngFor="let series of results; trackBy: trackBy">
           <svg:g
             ngx-charts-line-series
-            [xScale]="timelineXScale"
-            [yScale]="timelineYScale"
-            [colors]="colors"
-            [data]="series"
-            [scaleType]="scaleType"
-            [curve]="curve"
-            [hasRange]="hasRange"
-            [animations]="animations"
+            [config]="{
+              xScale: timelineXScale,
+              yScale: timelineYScale,
+              colors: colors,
+              data: series,
+              scaleType: scaleType,
+              curve: curve,
+              hasRange: hasRange,
+              animations: animations,
+              activeEntries: null,
+              rangeFillOpacity: null
+            }"
           />
         </svg:g>
       </svg:g>

@@ -70,15 +70,18 @@
       <svg:g *ngFor="let series of lineChart; trackBy: trackBy">
         <svg:g
           ngx-charts-line-series
-          [xScale]="xScaleLine"
-          [yScale]="yScaleLine"
-          [colors]="colorsLine"
-          [data]="series"
-          [activeEntries]="activeEntries"
-          [scaleType]="scaleType"
-          [curve]="curve"
-          [rangeFillOpacity]="rangeFillOpacity"
-          [animations]="animations"
+          [config]="{
+            xScale: xScaleLine,
+            yScale: yScaleLine,
+            colors: colorsLine,
+            data: series,
+            activeEntries: activeEntries,
+            scaleType: scaleType,
+            curve: curve,
+            rangeFillOpacity: rangeFillOpacity,
+            hasRange: false,
+            animations: animations
+          }"
         />
       </svg:g>
 

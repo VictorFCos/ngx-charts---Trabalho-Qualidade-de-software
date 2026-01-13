@@ -9,10 +9,18 @@
                     [attr.r]="r" />
             </svg:g>
             <svg:g *ngIf="xAxis">
-                <svg:g ngx-charts-pie-label *ngFor="let tick of thetaTicks" [data]="tick" [radius]="outerRadius"
-                    [label]="tick.label" [max]="outerRadius" [value]="showGridLines ? 1 : outerRadius"
-                    [explodeSlices]="true" [animations]="animations" [labelTrim]="labelTrim"
-                    [labelTrimSize]="labelTrimSize"></svg:g>
+                <svg:g ngx-charts-pie-label *ngFor="let tick of thetaTicks" [config]="{
+                    data: tick,
+                    radius: outerRadius,
+                    label: tick.label,
+                    max: outerRadius,
+                    value: showGridLines ? 1 : outerRadius,
+                    explodeSlices: true,
+                    animations: animations,
+                    labelTrim: labelTrim,
+                    labelTrimSize: labelTrimSize,
+                    color: undefined
+                }"></svg:g>
             </svg:g>
         </svg:g>
         <svg:g ngx-charts-y-axis [attr.transform]="transformYAxis" *ngIf="yAxis" [yScale]="yAxisScale"
