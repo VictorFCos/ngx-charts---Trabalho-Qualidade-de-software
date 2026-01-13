@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { select } from 'd3-selection';
 import { id } from '../utils/id';
-import { calculatePieArcPath, animatePieArc, PieArcConfig } from './pie-arc.helper';
+import { calculatePieArcPath, animatePieArc, PieArcConfig, hasPieArcConfigChanged } from './pie-arc.helper';
 
 @Component({
   selector: 'g[ngx-charts-pie-arc]',
@@ -57,7 +57,11 @@ export class PieArcComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.config) {
-      this.update();
+      const prev = changes.config.previousValue;
+      const curr = changes.config.currentValue;
+      if (hasPieArcConfigChanged(prev, curr)) {
+        this.update();
+      }
     }
   }
 

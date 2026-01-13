@@ -11,7 +11,7 @@ import {
 
 import { trimLabel } from '../common/trim-label.helper';
 import { TextAnchor } from '../common/types/text-anchor.enum';
-import { PieLabelConfig, calculateLine, getTextAnchor } from './pie-label.helper';
+import { PieLabelConfig, calculateLine, getTextAnchor, hasPieLabelConfigChanged } from './pie-label.helper';
 
 @Component({
   selector: 'g[ngx-charts-pie-label]',
@@ -41,10 +41,12 @@ export class PieLabelComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.config) {
-      // Check for data equality if it's the only change (simplified check via config reference)
-      // Ideally strict equality check on config properties would be better but for now rely on OnPush and input change.
-      this.setTransforms();
-      this.update();
+      const prev = changes.config.previousValue;
+      const curr = changes.config.currentValue;
+      if (hasPieLabelConfigChanged(prev, curr)) {
+        this.setTransforms();
+        this.update();
+      }
     }
   }
 

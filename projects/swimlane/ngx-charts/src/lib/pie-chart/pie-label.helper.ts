@@ -55,3 +55,19 @@ export function getMidAngle(d: any): number {
 export function getTextAnchor(data: any): TextAnchor {
   return getMidAngle(data) < Math.PI ? TextAnchor.Start : TextAnchor.End;
 }
+
+export function hasPieLabelConfigChanged(prev: PieLabelConfig, curr: PieLabelConfig): boolean {
+  if (!prev || !curr) return true;
+  return (
+    prev.data !== curr.data ||
+    prev.radius !== curr.radius ||
+    prev.label !== curr.label ||
+    prev.color !== curr.color ||
+    prev.max !== curr.max ||
+    prev.value !== curr.value ||
+    prev.explodeSlices !== curr.explodeSlices ||
+    prev.animations !== curr.animations ||
+    prev.labelTrim !== curr.labelTrim ||
+    prev.labelTrimSize !== curr.labelTrimSize
+  );
+}

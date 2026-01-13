@@ -85,3 +85,20 @@ export function animatePieArc(
       });
   }
 }
+
+export function hasPieArcConfigChanged(prev: PieArcConfig, curr: PieArcConfig): boolean {
+  if (!prev || !curr) return true;
+  return (
+    prev.startAngle !== curr.startAngle ||
+    prev.endAngle !== curr.endAngle ||
+    prev.innerRadius !== curr.innerRadius ||
+    prev.outerRadius !== curr.outerRadius ||
+    prev.cornerRadius !== curr.cornerRadius ||
+    prev.value !== curr.value ||
+    prev.max !== curr.max ||
+    prev.explodeSlices !== curr.explodeSlices ||
+    prev.gradient !== curr.gradient ||
+    prev.animate !== curr.animate ||
+    prev.fill !== curr.fill
+  );
+}
