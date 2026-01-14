@@ -167,7 +167,33 @@ import { AreaChartStackedOptions } from './area-chart-stacked.options';
 })
 export class AreaChartStackedComponent extends BaseChartComponent {
   @Input() config: AreaChartStackedOptions = {};
-  curve: any = curveLinear;
+  @Input() set gradient(v: boolean) { this.config.gradient = v; } get gradient(): boolean { return this.config.gradient; }
+  @Input() set xAxis(v: boolean) { this.config.xAxis = v; } get xAxis(): boolean { return this.config.xAxis; }
+  @Input() set yAxis(v: boolean) { this.config.yAxis = v; } get yAxis(): boolean { return this.config.yAxis; }
+  @Input() set legend(v: boolean) { this.config.legend = v; } get legend(): boolean { return this.config.legend; }
+  @Input() set legendTitle(v: string) { this.config.legendTitle = v; } get legendTitle(): string { return this.config.legendTitle; }
+  @Input() set legendPosition(v: any) { this.config.legendPosition = v; } get legendPosition(): any { return this.config.legendPosition; }
+  @Input() set showXAxisLabel(v: boolean) { this.config.showXAxisLabel = v; } get showXAxisLabel(): boolean { return this.config.showXAxisLabel; }
+  @Input() set showYAxisLabel(v: boolean) { this.config.showYAxisLabel = v; } get showYAxisLabel(): boolean { return this.config.showYAxisLabel; }
+  @Input() set tooltipDisabled(v: boolean) { this.config.tooltipDisabled = v; } get tooltipDisabled(): boolean { return this.config.tooltipDisabled; }
+  @Input() set xAxisLabel(v: string) { this.config.xAxisLabel = v; } get xAxisLabel(): string { return this.config.xAxisLabel; }
+  @Input() set yAxisLabel(v: string) { this.config.yAxisLabel = v; } get yAxisLabel(): string { return this.config.yAxisLabel; }
+  @Input() set showGridLines(v: boolean) { this.config.showGridLines = v; } get showGridLines(): boolean { return this.config.showGridLines; }
+  @Input() set roundDomains(v: boolean) { this.config.roundDomains = v; } get roundDomains(): boolean { return this.config.roundDomains; }
+  @Input() set xScaleMin(v: any) { this.config.xScaleMin = v; } get xScaleMin(): any { return this.config.xScaleMin; }
+  @Input() set xScaleMax(v: any) { this.config.xScaleMax = v; } get xScaleMax(): any { return this.config.xScaleMax; }
+  @Input() set yScaleMin(v: number) { this.config.yScaleMin = v; } get yScaleMin(): number { return this.config.yScaleMin; }
+  @Input() set yScaleMax(v: number) { this.config.yScaleMax = v; } get yScaleMax(): number { return this.config.yScaleMax; }
+  @Input() set timeline(v: boolean) { this.config.timeline = v; } get timeline(): boolean { return this.config.timeline; }
+  @Input() set trimXAxisTicks(v: boolean) { this.config.trimXAxisTicks = v; } get trimXAxisTicks(): boolean { return this.config.trimXAxisTicks; }
+  @Input() set trimYAxisTicks(v: boolean) { this.config.trimYAxisTicks = v; } get trimYAxisTicks(): boolean { return this.config.trimYAxisTicks; }
+  @Input() set rotateXAxisTicks(v: boolean) { this.config.rotateXAxisTicks = v; } get rotateXAxisTicks(): boolean { return this.config.rotateXAxisTicks; }
+  @Input() set maxXAxisTickLength(v: number) { this.config.maxXAxisTickLength = v; } get maxXAxisTickLength(): number { return this.config.maxXAxisTickLength; }
+  @Input() set maxYAxisTickLength(v: number) { this.config.maxYAxisTickLength = v; } get maxYAxisTickLength(): number { return this.config.maxYAxisTickLength; }
+  @Input() set wrapTicks(v: boolean) { this.config.wrapTicks = v; } get wrapTicks(): boolean { return this.config.wrapTicks; }
+  @Input() set curve(v: any) { this._curve = v; } get curve(): any { return this._curve || curveLinear; }
+  private _curve: any = curveLinear;
+
 
 
   @Output() activate: EventEmitter<any> = new EventEmitter();

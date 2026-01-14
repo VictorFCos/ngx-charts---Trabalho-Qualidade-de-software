@@ -62,18 +62,21 @@ import { PolarChartOptions } from './polar-chart.options';
             />
           </svg:g>
           <svg:g *ngIf="config.xAxis">
-            <svg:g
-              ngx-charts-pie-label
+            <svg:g 
               *ngFor="let tick of thetaTicks"
-              [data]="tick"
-              [radius]="outerRadius"
-              [label]="tick.label"
-              [max]="outerRadius"
-              [value]="(config.showGridLines ?? true) ? 1 : outerRadius"
-              [explodeSlices]="true"
-              [animations]="animations"
-              [labelTrim]="config.labelTrim ?? true"
-              [labelTrimSize]="config.labelTrimSize ?? 10"
+              ngx-charts-pie-label
+              [config]="{
+                data: tick,
+                radius: outerRadius,
+                label: tick.label,
+                color: '',
+                max: outerRadius,
+                value: (config.showGridLines ?? true) ? 1 : outerRadius,
+                explodeSlices: true,
+                animations: animations,
+                labelTrim: config.labelTrim ?? true,
+                labelTrimSize: config.labelTrimSize ?? 10
+              }"
             ></svg:g>
           </svg:g>
         </svg:g>

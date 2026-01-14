@@ -107,11 +107,26 @@ import { LinearGaugeOptions } from './linear-gauge.options';
 export class LinearGaugeComponent extends BaseChartComponent implements AfterViewInit {
   @Input() config: LinearGaugeOptions = {};
 
+  // Compatibility getters
+  @Input() set min(value: number) { this.config.min = value; }
+  get min(): number { return this.config.min; }
+
+  @Input() set max(value: number) { this.config.max = value; }
+  get max(): number { return this.config.max; }
+
+  @Input() set value(value: number) { this.config.value = value; }
+  get value(): number { return this.config.value; }
+
+  @Input() set previousValue(value: number) { this.config.previousValue = value; }
+  get previousValue(): number { return this.config.previousValue; }
+
+  @Input() set units(value: string) { this.config.units = value; }
+  get units(): string { return this.config.units; }
+
+
   // ElementType enum is not exported so redefining or using string literals
   elementType = { Value: 'value', Units: 'units' };
 
-  min: number;
-  max: number;
 
   @ViewChild('valueTextEl') valueTextEl: ElementRef;
   @ViewChild('unitsTextEl') unitsTextEl: ElementRef;

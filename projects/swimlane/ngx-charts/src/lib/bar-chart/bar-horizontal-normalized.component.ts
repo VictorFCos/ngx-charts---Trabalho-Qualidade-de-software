@@ -141,6 +141,28 @@ import { BarHorizontalNormalizedOptions } from './bar-horizontal-normalized.opti
 })
 export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   @Input() config: BarHorizontalNormalizedOptions = {};
+  @Input() set gradient(v: boolean) { this.config.gradient = v; } get gradient(): boolean { return this.config.gradient; }
+  @Input() set xAxis(v: boolean) { this.config.xAxis = v; } get xAxis(): boolean { return this.config.xAxis; }
+  @Input() set yAxis(v: boolean) { this.config.yAxis = v; } get yAxis(): boolean { return this.config.yAxis; }
+  @Input() set legend(v: boolean) { this.config.legend = v; } get legend(): boolean { return this.config.legend; }
+  @Input() set legendTitle(v: string) { this.config.legendTitle = v; } get legendTitle(): string { return this.config.legendTitle; }
+  @Input() set legendPosition(v: any) { this.config.legendPosition = v; } get legendPosition(): any { return this.config.legendPosition; }
+  @Input() set showXAxisLabel(v: boolean) { this.config.showXAxisLabel = v; } get showXAxisLabel(): boolean { return this.config.showXAxisLabel; }
+  @Input() set showYAxisLabel(v: boolean) { this.config.showYAxisLabel = v; } get showYAxisLabel(): boolean { return this.config.showYAxisLabel; }
+  @Input() set tooltipDisabled(v: boolean) { this.config.tooltipDisabled = v; } get tooltipDisabled(): boolean { return this.config.tooltipDisabled; }
+  @Input() set xAxisLabel(v: string) { this.config.xAxisLabel = v; } get xAxisLabel(): string { return this.config.xAxisLabel; }
+  @Input() set yAxisLabel(v: string) { this.config.yAxisLabel = v; } get yAxisLabel(): string { return this.config.yAxisLabel; }
+  @Input() set showGridLines(v: boolean) { this.config.showGridLines = v; } get showGridLines(): boolean { return this.config.showGridLines; }
+  @Input() set barPadding(v: number) { this.config.barPadding = v; } get barPadding(): number { return this.config.barPadding; }
+  @Input() set roundDomains(v: boolean) { this.config.roundDomains = v; } get roundDomains(): boolean { return this.config.roundDomains; }
+  @Input() set noBarWhenZero(v: boolean) { this.config.noBarWhenZero = v; } get noBarWhenZero(): boolean { return this.config.noBarWhenZero; }
+  @Input() set trimXAxisTicks(v: boolean) { this.config.trimXAxisTicks = v; } get trimXAxisTicks(): boolean { return this.config.trimXAxisTicks; }
+  @Input() set trimYAxisTicks(v: boolean) { this.config.trimYAxisTicks = v; } get trimYAxisTicks(): boolean { return this.config.trimYAxisTicks; }
+  @Input() set rotateXAxisTicks(v: boolean) { this.config.rotateXAxisTicks = v; } get rotateXAxisTicks(): boolean { return this.config.rotateXAxisTicks; }
+  @Input() set maxXAxisTickLength(v: number) { this.config.maxXAxisTickLength = v; } get maxXAxisTickLength(): number { return this.config.maxXAxisTickLength; }
+  @Input() set maxYAxisTickLength(v: number) { this.config.maxYAxisTickLength = v; } get maxYAxisTickLength(): number { return this.config.maxYAxisTickLength; }
+  @Input() set wrapTicks(v: boolean) { this.config.wrapTicks = v; } get wrapTicks(): boolean { return this.config.wrapTicks; }
+
 
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();

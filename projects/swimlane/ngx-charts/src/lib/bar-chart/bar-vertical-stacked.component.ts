@@ -152,6 +152,55 @@ import { BarVerticalStackedOptions } from './bar-vertical-stacked.options';
 export class BarVerticalStackedComponent extends BaseChartComponent {
   @Input() config: BarVerticalStackedOptions = {};
 
+  // Compatibility getters
+  @Input() set gradient(value: boolean) { this.config.gradient = value; }
+  get gradient(): boolean { return this.config.gradient; }
+  @Input() set xAxis(value: boolean) { this.config.xAxis = value; }
+  get xAxis(): boolean { return this.config.xAxis; }
+  @Input() set yAxis(value: boolean) { this.config.yAxis = value; }
+  get yAxis(): boolean { return this.config.yAxis; }
+  @Input() set legend(value: boolean) { this.config.legend = value; }
+  get legend(): boolean { return this.config.legend; }
+  @Input() set legendTitle(value: string) { this.config.legendTitle = value; }
+  get legendTitle(): string { return this.config.legendTitle; }
+  @Input() set legendPosition(value: any) { this.config.legendPosition = value; }
+  get legendPosition(): any { return this.config.legendPosition; }
+  @Input() set showXAxisLabel(value: boolean) { this.config.showXAxisLabel = value; }
+  get showXAxisLabel(): boolean { return this.config.showXAxisLabel; }
+  @Input() set showYAxisLabel(value: boolean) { this.config.showYAxisLabel = value; }
+  get showYAxisLabel(): boolean { return this.config.showYAxisLabel; }
+  @Input() set tooltipDisabled(value: boolean) { this.config.tooltipDisabled = value; }
+  get tooltipDisabled(): boolean { return this.config.tooltipDisabled; }
+  @Input() set xAxisLabel(value: string) { this.config.xAxisLabel = value; }
+  get xAxisLabel(): string { return this.config.xAxisLabel; }
+  @Input() set yAxisLabel(value: string) { this.config.yAxisLabel = value; }
+  get yAxisLabel(): string { return this.config.yAxisLabel; }
+  @Input() set showGridLines(value: boolean) { this.config.showGridLines = value; }
+  get showGridLines(): boolean { return this.config.showGridLines; }
+  @Input() set barPadding(value: number) { this.config.barPadding = value; }
+  get barPadding(): number { return this.config.barPadding; }
+  @Input() set roundDomains(value: boolean) { this.config.roundDomains = value; }
+  get roundDomains(): boolean { return this.config.roundDomains; }
+  @Input() set yScaleMax(value: number) { this.config.yScaleMax = value; }
+  get yScaleMax(): number { return this.config.yScaleMax; }
+  @Input() set noBarWhenZero(value: boolean) { this.config.noBarWhenZero = value; }
+  get noBarWhenZero(): boolean { return this.config.noBarWhenZero; }
+  @Input() set showDataLabel(value: boolean) { this.config.showDataLabel = value; }
+  get showDataLabel(): boolean { return this.config.showDataLabel; }
+  @Input() set trimXAxisTicks(value: boolean) { this.config.trimXAxisTicks = value; }
+  get trimXAxisTicks(): boolean { return this.config.trimXAxisTicks; }
+  @Input() set trimYAxisTicks(value: boolean) { this.config.trimYAxisTicks = value; }
+  get trimYAxisTicks(): boolean { return this.config.trimYAxisTicks; }
+  @Input() set rotateXAxisTicks(value: boolean) { this.config.rotateXAxisTicks = value; }
+  get rotateXAxisTicks(): boolean { return this.config.rotateXAxisTicks; }
+  @Input() set maxXAxisTickLength(value: number) { this.config.maxXAxisTickLength = value; }
+  get maxXAxisTickLength(): number { return this.config.maxXAxisTickLength; }
+  @Input() set maxYAxisTickLength(value: number) { this.config.maxYAxisTickLength = value; }
+  get maxYAxisTickLength(): number { return this.config.maxYAxisTickLength; }
+  @Input() set wrapTicks(value: boolean) { this.config.wrapTicks = value; }
+  get wrapTicks(): boolean { return this.config.wrapTicks; }
+
+
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
