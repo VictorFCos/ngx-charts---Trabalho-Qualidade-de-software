@@ -49,18 +49,18 @@ export class TreeMapCellComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.config) {
-        updateTreeMapCell(this);
-        this.formattedValue = getTreeMapCellFormattedValue(this.config.value, this.config.valueFormatting);
-        this.formattedLabel = getTreeMapCellFormattedLabel(this.config.label, this.config.labelFormatting, this.config.data, this.config.value);
+      updateTreeMapCell(this);
+      this.formattedValue = getTreeMapCellFormattedValue(this.config.value, this.config.valueFormatting);
+      this.formattedLabel = getTreeMapCellFormattedLabel(this.config.label, this.config.labelFormatting, this.config.data, this.config.value);
 
-        if (!this.initialized) {
-            this.gradientId = 'grad' + id().toString();
-            this.gradientUrl = `url(#${this.gradientId})`;
-            this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
-            this.initialized = true;
-        } else if (changes.config.currentValue.fill !== changes.config.previousValue?.fill) {
-             this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
-        }
+      if (!this.initialized) {
+        this.gradientId = 'grad' + id().toString();
+        this.gradientUrl = `url(#${this.gradientId})`;
+        this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
+        this.initialized = true;
+      } else if (changes.config.currentValue.fill !== changes.config.previousValue?.fill) {
+        this.gradientStops = getTreeMapCellGradientStops(this.config.fill);
+      }
     }
   }
 

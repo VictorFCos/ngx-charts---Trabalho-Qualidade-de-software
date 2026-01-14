@@ -24,14 +24,16 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { isPlatformServer } from '@angular/common';
 
+import { BarHorizontalNormalizedOptions } from './bar-horizontal-normalized.options';
+
 @Component({
   selector: 'ngx-charts-bar-horizontal-normalized',
   template: `
     <ngx-charts-chart
       [view]="[width, height]"
-      [showLegend]="legend"
+      [showLegend]="config.legend ?? false"
       [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
+      [activeEntries]="config.activeEntries ?? []"
       [animations]="animations"
       (legendLabelActivate)="onActivate($event, undefined, true)"
       (legendLabelDeactivate)="onDeactivate($event, undefined, true)"
@@ -40,32 +42,32 @@ import { isPlatformServer } from '@angular/common';
       <svg:g [attr.transform]="transform" class="bar-chart chart">
         <svg:g
           ngx-charts-x-axis
-          *ngIf="xAxis"
+          *ngIf="config.xAxis"
           [xScale]="xScale"
           [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateXAxisHeight($event)"
         ></svg:g>
         <svg:g
           ngx-charts-y-axis
-          *ngIf="yAxis"
+          *ngIf="config.yAxis"
           [yScale]="yScale"
           [dims]="dims"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateYAxisWidth($event)"
         ></svg:g>
         <svg:g *ngIf="!isSSR">
@@ -79,19 +81,19 @@ import { isPlatformServer } from '@angular/common';
               [type]="barChartType.Normalized"
               [xScale]="xScale"
               [yScale]="yScale"
-              [activeEntries]="activeEntries"
+              [activeEntries]="config.activeEntries ?? []"
               [colors]="colors"
               [series]="group.series"
               [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
               [tooltipTemplate]="tooltipTemplate"
               [seriesName]="group.name"
               [animations]="animations"
               (select)="onClick($event, group)"
               (activate)="onActivate($event, group)"
               (deactivate)="onDeactivate($event, group)"
-              [noBarWhenZero]="noBarWhenZero"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
             />
           </svg:g>
         </svg:g>
@@ -102,19 +104,19 @@ import { isPlatformServer } from '@angular/common';
               [type]="barChartType.Normalized"
               [xScale]="xScale"
               [yScale]="yScale"
-              [activeEntries]="activeEntries"
+              [activeEntries]="config.activeEntries ?? []"
               [colors]="colors"
               [series]="group.series"
               [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
               [tooltipTemplate]="tooltipTemplate"
               [seriesName]="group.name"
               [animations]="animations"
               (select)="onClick($event, group)"
               (activate)="onActivate($event, group)"
               (deactivate)="onDeactivate($event, group)"
-              [noBarWhenZero]="noBarWhenZero"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
             />
           </svg:g>
         </svg:g>
@@ -138,45 +140,42 @@ import { isPlatformServer } from '@angular/common';
   standalone: false
 })
 export class BarHorizontalNormalizedComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() barPadding: number = 8;
-  @Input() roundDomains: boolean = false;
-  @Input() noBarWhenZero: boolean = true;
-  @Input() wrapTicks = false;
+  @Input() config: BarHorizontalNormalizedOptions = {};
+  @Input() set gradient(v: boolean) { this.config.gradient = v; } get gradient(): boolean { return this.config.gradient; }
+  @Input() set xAxis(v: boolean) { this.config.xAxis = v; } get xAxis(): boolean { return this.config.xAxis; }
+  @Input() set yAxis(v: boolean) { this.config.yAxis = v; } get yAxis(): boolean { return this.config.yAxis; }
+  @Input() set legend(v: boolean) { this.config.legend = v; } get legend(): boolean { return this.config.legend; }
+  @Input() set legendTitle(v: string) { this.config.legendTitle = v; } get legendTitle(): string { return this.config.legendTitle; }
+  @Input() set legendPosition(v: any) { this.config.legendPosition = v; } get legendPosition(): any { return this.config.legendPosition; }
+  @Input() set showXAxisLabel(v: boolean) { this.config.showXAxisLabel = v; } get showXAxisLabel(): boolean { return this.config.showXAxisLabel; }
+  @Input() set showYAxisLabel(v: boolean) { this.config.showYAxisLabel = v; } get showYAxisLabel(): boolean { return this.config.showYAxisLabel; }
+  @Input() set tooltipDisabled(v: boolean) { this.config.tooltipDisabled = v; } get tooltipDisabled(): boolean { return this.config.tooltipDisabled; }
+  @Input() set xAxisLabel(v: string) { this.config.xAxisLabel = v; } get xAxisLabel(): string { return this.config.xAxisLabel; }
+  @Input() set yAxisLabel(v: string) { this.config.yAxisLabel = v; } get yAxisLabel(): string { return this.config.yAxisLabel; }
+  @Input() set showGridLines(v: boolean) { this.config.showGridLines = v; } get showGridLines(): boolean { return this.config.showGridLines; }
+  @Input() set barPadding(v: number) { this.config.barPadding = v; } get barPadding(): number { return this.config.barPadding; }
+  @Input() set roundDomains(v: boolean) { this.config.roundDomains = v; } get roundDomains(): boolean { return this.config.roundDomains; }
+  @Input() set noBarWhenZero(v: boolean) { this.config.noBarWhenZero = v; } get noBarWhenZero(): boolean { return this.config.noBarWhenZero; }
+  @Input() set trimXAxisTicks(v: boolean) { this.config.trimXAxisTicks = v; } get trimXAxisTicks(): boolean { return this.config.trimXAxisTicks; }
+  @Input() set trimYAxisTicks(v: boolean) { this.config.trimYAxisTicks = v; } get trimYAxisTicks(): boolean { return this.config.trimYAxisTicks; }
+  @Input() set rotateXAxisTicks(v: boolean) { this.config.rotateXAxisTicks = v; } get rotateXAxisTicks(): boolean { return this.config.rotateXAxisTicks; }
+  @Input() set maxXAxisTickLength(v: number) { this.config.maxXAxisTickLength = v; } get maxXAxisTickLength(): number { return this.config.maxXAxisTickLength; }
+  @Input() set maxYAxisTickLength(v: number) { this.config.maxYAxisTickLength = v; } get maxYAxisTickLength(): number { return this.config.maxYAxisTickLength; }
+  @Input() set wrapTicks(v: boolean) { this.config.wrapTicks = v; } get wrapTicks(): boolean { return this.config.wrapTicks; }
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   groupDomain: string[];
   innerDomain: string[];
   valueDomain: [number, number] = [0, 100];
-  xScale: any;
-  yScale: any;
+  xScale: Function;
+  yScale: Function;
   transform: string;
   colors: ColorHelper;
   margin: number[] = [10, 20, 10, 20];
@@ -199,15 +198,15 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config.xAxis,
+      showYAxis: this.config.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
-      legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      showXLabel: this.config.showXAxisLabel,
+      showYLabel: this.config.showYAxisLabel,
+      showLegend: this.config.legend ?? false,
+      legendType: this.config.schemeType,
+      legendPosition: this.config.legendPosition ?? LegendPosition.Right
     });
 
     this.formatDates();
@@ -250,15 +249,15 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
     return domain;
   }
 
-  getYScale(): any {
-    const spacing = this.groupDomain.length / (this.dims.height / this.barPadding + 1);
+  getYScale() {
+    const spacing = this.groupDomain.length / (this.dims.height / (this.config.barPadding ?? 8) + 1);
 
     return scaleBand().rangeRound([0, this.dims.height]).paddingInner(spacing).domain(this.groupDomain);
   }
 
-  getXScale(): any {
+  getXScale() {
     const scale = scaleLinear().range([0, this.dims.width]).domain(this.valueDomain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   groupTransform(group: Series): string {
@@ -279,27 +278,27 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    if (this.schemeType === ScaleType.Ordinal) {
+    if (this.config.schemeType === ScaleType.Ordinal) {
       domain = this.innerDomain;
     } else {
       domain = this.valueDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.config.schemeType, domain, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: this.config.schemeType as any,
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.valueDomain;
       opts.colors = this.colors.scale;
@@ -335,8 +334,8 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
         }
       });
 
-    this.activeEntries = [...items];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [...items];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group: Series, fromLegend: boolean = false) {
@@ -345,7 +344,11 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = this.activeEntries.filter(i => {
+    this.config.activeEntries = (this.config.activeEntries as unknown as {
+      name: string;
+      series: unknown;
+      label: string;
+    }[]).filter(i => {
       if (fromLegend) {
         return i.label !== item.name;
       } else {
@@ -353,6 +356,6 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
       }
     });
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }

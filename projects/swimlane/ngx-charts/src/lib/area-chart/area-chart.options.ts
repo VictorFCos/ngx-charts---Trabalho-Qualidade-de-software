@@ -1,0 +1,42 @@
+import { LegendPosition } from '../common/types/legend.model';
+import { ScaleType } from '../common/types/scale-type.enum';
+import { CurveFactory } from 'd3-shape';
+
+export interface AreaChartOptions {
+    legend?: boolean;
+    legendTitle?: string;
+    legendPosition?: LegendPosition;
+    xAxis?: boolean;
+    yAxis?: boolean;
+    baseValue?: unknown;
+    autoScale?: boolean;
+    showXAxisLabel?: boolean;
+    showYAxisLabel?: boolean;
+    xAxisLabel?: string;
+    yAxisLabel?: string;
+    timeline?: boolean;
+    gradient?: boolean;
+    showGridLines?: boolean;
+    curve?: CurveFactory;
+    activeEntries?: unknown[];
+    schemeType?: ScaleType;
+    trimXAxisTicks?: boolean;
+    trimYAxisTicks?: boolean;
+    rotateXAxisTicks?: boolean;
+    maxXAxisTickLength?: number;
+    maxYAxisTickLength?: number;
+    xAxisTickFormatting?: (o: unknown) => string;
+    yAxisTickFormatting?: (o: unknown) => string;
+    xAxisTicks?: unknown[];
+    yAxisTicks?: unknown[];
+    roundDomains?: boolean;
+    tooltipDisabled?: boolean;
+    referenceLines?: unknown[];
+    showRefLines?: boolean;
+    showRefLabels?: boolean;
+    xScaleMin?: unknown;
+    xScaleMax?: unknown;
+    yScaleMin?: number;
+    yScaleMax?: number;
+    wrapTicks?: boolean;
+}

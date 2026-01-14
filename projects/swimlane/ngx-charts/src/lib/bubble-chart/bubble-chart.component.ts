@@ -41,10 +41,10 @@ export interface BubbleChartOptions {
   rotateXAxisTicks: boolean;
   maxXAxisTickLength: number;
   maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
+  xAxisTickFormatting: (o: unknown) => string;
+  yAxisTickFormatting: (o: unknown) => string;
+  xAxisTicks: unknown[];
+  yAxisTicks: unknown[];
   roundDomains: boolean;
   maxRadius: number;
   minRadius: number;
@@ -84,10 +84,10 @@ export interface BubbleChartOptions {
 export class BubbleChartComponent extends BaseChartComponent {
   @Input() config: BubbleChartOptions;
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   colors: ColorHelper;
@@ -110,14 +110,14 @@ export class BubbleChartComponent extends BaseChartComponent {
   xScaleType: ScaleType;
   yScaleType: ScaleType;
 
-  yScale: any;
-  xScale: any;
-  rScale: any;
+  yScale: Function;
+  xScale: Function;
+  rScale: Function;
 
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
 
-  activeEntries: any[] = [];
+  activeEntries: unknown[] = [];
 
   isSSR = false;
 
@@ -341,15 +341,15 @@ export class BubbleChartComponent extends BaseChartComponent {
     this.yScale = this.getYScale(this.yDomain, height);
   }
 
-  getYScale(domain, height: number): any {
+  getYScale(domain, height: number) {
     return getScale(domain, [height, this.bubblePadding[0]], this.yScaleType, this.roundDomains);
   }
 
-  getXScale(domain, width: number): any {
+  getXScale(domain, width: number) {
     return getScale(domain, [this.bubblePadding[3], width], this.xScaleType, this.roundDomains);
   }
 
-  getRScale(domain, range): any {
+  getRScale(domain, range) {
     const scale = scaleLinear().range(range).domain(domain);
 
     return this.roundDomains ? scale.nice() : scale;
@@ -432,7 +432,7 @@ export class BubbleChartComponent extends BaseChartComponent {
   }
 
   onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string }[]).findIndex(d => {
       return d.name === item.name;
     });
     if (idx > -1) {
@@ -444,7 +444,7 @@ export class BubbleChartComponent extends BaseChartComponent {
   }
 
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.activeEntries as unknown as { name: string }[]).findIndex(d => {
       return d.name === item.name;
     });
 

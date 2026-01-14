@@ -1,4 +1,6 @@
-export function trimLabel(s: any, max: number = 16): string {
+import { StringOrNumberOrDate } from '../models/chart-data.model';
+
+export function trimLabel(s: StringOrNumberOrDate, max: number = 16): string {
   if (typeof s !== 'string') {
     if (typeof s === 'number') {
       return s + '';

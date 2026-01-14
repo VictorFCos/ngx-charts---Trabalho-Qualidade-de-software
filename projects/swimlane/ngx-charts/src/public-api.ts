@@ -8,7 +8,9 @@ export * from './lib/area-chart/area-chart.module';
 export * from './lib/area-chart/area-chart.component';
 export * from './lib/area-chart/area-chart-normalized.component';
 export * from './lib/area-chart/area-chart-stacked.component';
+export * from './lib/area-chart/area-chart-stacked.options';
 export * from './lib/area-chart/area-series.component';
+
 
 export * from './lib/bar-chart/bar-chart.module';
 export * from './lib/bar-chart/bar.component';
@@ -98,6 +100,7 @@ export * from './lib/gauge/percent-gauge/percent-gauge.component';
 
 export * from './lib/heat-map/heat-map.module';
 export * from './lib/heat-map/heat-map.component';
+export * from './lib/heat-map/heat-map.options';
 export * from './lib/heat-map/heat-map-cell.component';
 export * from './lib/heat-map/heat-map-cell-series.component';
 
@@ -121,12 +124,14 @@ export * from './lib/pie-chart/advanced-pie-chart.component';
 export * from './lib/pie-chart/pie-chart.component';
 export * from './lib/pie-chart/pie-arc.component';
 export * from './lib/pie-chart/pie-grid.component';
+export * from './lib/pie-chart/pie-grid.options';
 export * from './lib/pie-chart/pie-grid-series.component';
 export * from './lib/pie-chart/pie-series.component';
 export * from './lib/pie-chart/pie-label.component';
 
 export * from './lib/polar-chart/polar-chart.module';
 export * from './lib/polar-chart/polar-chart.component';
+export * from './lib/polar-chart/polar-chart.options';
 export * from './lib/polar-chart/polar-series.component';
 
 export * from './lib/tree-map/tree-map.module';

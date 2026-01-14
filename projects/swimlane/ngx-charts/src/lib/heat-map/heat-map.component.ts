@@ -16,53 +16,21 @@ import { calculateViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 import { getScaleType } from '../common/domain.helper';
 import { LegendOptions, LegendPosition } from '../common/types/legend.model';
+import { calculateInnerPadding } from '../utils/calculate-padding';
+import { getHeatMapDomains, getHeatMapRects, RectItem } from './heat-map.utils';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
-interface RectItem {
-  fill: string;
-  height: number;
-  rx: number;
-  width: number;
-  x: number;
-  y: number;
-}
+export { RectItem };
 
-export interface HeatMapOptions {
-  legend: boolean;
-  legendTitle: string;
-  legendPosition: LegendPosition;
-  xAxis: boolean;
-  yAxis: boolean;
-  showXAxisLabel: boolean;
-  showYAxisLabel: boolean;
-  xAxisLabel: string;
-  yAxisLabel: string;
-  gradient: boolean;
-  innerPadding: number | number[] | string | string[];
-  trimXAxisTicks: boolean;
-  trimYAxisTicks: boolean;
-  rotateXAxisTicks: boolean;
-  maxXAxisTickLength: number;
-  maxYAxisTickLength: number;
-  xAxisTickFormatting: any;
-  yAxisTickFormatting: any;
-  xAxisTicks: any[];
-  yAxisTicks: any[];
-  tooltipDisabled: boolean;
-  tooltipText: any;
-  min: number;
-  max: number;
-  activeEntries: any[];
-  wrapTicks: boolean;
-}
+import { HeatMapOptions } from './heat-map.options';
 
 @Component({
   selector: 'ngx-charts-heat-map',
   template: `
     <ngx-charts-chart
       [view]="[width, height]"
-      [showLegend]="legend"
+      [showLegend]="config.legend ?? false"
       [animations]="animations"
       [legendOptions]="legendOptions"
       (legendLabelClick)="onClick($event)"
@@ -70,31 +38,31 @@ export interface HeatMapOptions {
       <svg:g [attr.transform]="transform" class="heat-map chart">
         <svg:g
           ngx-charts-x-axis
-          *ngIf="xAxis"
+          *ngIf="config.xAxis"
           [xScale]="xScale"
           [dims]="dims"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateXAxisHeight($event)"
         ></svg:g>
         <svg:g
           ngx-charts-y-axis
-          *ngIf="yAxis"
+          *ngIf="config.yAxis"
           [yScale]="yScale"
           [dims]="dims"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateYAxisWidth($event)"
         ></svg:g>
         <svg:rect
@@ -112,11 +80,11 @@ export interface HeatMapOptions {
           [yScale]="yScale"
           [colors]="colors"
           [data]="results"
-          [gradient]="gradient"
+          [gradient]="config.gradient"
           [animations]="animations"
-          [tooltipDisabled]="tooltipDisabled"
+          [tooltipDisabled]="config.tooltipDisabled ?? false"
           [tooltipTemplate]="tooltipTemplate"
-          [tooltipText]="tooltipText"
+          [tooltipText]="config.tooltipText"
           (select)="onClick($event)"
           (activate)="onActivate($event, undefined)"
           (deactivate)="onDeactivate($event, undefined)"
@@ -130,21 +98,21 @@ export interface HeatMapOptions {
   standalone: false
 })
 export class HeatMapComponent extends BaseChartComponent {
-  @Input() config: HeatMapOptions;
+  @Input() config: HeatMapOptions = {};
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
   xDomain: string[];
   yDomain: string[];
-  valueDomain: any[];
+  valueDomain: number[];
   xScale: any;
   yScale: any;
   colors: ColorHelper;
-  colorScale: any;
+  colorScale: unknown;
   transform: string;
   rects: RectItem[];
   margin: number[] = [10, 20, 10, 20];
@@ -152,88 +120,6 @@ export class HeatMapComponent extends BaseChartComponent {
   yAxisWidth: number = 0;
   legendOptions: LegendOptions;
   scaleType: ScaleType = ScaleType.Linear;
-
-  get legend() {
-    return this.config?.legend;
-  }
-  get legendTitle() {
-    return this.config?.legendTitle ?? 'Legend';
-  }
-  get legendPosition() {
-    return this.config?.legendPosition ?? LegendPosition.Right;
-  }
-  get xAxis() {
-    return this.config?.xAxis;
-  }
-  get yAxis() {
-    return this.config?.yAxis;
-  }
-  get showXAxisLabel() {
-    return this.config?.showXAxisLabel;
-  }
-  get showYAxisLabel() {
-    return this.config?.showYAxisLabel;
-  }
-  get xAxisLabel() {
-    return this.config?.xAxisLabel;
-  }
-  get yAxisLabel() {
-    return this.config?.yAxisLabel;
-  }
-  get gradient() {
-    return this.config?.gradient;
-  }
-  get innerPadding() {
-    return this.config?.innerPadding ?? 8;
-  }
-  get trimXAxisTicks() {
-    return this.config?.trimXAxisTicks ?? true;
-  }
-  get trimYAxisTicks() {
-    return this.config?.trimYAxisTicks ?? true;
-  }
-  get rotateXAxisTicks() {
-    return this.config?.rotateXAxisTicks ?? true;
-  }
-  get maxXAxisTickLength() {
-    return this.config?.maxXAxisTickLength ?? 16;
-  }
-  get maxYAxisTickLength() {
-    return this.config?.maxYAxisTickLength ?? 16;
-  }
-  get xAxisTickFormatting() {
-    return this.config?.xAxisTickFormatting;
-  }
-  get yAxisTickFormatting() {
-    return this.config?.yAxisTickFormatting;
-  }
-  get xAxisTicks() {
-    return this.config?.xAxisTicks;
-  }
-  get yAxisTicks() {
-    return this.config?.yAxisTicks;
-  }
-  get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
-  }
-  get tooltipText() {
-    return this.config?.tooltipText;
-  }
-  get min() {
-    return this.config?.min;
-  }
-  get max() {
-    return this.config?.max;
-  }
-  get activeEntries() {
-    return this.config?.activeEntries ?? [];
-  }
-  set activeEntries(value: any[]) {
-    if (this.config) this.config.activeEntries = value;
-  }
-  get wrapTicks() {
-    return this.config?.wrapTicks ?? false;
-  }
 
   ngOnChanges(changes: SimpleChanges): void {
     let shouldUpdate = false;
@@ -260,9 +146,10 @@ export class HeatMapComponent extends BaseChartComponent {
 
     this.formatDates();
 
-    this.xDomain = this.getXDomain();
-    this.yDomain = this.getYDomain();
-    this.valueDomain = this.getValueDomain();
+    const domains = getHeatMapDomains(this.results);
+    this.xDomain = domains.xDomain;
+    this.yDomain = domains.yDomain;
+    this.valueDomain = domains.valueDomain;
 
     this.scaleType = getScaleType(this.valueDomain, false);
 
@@ -270,25 +157,25 @@ export class HeatMapComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config.xAxis,
+      showYAxis: this.config.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
+      showXLabel: this.config.showXAxisLabel,
+      showYLabel: this.config.showYAxisLabel,
+      showLegend: this.config.legend,
       legendType: this.scaleType as any,
-      legendPosition: this.legendPosition
+      legendPosition: this.config.legendPosition ?? LegendPosition.Right
     });
 
     if (this.scaleType === ScaleType.Linear) {
-      let min = this.min;
-      let max = this.max;
-      if (!this.min) {
-        min = Math.min(0, ...this.valueDomain);
+      let min = this.config.min;
+      let max = this.config.max;
+      if (!this.config.min) {
+        min = Math.min(0, ...(this.valueDomain as number[]));
       }
-      if (!this.max) {
-        max = Math.max(...this.valueDomain);
+      if (!this.config.max) {
+        max = Math.max(...(this.valueDomain as number[]));
       }
       this.valueDomain = [min, max];
     }
@@ -300,107 +187,17 @@ export class HeatMapComponent extends BaseChartComponent {
     this.legendOptions = this.getLegendOptions();
 
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
-    this.rects = this.getRects();
-  }
-
-  getXDomain(): string[] {
-    const domain = [];
-    for (const group of this.results) {
-      if (!domain.includes(group.name)) {
-        domain.push(group.name);
-      }
-    }
-
-    return domain;
-  }
-
-  getYDomain(): string[] {
-    const domain = [];
-
-    for (const group of this.results) {
-      for (const d of group.series) {
-        if (!domain.includes(d.name)) {
-          domain.push(d.name);
-        }
-      }
-    }
-
-    return domain;
-  }
-
-  getValueDomain(): any[] {
-    const domain = [];
-
-    for (const group of this.results) {
-      for (const d of group.series) {
-        if (!domain.includes(d.value)) {
-          domain.push(d.value);
-        }
-      }
-    }
-
-    return domain;
-  }
-
-  /**
-   * Converts the input to gap paddingInner in fraction
-   * Supports the following inputs:
-   *    Numbers: 8
-   *    Strings: "8", "8px", "8%"
-   *    Arrays: [8,2], "8,2", "[8,2]"
-   *    Mixed: [8,"2%"], ["8px","2%"], "8,2%", "[8,2%]"
-   *
-   * @memberOf HeatMapComponent
-   */
-  getDimension(value: string | number | Array<string | number>, index: number = 0, N: number, L: number): number {
-    if (typeof value === 'string') {
-      value = value
-        .replace('[', '')
-        .replace(']', '')
-        .replace('px', '')
-        // tslint:disable-next-line: quotemark
-        .replace("'", '');
-
-      if (value.includes(',')) {
-        value = value.split(',');
-      }
-    }
-    if (Array.isArray(value) && typeof index === 'number') {
-      return this.getDimension(value[index], null, N, L);
-    }
-    if (typeof value === 'string' && value.includes('%')) {
-      return +value.replace('%', '') / 100;
-    }
-    return N / (L / +value + 1);
+    this.rects = getHeatMapRects(this.xDomain, this.yDomain, this.xScale, this.yScale);
   }
 
   getXScale(): any {
-    const f = this.getDimension(this.innerPadding, 0, this.xDomain.length, this.dims.width);
+    const f = calculateInnerPadding(this.config.innerPadding ?? 8, 0, this.xDomain.length, this.dims.width);
     return scaleBand().rangeRound([0, this.dims.width]).domain(this.xDomain).paddingInner(f);
   }
 
   getYScale(): any {
-    const f = this.getDimension(this.innerPadding, 1, this.yDomain.length, this.dims.height);
+    const f = calculateInnerPadding(this.config.innerPadding ?? 8, 1, this.yDomain.length, this.dims.height);
     return scaleBand().rangeRound([this.dims.height, 0]).domain(this.yDomain).paddingInner(f);
-  }
-
-  getRects(): RectItem[] {
-    const rects = [];
-
-    this.xDomain.map(xVal => {
-      this.yDomain.map(yVal => {
-        rects.push({
-          x: this.xScale(xVal),
-          y: this.yScale(yVal),
-          rx: 3,
-          width: this.xScale.bandwidth(),
-          height: this.yScale.bandwidth(),
-          fill: 'rgba(200,200,200,0.03)'
-        });
-      });
-    });
-
-    return rects;
   }
 
   onClick(data): void {
@@ -408,7 +205,7 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   setColors(): void {
-    this.colors = new ColorHelper(this.scheme, this.scaleType, this.valueDomain);
+    this.colors = new ColorHelper(this.scheme, this.scaleType, this.valueDomain as string[] | number[]);
   }
 
   getLegendOptions(): LegendOptions {
@@ -416,8 +213,8 @@ export class HeatMapComponent extends BaseChartComponent {
       scaleType: this.scaleType,
       domain: this.valueDomain,
       colors: this.scaleType === ScaleType.Ordinal ? this.colors : this.colors.scale,
-      title: this.scaleType === ScaleType.Ordinal ? this.legendTitle : undefined,
-      position: this.legendPosition
+      title: this.scaleType === ScaleType.Ordinal ? (this.config.legendTitle ?? 'Legend') : undefined,
+      position: this.config.legendPosition ?? LegendPosition.Right
     };
   }
 
@@ -448,8 +245,8 @@ export class HeatMapComponent extends BaseChartComponent {
         }
       });
 
-    this.activeEntries = [...items];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [...items];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group, fromLegend: boolean = false) {
@@ -458,14 +255,16 @@ export class HeatMapComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = this.activeEntries.filter(i => {
-      if (fromLegend) {
-        return i.label !== item.name;
-      } else {
-        return !(i.name === item.name && i.series === item.series);
+    this.config.activeEntries = (this.config.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+      i => {
+        if (fromLegend) {
+          return i.label !== item.name;
+        } else {
+          return !(i.name === item.name && i.series === item.series);
+        }
       }
-    });
+    );
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }

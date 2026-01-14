@@ -31,7 +31,7 @@ export interface Circle {
   classNames: string[];
   value: number;
   label: string;
-  data: any;
+  data: DataItem;
   cx: number;
   cy: number;
   radius: number;
@@ -120,7 +120,7 @@ export class CircleSeriesComponent implements OnChanges, OnInit {
   styleTypes = StyleTypes;
   isSSR = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnInit() {
     this.gradientId = 'grad' + id().toString();
@@ -148,7 +148,7 @@ export class CircleSeriesComponent implements OnChanges, OnInit {
   onClick(data: DataItem): void {
     this.select.emit(data);
   }
-  isActive(entry): boolean {
+  isActive(entry: any): boolean {
     return this.activeEntries ? this.activeEntries.some(d => entry.name === d.name) : false;
   }
   activateCircle(): void {

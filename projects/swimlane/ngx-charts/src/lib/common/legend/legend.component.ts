@@ -57,6 +57,7 @@ export class LegendComponent implements OnChanges {
     }
   }
 
+
   update(): void {
     this.cd.markForCheck();
     this.legendEntries = getLegendEntries(this.data, this.colors);

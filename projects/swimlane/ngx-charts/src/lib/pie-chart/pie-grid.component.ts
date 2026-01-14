@@ -24,21 +24,18 @@ import { StyleTypes } from '../common/tooltip/style.type';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
-export interface PieGridConfig {
-  designatedTotal: number;
-  tooltipDisabled: boolean;
-  tooltipText: (o: any) => any;
-  label: string;
-  minWidth: number;
-  activeEntries: any[];
-}
+import { PieGridOptions } from './pie-grid.options';
 
 @Component({
   selector: 'ngx-charts-pie-grid',
   template: `
     <ngx-charts-chart [view]="[width, height]" [showLegend]="false" [animations]="animations">
       <svg:g [attr.transform]="transform" class="pie-grid chart">
-        <svg:g *ngFor="let series of series; trackBy: trackBy" class="pie-grid-item" [attr.transform]="series.transform">
+        <svg:g
+          *ngFor="let series of series; trackBy: trackBy"
+          class="pie-grid-item"
+          [attr.transform]="series.transform"
+        >
           <svg:g
             ngx-charts-pie-grid-series
             [colors]="series.colors"
@@ -48,10 +45,10 @@ export interface PieGridConfig {
             [animations]="animations"
             (select)="onClick($event)"
             ngx-tooltip
-            [tooltipDisabled]="tooltipDisabled"
+            [tooltipDisabled]="config.tooltipDisabled ?? false"
             [tooltipPlacement]="placementTypes.Top"
             [tooltipType]="styleTypes.tooltip"
-            [tooltipTitle]="tooltipTemplate ? undefined : tooltipText({ data: series })"
+            [tooltipTitle]="tooltipTemplate ? undefined : (config.tooltipText ? config.tooltipText({ data: series }) : defaultTooltipText({ data: series }))"
             [tooltipTemplate]="tooltipTemplate"
             [tooltipContext]="series.data[0].data"
             (activate)="onActivate($event)"
@@ -83,7 +80,7 @@ export interface PieGridConfig {
             text-anchor="middle"
             ngx-charts-count-up
             [countTo]="series.total"
-            [countPrefix]="label + ': '"
+            [countPrefix]="(config.label ?? 'Total') + ': '"
           ></svg:text>
           <svg:text
             *ngIf="!animations"
@@ -93,7 +90,7 @@ export interface PieGridConfig {
             [attr.y]="series.outerRadius"
             text-anchor="middle"
           >
-            {{ label }}: {{ series.total.toLocaleString() }}
+            {{ config.label ?? 'Total' }}: {{ series.total.toLocaleString() }}
           </svg:text>
         </svg:g>
       </svg:g>
@@ -105,15 +102,15 @@ export interface PieGridConfig {
   standalone: false
 })
 export class PieGridComponent extends BaseChartComponent {
-  @Input() config: PieGridConfig;
+  @Input() config: PieGridOptions = {};
 
-  @Output() activate: EventEmitter<any> = new EventEmitter();
-  @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Output() activate: EventEmitter<unknown> = new EventEmitter();
+  @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
 
   dims: ViewDimensions;
   data: PieGridData[];
   transform: string;
-  series: any[];
+  series: unknown[];
   domain: string[];
   colorScale: ColorHelper;
   margin: number[] = [20, 20, 20, 20];
@@ -121,32 +118,7 @@ export class PieGridComponent extends BaseChartComponent {
   placementTypes = PlacementTypes;
   styleTypes = StyleTypes;
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
-
-  get designatedTotal() {
-    return this.config?.designatedTotal;
-  }
-  get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
-  }
-  get tooltipText() {
-    return this.config?.tooltipText;
-  }
-  set tooltipText(value: (o: any) => any) {
-    if (this.config) this.config.tooltipText = value;
-  }
-  get label() {
-    return this.config?.label ?? 'Total';
-  }
-  get minWidth() {
-    return this.config?.minWidth ?? 150;
-  }
-  get activeEntries() {
-    return this.config?.activeEntries ?? [];
-  }
-  set activeEntries(value: any[]) {
-    if (this.config) this.config.activeEntries = value;
-  }
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   ngOnChanges(changes: SimpleChanges): void {
     let shouldUpdate = false;
@@ -181,13 +153,11 @@ export class PieGridComponent extends BaseChartComponent {
 
     this.domain = this.getDomain();
 
-    this.data = gridLayout(this.dims, this.results, this.minWidth, this.designatedTotal);
+    this.data = gridLayout(this.dims, this.results, this.config.minWidth ?? 150, this.config.designatedTotal);
     this.transform = `translate(${this.margin[3]} , ${this.margin[0]})`;
 
     this.series = this.getSeries();
     this.setColors();
-
-    this.tooltipText = this.tooltipText || this.defaultTooltipText;
   }
 
   defaultTooltipText({ data }): string {
@@ -203,8 +173,8 @@ export class PieGridComponent extends BaseChartComponent {
     return this.results.map(d => d.label);
   }
 
-  getSeries(): any[] {
-    const total = this.designatedTotal ? this.designatedTotal : this.getTotal();
+  getSeries(): unknown[] {
+    const total = this.config.designatedTotal ? this.config.designatedTotal : this.getTotal();
 
     return this.data.map(d => {
       const baselineLabelHeight = 20;
@@ -252,7 +222,7 @@ export class PieGridComponent extends BaseChartComponent {
     });
   }
 
-  getTotal(): any {
+  getTotal(): number {
     return this.results.map(d => d.value).reduce((sum, d) => sum + d, 0);
   }
 
@@ -277,15 +247,15 @@ export class PieGridComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
     if (idx > -1) {
       return;
     }
 
-    this.activeEntries = [item, ...this.activeEntries];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [item, ...(this.config.activeEntries || [])];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(item, fromLegend = false) {
@@ -297,13 +267,13 @@ export class PieGridComponent extends BaseChartComponent {
       }
     });
 
-    const idx = this.activeEntries.findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
 
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
+    this.config.activeEntries.splice(idx, 1);
+    this.config.activeEntries = [...this.config.activeEntries];
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }

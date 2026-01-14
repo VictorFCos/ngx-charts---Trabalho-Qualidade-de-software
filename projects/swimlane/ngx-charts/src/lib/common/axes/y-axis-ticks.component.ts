@@ -95,15 +95,15 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
   @Input() scale;
   @Input() orient: Orientation;
   @Input() tickArguments: number[] = [5];
-  @Input() tickValues: any[];
+  @Input() tickValues: unknown[];
   @Input() tickStroke: string = '#ccc';
   @Input() trimTicks: boolean = true;
   @Input() maxTickLength: number = 16;
-  @Input() tickFormatting;
+  @Input() tickFormatting: unknown;
   @Input() showGridLines: boolean = false;
   @Input() gridLineWidth: number;
   @Input() height: number;
-  @Input() referenceLines;
+  @Input() referenceLines: unknown[];
   @Input() showRefLabels: boolean = false;
   @Input() showRefLines: boolean = false;
   @Input() wrapTicks = false;
@@ -116,10 +116,10 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
   dy: string;
   x1: number;
   y1: number;
-  adjustedScale: any;
-  transform: (o: any) => string;
-  tickFormat: (o: any) => string;
-  ticks: any[];
+  adjustedScale: Function;
+  transform: (o: unknown) => string;
+  tickFormat: (o: unknown) => string;
+  ticks: unknown[];
   width: number = 0;
   refMax: number;
   refMin: number;
@@ -128,7 +128,7 @@ export class YAxisTicksComponent implements OnChanges, AfterViewInit {
   readonly Orientation = Orientation;
   @ViewChild('ticksel') ticksElement: ElementRef;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
   ngOnChanges(changes: SimpleChanges): void {
     this.update();
   }

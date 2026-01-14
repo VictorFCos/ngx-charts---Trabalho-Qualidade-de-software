@@ -37,14 +37,14 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
   tickPadding: number = 3;
   textAnchor: TextAnchor = TextAnchor.Middle;
   maxAllowedLength: number = 16;
-  adjustedScale: any;
+  adjustedScale: Function;
   textTransform: string;
-  ticks: any[];
-  tickFormat: (o: any) => any;
+  ticks: unknown[];
+  tickFormat: (o: unknown) => string;
   height: number = 0;
   approxHeight: number = 10;
   maxPossibleLengthForTickIfWrapped = 16;
-  transform: (o: any) => string;
+  transform: (o: unknown) => string;
   refMax: number;
   refMin: number;
   referenceLineLength: number = 0;
@@ -63,7 +63,7 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
     return this.config.wrapTicks && this.config.scale.step;
   }
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.config) {

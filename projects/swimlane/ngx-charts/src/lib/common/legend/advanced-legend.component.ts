@@ -28,7 +28,7 @@ export class AdvancedLegendComponent implements OnChanges {
   legendItems: AdvancedLegendItem[] = [];
   total: number;
   roundedTotal: number;
-  
+
   defaultValueFormatting: (value: StringOrNumberOrDate) => string = value => value.toLocaleString();
 
   // Getters for template compatibility

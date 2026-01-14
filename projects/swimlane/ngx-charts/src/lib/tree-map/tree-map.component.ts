@@ -46,19 +46,19 @@ import { ScaleType } from '../common/types/scale-type.enum';
 export class TreeMapComponent extends BaseChartComponent {
   @Input() declare results: DataItem[];
   @Input() tooltipDisabled: boolean = false;
-  @Input() valueFormatting: any;
-  @Input() labelFormatting: any;
+  @Input() valueFormatting: (o: unknown) => string;
+  @Input() labelFormatting: (o: unknown) => string;
   @Input() gradient: boolean = false;
 
-  @Output() select = new EventEmitter();
+  @Output() select = new EventEmitter<unknown>();
 
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
 
   dims: ViewDimensions;
-  domain: any;
-  transform: any;
+  domain: unknown[];
+  transform: string;
   colors: ColorHelper;
-  treemap: any;
+  treemap: any; // d3-hierarchy treemap layout
   data: DataItem;
   margin: number[] = [10, 10, 10, 10];
 
@@ -106,7 +106,7 @@ export class TreeMapComponent extends BaseChartComponent {
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
   }
 
-  getDomain(): any[] {
+  getDomain(): unknown[] {
     return this.results.map(d => d.name);
   }
 
@@ -115,6 +115,6 @@ export class TreeMapComponent extends BaseChartComponent {
   }
 
   setColors(): void {
-    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain as string[], this.customColors);
   }
 }

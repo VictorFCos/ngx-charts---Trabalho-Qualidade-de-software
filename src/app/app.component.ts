@@ -30,11 +30,11 @@ import {
   BarChartConfig,
   BarHorizontalChartOptions,
   HeatMapOptions,
-  PolarChartConfig,
+  PolarChartOptions,
   PieChartConfig,
-  PieGridConfig,
+  PieGridOptions,
   GaugeOptions,
-  AreaChartOptions,
+  AreaChartStackedOptions,
   LineChartOptions,
   BubbleChartOptions
 } from '@swimlane/ngx-charts';
@@ -399,7 +399,7 @@ export class AppComponent implements OnInit {
     };
   }
 
-  get polarChartConfig(): PolarChartConfig {
+  get polarChartConfig(): PolarChartOptions {
     return {
       legend: this.showLegend,
       legendTitle: this.legendTitle,
@@ -451,7 +451,7 @@ export class AppComponent implements OnInit {
     };
   }
 
-  get pieGridChartConfig(): PieGridConfig {
+  get pieGridChartConfig(): PieGridOptions {
     return {
       designatedTotal: undefined,
       tooltipDisabled: this.tooltipDisabled,
@@ -485,15 +485,13 @@ export class AppComponent implements OnInit {
     };
   }
 
-  get areaChartConfig(): AreaChartOptions {
+  get areaChartConfig(): AreaChartStackedOptions {
     return {
       legend: this.showLegend,
       legendTitle: this.legendTitle,
       legendPosition: this.legendPosition,
       xAxis: this.showXAxis,
       yAxis: this.showYAxis,
-      baseValue: undefined,
-      autoScale: this.autoScale,
       showXAxisLabel: this.showXAxisLabel,
       showYAxisLabel: this.showYAxisLabel,
       xAxisLabel: this.xAxisLabel,
@@ -515,9 +513,6 @@ export class AppComponent implements OnInit {
       yAxisTicks: undefined,
       roundDomains: this.roundDomains,
       tooltipDisabled: this.tooltipDisabled,
-      referenceLines: this.refLines,
-      showRefLines: this.showRefLines,
-      showRefLabels: this.showRefLabels,
       xScaleMin: this.xScaleMin,
       xScaleMax: this.xScaleMax,
       yScaleMin: this.yScaleMin,
@@ -631,7 +626,7 @@ export class AppComponent implements OnInit {
     };
   }
 
-  get plotPolarChartConfig(): PolarChartConfig {
+  get plotPolarChartConfig(): PolarChartOptions {
     return {
       ...this.polarChartConfig,
       legend: false,

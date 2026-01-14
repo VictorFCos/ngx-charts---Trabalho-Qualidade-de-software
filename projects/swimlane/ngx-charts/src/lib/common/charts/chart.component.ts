@@ -23,7 +23,7 @@ export class ChartComponent implements OnChanges {
   @Input() showLegend: boolean = false;
   @Input() legendOptions: LegendOptions;
   @Input() legendType: LegendType;
-  @Input() activeEntries: any[];
+  @Input() activeEntries: unknown[];
   @Input() animations: boolean = true;
 
   @Output() legendLabelClick = new EventEmitter<string>();
@@ -56,6 +56,7 @@ export class ChartComponent implements OnChanges {
       this.update();
     }
   }
+
 
   update(): void {
     const result = calculateWidths(this.view, this.showLegend, this.legendOptions);

@@ -40,10 +40,10 @@ export interface GaugeOptions {
   showAxis: boolean;
   startAngle: number;
   angleSpan: number;
-  activeEntries: any[];
-  axisTickFormatting: any;
+  activeEntries: unknown[];
+  axisTickFormatting: any; // Keep any for formatting functions if complex or use (o:any)=>string
   tooltipDisabled: boolean;
-  valueFormatting: (value: any) => string;
+  valueFormatting: (value: unknown) => string;
   showText: boolean;
   margin: number[];
 }
@@ -112,13 +112,13 @@ export interface GaugeOptions {
 })
 export class GaugeComponent extends BaseChartComponent implements AfterViewInit {
   @Input() config: GaugeOptions;
-  @Output() activate = new EventEmitter();
-  @Output() deactivate = new EventEmitter();
-  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @Output() activate = new EventEmitter<unknown>();
+  @Output() deactivate = new EventEmitter<unknown>();
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<unknown>;
   @ViewChild('textEl') textEl: ElementRef;
 
   dims: ViewDimensions;
-  domain: any[];
+  domain: unknown[];
   valueDomain: [number, number];
   valueScale: any;
   colors: ColorHelper;
@@ -169,10 +169,11 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   get angleSpan() {
     return this.config?.angleSpan ?? 240;
   }
+  @Input()
   get activeEntries() {
     return this.config?.activeEntries ?? [];
   }
-  set activeEntries(value: any[]) {
+  set activeEntries(value: unknown[]) {
     if (this.config) this.config.activeEntries = value;
   }
   get axisTickFormatting() {
@@ -238,7 +239,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     this.cornerRadius = Math.floor((Math.min((this.outerRadius * 0.7) / this.results.length, 10) * 0.7) / 2);
     this.textRadius =
       this.outerRadius - this.results.length * Math.min((this.outerRadius * 0.7) / this.results.length, 10);
-    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, ScaleType.Ordinal, this.domain as string[], this.customColors);
     this.legendOptions = {
       scaleType: ScaleType.Ordinal,
       colors: this.colors,
@@ -267,14 +268,18 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     this.select.emit(data);
   }
   onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(
+      d => d.name === item.name && d.value === item.value
+    );
     if (idx === -1) {
       this.activeEntries = [item, ...this.activeEntries];
       this.activate.emit({ value: item, entries: this.activeEntries });
     }
   }
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => d.name === item.name && d.value === item.value);
+    const idx = (this.activeEntries as unknown as { name: string; value: unknown; series: unknown }[]).findIndex(
+      d => d.name === item.name && d.value === item.value
+    );
     if (idx > -1) {
       this.activeEntries.splice(idx, 1);
       this.activeEntries = [...this.activeEntries];
@@ -283,7 +288,9 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   }
   isActive(entry): boolean {
     return this.activeEntries
-      ? this.activeEntries.some(d => entry.name === d.name && entry.series === d.series)
+      ? (this.activeEntries as unknown as { name: string; series: unknown }[]).some(
+        d => entry.name === d.name && entry.series === d.series
+      )
       : false;
   }
   trackBy(index: number, item: Arcs): any {

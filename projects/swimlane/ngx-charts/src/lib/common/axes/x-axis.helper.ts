@@ -23,8 +23,8 @@ export interface XAxisTicksConfig {
 }
 
 export function getXAxisRotationAngle(
-  ticks: any[],
-  tickFormat: (o: any) => string,
+  ticks: unknown[],
+  tickFormat: (o: unknown) => string,
   trimTicks: boolean,
   tickTrim: (label: string) => string,
   width: number,
@@ -58,18 +58,19 @@ export function getXAxisRotationAngle(
   return angle;
 }
 
-export function getXAxisTicks(scale: any, tickValues: any[], width: number): any[] {
-  let ticks;
+export function getXAxisTicks(scale: Function, tickValues: unknown[], width: number): unknown[] {
+  let ticks: unknown[];
   const maxTicks = Math.floor(width / 20);
   const maxScaleTicks = Math.floor(width / 100);
+  const s = scale as any;
 
   if (tickValues) {
     ticks = tickValues;
-  } else if (scale.ticks) {
-    ticks = scale.ticks.apply(scale, [maxScaleTicks]);
+  } else if (s.ticks) {
+    ticks = s.ticks(maxScaleTicks);
   } else {
-    ticks = scale.domain();
-    ticks = reduceTicks(ticks, maxTicks);
+    ticks = s.domain();
+    ticks = reduceTicks(ticks as unknown[], maxTicks);
   }
 
   return ticks;
@@ -160,23 +161,23 @@ export function updateXAxisTicks(component: any): void {
       : d => (d.constructor.name === 'Date' ? d.toLocaleDateString() : d.toLocaleString()));
   const angle = rotateTicks
     ? getXAxisRotationAngle(
-        component.ticks,
-        component.tickFormat,
-        trimTicks,
-        component.tickTrim.bind(component),
-        width,
-        component.maxAllowedLength
-      )
+      component.ticks,
+      component.tickFormat,
+      trimTicks,
+      component.tickTrim.bind(component),
+      width,
+      component.maxAllowedLength
+    )
     : null;
   component.textTransform = angle && angle !== 0 ? `rotate(${angle})` : '';
   component.textAnchor = angle && angle !== 0 ? TextAnchor.End : TextAnchor.Middle;
   if (angle && angle !== 0) component.verticalSpacing = 10;
   if (component.isWrapTicksSupported) {
     const longestTick = component.ticks.reduce(
-      (earlier, current) => (current.length > earlier.length ? current : earlier),
+      (earlier: any, current: any) => (current.length > earlier.length ? current : earlier),
       ''
     );
-    const tickLines = component.tickChunks(longestTick);
+    const tickLines = component.tickChunks(longestTick as string);
     const labelHeight = 14 * (tickLines.length || 1);
     component.maxPossibleLengthForTickIfWrapped = scale.bandwidth
       ? Math.max(Math.floor(scale.bandwidth() / 7), maxTickLength)

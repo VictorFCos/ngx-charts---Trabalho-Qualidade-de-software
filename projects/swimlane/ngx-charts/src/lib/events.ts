@@ -1,8 +1,8 @@
-declare let global: any;
+declare let global: typeof globalThis;
 
 // If we don't check whether 'window' and 'global' variables are defined,
 // code will fail in browser/node with 'variable is undefined' error.
-let root: any;
+let root: Window | typeof globalThis;
 if (typeof window !== 'undefined') {
   root = window;
 } else if (typeof global !== 'undefined') {
@@ -10,9 +10,9 @@ if (typeof window !== 'undefined') {
 }
 
 // tslint:disable-next-line:variable-name
-export const MouseEvent = root.MouseEvent as any & {
+export const MouseEvent = (root as any).MouseEvent as {
   prototype?: MouseEvent;
-  new (typeArg: string, eventInitDict?: MouseEventInit): MouseEvent;
+  new(typeArg: string, eventInitDict?: MouseEventInit): MouseEvent;
 };
 
 export function createMouseEvent(name: string, bubbles: boolean = false, cancelable: boolean = true): MouseEvent {

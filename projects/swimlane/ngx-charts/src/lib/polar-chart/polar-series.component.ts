@@ -136,7 +136,7 @@ export class PolarSeriesComponent implements OnChanges {
 
     this.path = line(data) || '';
 
-    this.circles = data.map(d => {
+    this.circles = data.map((d: any) => {
       const a = this.getAngle(d);
       const r = this.getRadius(d);
       const value = d.value;
@@ -185,7 +185,7 @@ export class PolarSeriesComponent implements OnChanges {
       .curve(this.curve);
   }
 
-  sortData(data: DataItem) {
+  sortData(data: any[]): any[] {
     if (this.scaleType === ScaleType.Linear) {
       return sortLinear(data, 'name');
     } else if (this.scaleType === ScaleType.Time) {

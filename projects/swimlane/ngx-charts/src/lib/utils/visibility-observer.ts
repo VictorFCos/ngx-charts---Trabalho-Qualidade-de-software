@@ -8,7 +8,7 @@ import { Output, EventEmitter, NgZone, Directive, ElementRef } from '@angular/co
   standalone: false
 })
 export class VisibilityObserver {
-  @Output() visible: EventEmitter<any> = new EventEmitter();
+  @Output() visible: EventEmitter<boolean> = new EventEmitter();
 
   timeout: any;
   isVisible: boolean = false;

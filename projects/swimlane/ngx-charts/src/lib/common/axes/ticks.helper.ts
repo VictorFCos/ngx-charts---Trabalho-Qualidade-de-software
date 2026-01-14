@@ -1,4 +1,4 @@
-export function reduceTicks(ticks: any[], maxTicks: number): any[] {
+export function reduceTicks<T>(ticks: T[], maxTicks: number): T[] {
   if (ticks.length > maxTicks) {
     const reduced = [];
     const modulus = Math.floor(ticks.length / maxTicks);

@@ -5,7 +5,7 @@ import * as d3_color from 'd3-color';
  *
  * @export
  */
-export function hexToRgb(value: string): any {
+export function hexToRgb(value: string): d3_color.RGBColor | d3_color.HSLColor {
   // deprecated, use d3.color()
   return d3_color.rgb(value);
 }

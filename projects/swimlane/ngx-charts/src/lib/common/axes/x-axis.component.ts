@@ -64,16 +64,16 @@ export class XAxisComponent implements OnChanges {
   @Input() showGridLines = false;
   @Input() showLabel: boolean;
   @Input() labelText: string;
-  @Input() ticks: any[];
+  @Input() ticks: unknown[];
   @Input() xAxisTickCount: number;
   @Input() xOrient: Orientation = Orientation.Bottom;
-  @Input() referenceLines: any[];
+  @Input() referenceLines: unknown[];
   @Input() showRefLines: boolean;
   @Input() showRefLabels: boolean;
   @Input() xAxisOffset: number = 0;
   @Input() wrapTicks = false;
 
-  @Output() dimensionsChanged = new EventEmitter();
+  @Output() dimensionsChanged = new EventEmitter<{ height: number }>();
 
   xAxisClassName: string = 'x axis';
 
@@ -102,7 +102,7 @@ export class XAxisComponent implements OnChanges {
     }
   }
 
-  emitTicksHeight({ height }): void {
+  emitTicksHeight({ height }: { height: number }): void {
     const newLabelOffset = height + 25 + 5;
     if (newLabelOffset !== this.labelOffset) {
       this.labelOffset = newLabelOffset;

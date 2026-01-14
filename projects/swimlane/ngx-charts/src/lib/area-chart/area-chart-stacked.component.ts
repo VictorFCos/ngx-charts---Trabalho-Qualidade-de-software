@@ -22,46 +22,179 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
+import { AreaChartStackedOptions } from './area-chart-stacked.options';
+
 @Component({
   selector: 'ngx-charts-area-chart-stacked',
-  templateUrl: './area-chart-stacked.component.html',
+  template: `
+    <ngx-charts-chart
+      [view]="[width, height]"
+      [showLegend]="config.legend ?? false"
+      [legendOptions]="legendOptions"
+      [activeEntries]="config.activeEntries ?? []"
+      [animations]="animations"
+      (legendLabelClick)="onClick($event)"
+      (legendLabelActivate)="onActivate($event)"
+      (legendLabelDeactivate)="onDeactivate($event)"
+    >
+      <svg:defs>
+        <svg:clipPath [attr.id]="clipPathId">
+          <svg:rect
+            [attr.width]="dims.width + 10"
+            [attr.height]="dims.height + 10"
+            [attr.transform]="'translate(-5, -5)'"
+          />
+        </svg:clipPath>
+      </svg:defs>
+      <svg:g [attr.transform]="transform" class="area-chart chart">
+        <svg:g
+          ngx-charts-x-axis
+          *ngIf="config.xAxis"
+          [xScale]="xScale"
+          [dims]="dims"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateXAxisHeight($event)"
+        ></svg:g>
+        <svg:g
+          ngx-charts-y-axis
+          *ngIf="config.yAxis"
+          [yScale]="yScale"
+          [dims]="dims"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateYAxisWidth($event)"
+        ></svg:g>
+        <svg:g [attr.clip-path]="clipPath">
+          <svg:g *ngFor="let series of results; trackBy: trackBy">
+            <svg:g
+              ngx-charts-area-series
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [colors]="colors"
+              [data]="series"
+              [scaleType]="scaleType"
+              [gradient]="config.gradient"
+              [activeEntries]="config.activeEntries ?? []"
+              [stacked]="true"
+              [curve]="config.curve || curve"
+              [animations]="animations"
+            />
+          </svg:g>
+
+          <svg:g *ngIf="!(config.tooltipDisabled ?? false)" (mouseleave)="hideCircles()">
+            <svg:g
+              ngx-charts-tooltip-area
+              [dims]="dims"
+              [xSet]="xSet"
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [results]="results"
+              [colors]="colors"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
+              [tooltipTemplate]="seriesTooltipTemplate"
+              (hover)="updateHoveredVertical($event)"
+            />
+
+            <svg:g *ngFor="let series of results">
+              <svg:g
+                ngx-charts-circle-series
+                [type]="seriesType.Stacked"
+                [xScale]="xScale"
+                [yScale]="yScale"
+                [colors]="colors"
+                [activeEntries]="config.activeEntries ?? []"
+                [data]="series"
+                [scaleType]="scaleType"
+                [visibleValue]="hoveredVertical"
+                [tooltipDisabled]="config.tooltipDisabled ?? false"
+                [tooltipTemplate]="tooltipTemplate"
+                (select)="onClick($event, series)"
+                (activate)="onActivate($event)"
+                (deactivate)="onDeactivate($event)"
+              />
+            </svg:g>
+          </svg:g>
+        </svg:g>
+      </svg:g>
+      <svg:g
+        ngx-charts-timeline
+        *ngIf="(config.timeline ?? false) && scaleType != 'ordinal'"
+        [attr.transform]="timelineTransform"
+        [results]="results"
+        [view]="[timelineWidth, height]"
+        [height]="timelineHeight"
+        [scheme]="scheme"
+        [customColors]="customColors"
+        [legend]="config.legend ?? false"
+        [scaleType]="scaleType"
+        (onDomainChange)="updateDomain($event)"
+      >
+        <svg:g *ngFor="let series of results; trackBy: trackBy">
+          <svg:g
+            ngx-charts-area-series
+            [xScale]="timelineXScale"
+            [yScale]="timelineYScale"
+            [colors]="colors"
+            [data]="series"
+            [scaleType]="scaleType"
+            [gradient]="config.gradient"
+            [stacked]="true"
+            [curve]="config.curve || curve"
+            [animations]="animations"
+          />
+        </svg:g>
+      </svg:g>
+    </ngx-charts-chart>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })
 export class AreaChartStackedComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis: boolean = false;
-  @Input() yAxis: boolean = false;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() timeline: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() curve: any = curveLinear;
-  @Input() activeEntries: any[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() roundDomains: boolean = false;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() xScaleMin: any;
-  @Input() xScaleMax: any;
-  @Input() yScaleMin: number;
-  @Input() yScaleMax: number;
-  @Input() wrapTicks = false;
+  @Input() config: AreaChartStackedOptions = {};
+  @Input() set gradient(v: boolean) { this.config.gradient = v; } get gradient(): boolean { return this.config.gradient; }
+  @Input() set xAxis(v: boolean) { this.config.xAxis = v; } get xAxis(): boolean { return this.config.xAxis; }
+  @Input() set yAxis(v: boolean) { this.config.yAxis = v; } get yAxis(): boolean { return this.config.yAxis; }
+  @Input() set legend(v: boolean) { this.config.legend = v; } get legend(): boolean { return this.config.legend; }
+  @Input() set legendTitle(v: string) { this.config.legendTitle = v; } get legendTitle(): string { return this.config.legendTitle; }
+  @Input() set legendPosition(v: any) { this.config.legendPosition = v; } get legendPosition(): any { return this.config.legendPosition; }
+  @Input() set showXAxisLabel(v: boolean) { this.config.showXAxisLabel = v; } get showXAxisLabel(): boolean { return this.config.showXAxisLabel; }
+  @Input() set showYAxisLabel(v: boolean) { this.config.showYAxisLabel = v; } get showYAxisLabel(): boolean { return this.config.showYAxisLabel; }
+  @Input() set tooltipDisabled(v: boolean) { this.config.tooltipDisabled = v; } get tooltipDisabled(): boolean { return this.config.tooltipDisabled; }
+  @Input() set xAxisLabel(v: string) { this.config.xAxisLabel = v; } get xAxisLabel(): string { return this.config.xAxisLabel; }
+  @Input() set yAxisLabel(v: string) { this.config.yAxisLabel = v; } get yAxisLabel(): string { return this.config.yAxisLabel; }
+  @Input() set showGridLines(v: boolean) { this.config.showGridLines = v; } get showGridLines(): boolean { return this.config.showGridLines; }
+  @Input() set roundDomains(v: boolean) { this.config.roundDomains = v; } get roundDomains(): boolean { return this.config.roundDomains; }
+  @Input() set xScaleMin(v: any) { this.config.xScaleMin = v; } get xScaleMin(): any { return this.config.xScaleMin; }
+  @Input() set xScaleMax(v: any) { this.config.xScaleMax = v; } get xScaleMax(): any { return this.config.xScaleMax; }
+  @Input() set yScaleMin(v: number) { this.config.yScaleMin = v; } get yScaleMin(): number { return this.config.yScaleMin; }
+  @Input() set yScaleMax(v: number) { this.config.yScaleMax = v; } get yScaleMax(): number { return this.config.yScaleMax; }
+  @Input() set timeline(v: boolean) { this.config.timeline = v; } get timeline(): boolean { return this.config.timeline; }
+  @Input() set trimXAxisTicks(v: boolean) { this.config.trimXAxisTicks = v; } get trimXAxisTicks(): boolean { return this.config.trimXAxisTicks; }
+  @Input() set trimYAxisTicks(v: boolean) { this.config.trimYAxisTicks = v; } get trimYAxisTicks(): boolean { return this.config.trimYAxisTicks; }
+  @Input() set rotateXAxisTicks(v: boolean) { this.config.rotateXAxisTicks = v; } get rotateXAxisTicks(): boolean { return this.config.rotateXAxisTicks; }
+  @Input() set maxXAxisTickLength(v: number) { this.config.maxXAxisTickLength = v; } get maxXAxisTickLength(): number { return this.config.maxXAxisTickLength; }
+  @Input() set maxYAxisTickLength(v: number) { this.config.maxYAxisTickLength = v; } get maxYAxisTickLength(): number { return this.config.maxYAxisTickLength; }
+  @Input() set wrapTicks(v: boolean) { this.config.wrapTicks = v; } get wrapTicks(): boolean { return this.config.wrapTicks; }
+  @Input() set curve(v: any) { this._curve = v; } get curve(): any { return this._curve || curveLinear; }
+  private _curve: any = curveLinear;
+
+
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -105,18 +238,18 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config?.xAxis,
+      showYAxis: this.config?.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
-      legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      showXLabel: this.config?.showXAxisLabel,
+      showYLabel: this.config?.showYAxisLabel,
+      showLegend: this.config?.legend ?? false,
+      legendType: this.config?.schemeType,
+      legendPosition: this.config?.legendPosition ?? LegendPosition.Right
     });
 
-    if (this.timeline) {
+    if (this.config?.timeline) {
       this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
     }
 
@@ -174,12 +307,12 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   }
 
   updateTimeline(): void {
-    if (this.timeline) {
+    if (this.config?.timeline) {
       this.timelineWidth = this.dims.width;
       this.timelineXDomain = this.getXDomain();
       this.timelineXScale = this.getXScale(this.timelineXDomain, this.timelineWidth);
       this.timelineYScale = this.getYScale(this.yDomain, this.timelineHeight);
-      this.timelineTransform = `translate(${this.dims.xOffset}, ${- this.margin[2]})`;
+      this.timelineTransform = `translate(${this.dims.xOffset}, ${-this.margin[2]})`;
     }
   }
 
@@ -196,9 +329,9 @@ export class AreaChartStackedComponent extends BaseChartComponent {
     let min;
     let max;
     if (this.scaleType === ScaleType.Time || this.scaleType === ScaleType.Linear) {
-      min = this.xScaleMin ? this.xScaleMin : Math.min(...values);
+      min = this.config?.xScaleMin ? this.config?.xScaleMin : Math.min(...values);
 
-      max = this.xScaleMax ? this.xScaleMax : Math.max(...values);
+      max = this.config?.xScaleMax ? this.config?.xScaleMax : Math.max(...values);
     }
 
     if (this.scaleType === ScaleType.Time) {
@@ -247,9 +380,9 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       domain.push(sum);
     }
 
-    const min = this.yScaleMin ? this.yScaleMin : Math.min(0, ...domain);
+    const min = this.config?.yScaleMin ? this.config?.yScaleMin : Math.min(0, ...domain);
 
-    const max = this.yScaleMax ? this.yScaleMax : Math.max(...domain);
+    const max = this.config?.yScaleMax ? this.config?.yScaleMax : Math.max(...domain);
     return [min, max];
   }
 
@@ -270,12 +403,12 @@ export class AreaChartStackedComponent extends BaseChartComponent {
 
     scale.range([0, width]).domain(domain);
 
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   getYScale(domain, height: number): any {
     const scale = scaleLinear().range([height, 0]).domain(domain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   updateDomain(domain): void {
@@ -309,27 +442,27 @@ export class AreaChartStackedComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    if (this.schemeType === ScaleType.Ordinal) {
+    if ((this.config.schemeType ?? ScaleType.Ordinal) === ScaleType.Ordinal) {
       domain = this.seriesDomain;
     } else {
       domain = this.yDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.config?.schemeType ?? ScaleType.Ordinal, domain, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: this.config?.schemeType as any,
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config?.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.seriesDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config?.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.yDomain;
       opts.colors = this.colors.scale;
@@ -348,33 +481,38 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   }
 
   onActivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const entries = this.config.activeEntries ?? [];
+    const idx = entries.findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
     if (idx > -1) {
       return;
     }
 
-    this.activeEntries = [item, ...this.activeEntries];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [item, ...entries];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(item): void {
-    const idx = this.activeEntries.findIndex(d => {
+    const entries = this.config.activeEntries ?? [];
+    const idx = entries.findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
 
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
+    if (idx > -1) {
+      entries.splice(idx, 1);
+      this.config.activeEntries = [...entries];
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+      this.deactivate.emit({ value: item, entries: this.config.activeEntries });
+    }
   }
 
   deactivateAll() {
-    this.activeEntries = [...this.activeEntries];
-    for (const entry of this.activeEntries) {
+    const entries = this.config.activeEntries ?? [];
+    this.config.activeEntries = [...entries];
+    for (const entry of this.config.activeEntries) {
       this.deactivate.emit({ value: entry, entries: [] });
     }
-    this.activeEntries = [];
+    this.config.activeEntries = [];
   }
 }
