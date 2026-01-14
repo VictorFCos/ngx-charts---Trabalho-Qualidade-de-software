@@ -23,6 +23,7 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { isPlatformServer } from '@angular/common';
+import { calculateVerticalBars } from './series.helper';
 
 @Component({
   selector: 'g[ngx-charts-series-vertical]',
@@ -111,114 +112,18 @@ export class SeriesVerticalComponent implements OnChanges {
 
   update(): void {
     this.updateTooltipSettings();
-    let width;
-    if (this.series.length) {
-      width = this.xScale.bandwidth();
-    }
-    width = Math.round(width);
-    const yScaleMin = Math.max(this.yScale.domain()[0], 0);
-
-    const d0 = {
-      [D0Types.positive]: 0,
-      [D0Types.negative]: 0
-    };
-    let d0Type = D0Types.positive;
-
-    let total;
-    if (this.type === BarChartType.Normalized) {
-      total = this.series.map(d => d.value).reduce((sum, d) => sum + d, 0);
-    }
-
-    this.bars = this.series.map((d, index) => {
-      let value = d.value as any;
-      const label = this.getLabel(d);
-      const formattedLabel = formatLabel(label);
-      const roundEdges = this.roundEdges;
-      d0Type = value > 0 ? D0Types.positive : D0Types.negative;
-
-      const bar: any = {
-        value,
-        label,
-        roundEdges,
-        data: d,
-        width,
-        formattedLabel,
-        height: 0,
-        x: 0,
-        y: 0
-      };
-
-      if (this.type === BarChartType.Standard) {
-        bar.height = Math.abs(this.yScale(value) - this.yScale(yScaleMin));
-        bar.x = this.xScale(label);
-
-        if (value < 0) {
-          bar.y = this.yScale(0);
-        } else {
-          bar.y = this.yScale(value);
-        }
-      } else if (this.type === BarChartType.Stacked) {
-        const offset0 = d0[d0Type];
-        const offset1 = offset0 + value;
-        d0[d0Type] += value;
-
-        bar.height = this.yScale(offset0) - this.yScale(offset1);
-        bar.x = 0;
-        bar.y = this.yScale(offset1);
-        bar.offset0 = offset0;
-        bar.offset1 = offset1;
-      } else if (this.type === BarChartType.Normalized) {
-        let offset0 = d0[d0Type];
-        let offset1 = offset0 + value;
-        d0[d0Type] += value;
-
-        if (total > 0) {
-          offset0 = (offset0 * 100) / total;
-          offset1 = (offset1 * 100) / total;
-        } else {
-          offset0 = 0;
-          offset1 = 0;
-        }
-
-        bar.height = this.yScale(offset0) - this.yScale(offset1);
-        bar.x = 0;
-        bar.y = this.yScale(offset1);
-        bar.offset0 = offset0;
-        bar.offset1 = offset1;
-        value = (offset1 - offset0).toFixed(2) + '%';
-      }
-
-      if (this.colors.scaleType === ScaleType.Ordinal) {
-        bar.color = this.colors.getColor(label);
-      } else {
-        if (this.type === BarChartType.Standard) {
-          bar.color = this.colors.getColor(value);
-          bar.gradientStops = this.colors.getLinearGradientStops(value);
-        } else {
-          bar.color = this.colors.getColor(bar.offset1);
-          bar.gradientStops = this.colors.getLinearGradientStops(bar.offset1, bar.offset0);
-        }
-      }
-
-      let tooltipLabel = formattedLabel;
-      bar.ariaLabel = formattedLabel + ' ' + value.toLocaleString();
-      if (this.seriesName !== null && this.seriesName !== undefined) {
-        tooltipLabel = `${this.seriesName} • ${formattedLabel}`;
-        bar.data.series = this.seriesName;
-        bar.ariaLabel = this.seriesName + ' ' + bar.ariaLabel;
-      }
-
-      bar.tooltipText = this.tooltipDisabled
-        ? undefined
-        : `
-        <span class="tooltip-label">${escapeLabel(tooltipLabel)}</span>
-        <span class="tooltip-val">${this.dataLabelFormatting ? this.dataLabelFormatting(value) : value.toLocaleString()
-        }</span>
-      `;
-
-      return bar;
+    this.bars = calculateVerticalBars({
+      series: this.series,
+      xScale: this.xScale,
+      yScale: this.yScale,
+      colors: this.colors,
+      type: this.type,
+      roundEdges: this.roundEdges,
+      tooltipDisabled: this.tooltipDisabled,
+      seriesName: this.seriesName,
+      dataLabelFormatting: this.dataLabelFormatting,
+      gradient: this.gradient
     });
-
     this.updateDataLabels();
   }
 

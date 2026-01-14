@@ -26,6 +26,7 @@ export * from './lib/bar-chart/bar-vertical-normalized.component';
 export * from './lib/bar-chart/bar-vertical-stacked.component';
 export * from './lib/bar-chart/series-vertical.component';
 export * from './lib/bar-chart/types/bar.model';
+export * from './lib/bar-chart/bar-chart.model';
 export * from './lib/bar-chart/types/bar-chart-type.enum';
 export * from './lib/bar-chart/types/d0-type.enum';
 
@@ -108,6 +109,7 @@ export * from './lib/sankey/sankey.module';
 export * from './lib/sankey/sankey.component';
 
 export * from './lib/line-chart/line-chart.module';
+export * from './lib/line-chart/line-chart.model';
 export * from './lib/line-chart/line-chart.component';
 export * from './lib/line-chart/line.component';
 export * from './lib/line-chart/line-series.component';
@@ -140,6 +142,7 @@ export * from './lib/tree-map/tree-map-cell.component';
 export * from './lib/tree-map/tree-map-cell-series.component';
 
 export * from './lib/utils/id';
+export * from './lib/utils/color-sets.model';
 export * from './lib/utils/color-sets';
 export * from './lib/utils/sort';
 export * from './lib/utils/throttle';

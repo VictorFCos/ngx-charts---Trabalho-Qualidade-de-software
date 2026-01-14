@@ -14,7 +14,7 @@ import { ColorHelper } from '../common/color.helper';
 
 import { formatLabel, escapeLabel } from '../common/label.helper';
 import { DataItem } from '../models/chart-data.model';
-import { PieData } from './pie-label.helper';
+import { PieData, calculateLabelPositions, isLabelVisible } from './pie-label.helper';
 import { PlacementTypes } from '../common/tooltip/position';
 import { StyleTypes } from '../common/tooltip/style.type';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
@@ -142,60 +142,14 @@ export class PieSeriesComponent implements OnChanges {
       return d.value;
     });
 
-    this.data = this.calculateLabelPositions(arcData);
+    this.data = calculateLabelPositions(arcData, this.outerRadius, this.showLabels);
     this.tooltipText = this.tooltipText || this.defaultTooltipText;
   }
 
-  midAngle(d): number {
-    return d.startAngle + (d.endAngle - d.startAngle) / 2;
-  }
 
-  outerArc(): any {
-    const factor = 1.5;
-
-    return arc()
-      .innerRadius(this.outerRadius * factor)
-      .outerRadius(this.outerRadius * factor);
-  }
-
-  calculateLabelPositions(pieData): any {
-    const factor = 1.5;
-    const minDistance = 10;
-    const labelPositions = pieData;
-
-    labelPositions.forEach(d => {
-      d.pos = this.outerArc().centroid(d);
-      d.pos[0] = factor * this.outerRadius * (this.midAngle(d) < Math.PI ? 1 : -1);
-    });
-
-    for (let i = 0; i < labelPositions.length - 1; i++) {
-      const a = labelPositions[i];
-      if (!this.labelVisible(a)) {
-        continue;
-      }
-
-      for (let j = i + 1; j < labelPositions.length; j++) {
-        const b = labelPositions[j];
-        if (!this.labelVisible(b)) {
-          continue;
-        }
-        // if they're on the same side
-        if (b.pos[0] * a.pos[0] > 0) {
-          // if they're overlapping
-          const o = minDistance - Math.abs(b.pos[1] - a.pos[1]);
-          if (o > 0) {
-            // push the second up or down
-            b.pos[1] += Math.sign(b.pos[0]) * o;
-          }
-        }
-      }
-    }
-
-    return labelPositions;
-  }
 
   labelVisible(myArc): boolean {
-    return this.showLabels && myArc.endAngle - myArc.startAngle > Math.PI / 30;
+    return isLabelVisible(myArc, this.showLabels);
   }
 
   getTooltipTitle(a) {
