@@ -19,44 +19,9 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { select } from 'd3-selection';
+import { BarVerticalChartOptions } from './bar-chart.model';
 
-export interface BarChartConfig {
-  legend: boolean;
-  legendTitle: string;
-  legendPosition: LegendPosition;
-  xAxis: boolean;
-  yAxis: boolean;
-  showXAxisLabel: boolean;
-  showYAxisLabel: boolean;
-  xAxisLabel: string;
-  yAxisLabel: string;
-  tooltipDisabled: boolean;
-  gradient: boolean;
-  referenceLines: unknown[];
-  showRefLines: boolean;
-  showRefLabels: boolean;
-  showGridLines: boolean;
-  activeEntries: unknown[];
-  schemeType: ScaleType;
-  trimXAxisTicks: boolean;
-  trimYAxisTicks: boolean;
-  rotateXAxisTicks: boolean;
-  maxXAxisTickLength: number;
-  maxYAxisTickLength: number;
-  xAxisTickFormatting: unknown;
-  yAxisTickFormatting: unknown;
-  xAxisTicks: unknown[];
-  yAxisTicks: unknown[];
-  barPadding: number;
-  roundDomains: boolean;
-  roundEdges: boolean;
-  yScaleMax: number;
-  yScaleMin: number;
-  showDataLabel: boolean;
-  dataLabelFormatting: unknown;
-  noBarWhenZero: boolean;
-  wrapTicks: boolean;
-}
+
 
 @Component({
   selector: 'ngx-charts-bar-vertical',
@@ -67,7 +32,7 @@ export interface BarChartConfig {
   standalone: false
 })
 export class BarVerticalComponent extends BaseChartComponent {
-  @Input() config: BarChartConfig;
+  @Input() config: BarVerticalChartOptions;
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();

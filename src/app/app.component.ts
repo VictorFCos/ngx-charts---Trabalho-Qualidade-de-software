@@ -28,6 +28,7 @@ import { LegendPosition } from '@swimlane/ngx-charts/common/types/legend.model';
 import { ScaleType } from '@swimlane/ngx-charts/common/types/scale-type.enum';
 import {
   BarChartConfig,
+  BarVerticalChartOptions,
   BarHorizontalChartOptions,
   HeatMapOptions,
   PolarChartOptions,
@@ -288,7 +289,7 @@ export class AppComponent implements OnInit {
   dimVisible: boolean = true;
   optsVisible: boolean = true;
 
-  get barChartConfig(): BarChartConfig {
+  get barChartConfig(): BarVerticalChartOptions {
     return {
       legend: this.showLegend,
       legendTitle: this.legendTitle,

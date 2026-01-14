@@ -23,45 +23,9 @@ import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { isPlatformServer } from '@angular/common';
 import { getLineChartXDomain, getLineChartYDomain, getLineChartXScale } from './line-chart.helper';
+import { LineChartOptions } from './line-chart.model';
 
-export interface LineChartOptions {
-  legend: boolean;
-  legendTitle: string;
-  legendPosition: LegendPosition;
-  xAxis: boolean;
-  yAxis: boolean;
-  showXAxisLabel: boolean;
-  showYAxisLabel: boolean;
-  xAxisLabel: string;
-  yAxisLabel: string;
-  autoScale: boolean;
-  timeline: boolean;
-  gradient: boolean;
-  showGridLines: boolean;
-  curve: unknown;
-  activeEntries: unknown[];
-  schemeType: ScaleType;
-  rangeFillOpacity: number;
-  trimXAxisTicks: boolean;
-  trimYAxisTicks: boolean;
-  rotateXAxisTicks: boolean;
-  maxXAxisTickLength: number;
-  maxYAxisTickLength: number;
-  xAxisTickFormatting: (o: unknown) => string;
-  yAxisTickFormatting: (o: unknown) => string;
-  xAxisTicks: unknown[];
-  yAxisTicks: unknown[];
-  roundDomains: boolean;
-  tooltipDisabled: boolean;
-  showRefLines: boolean;
-  referenceLines: unknown;
-  showRefLabels: boolean;
-  xScaleMin: number;
-  xScaleMax: number;
-  yScaleMin: number;
-  yScaleMax: number;
-  wrapTicks: boolean;
-}
+
 
 @Component({
   selector: 'ngx-charts-line-chart',
@@ -108,132 +72,8 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   timelineTransform: any;
   timelinePadding: number = 10;
   isSSR = false;
+  curve: any;
 
-  get legend() {
-    return this.config?.legend;
-  }
-  get legendTitle() {
-    return this.config?.legendTitle ?? 'Legend';
-  }
-  get legendPosition() {
-    return this.config?.legendPosition ?? LegendPosition.Right;
-  }
-  get xAxis() {
-    return this.config?.xAxis;
-  }
-  get yAxis() {
-    return this.config?.yAxis;
-  }
-  get showXAxisLabel() {
-    return this.config?.showXAxisLabel;
-  }
-  get showYAxisLabel() {
-    return this.config?.showYAxisLabel;
-  }
-  get xAxisLabel() {
-    return this.config?.xAxisLabel;
-  }
-  get yAxisLabel() {
-    return this.config?.yAxisLabel;
-  }
-  get autoScale() {
-    return this.config?.autoScale;
-  }
-  get timeline() {
-    return this.config?.timeline;
-  }
-  get gradient() {
-    return this.config?.gradient;
-  }
-  get showGridLines() {
-    return this.config?.showGridLines ?? true;
-  }
-  @Input()
-  get curve() {
-    return this.config?.curve ?? curveLinear;
-  }
-  set curve(val: unknown) {
-    if (this.config) this.config.curve = val;
-  }
-  @Input()
-  get activeEntries() {
-    return this.config?.activeEntries ?? [];
-  }
-  set activeEntries(value: unknown[]) {
-    if (this.config) this.config.activeEntries = value;
-  }
-  get rangeFillOpacity() {
-    return this.config?.rangeFillOpacity;
-  }
-  get trimXAxisTicks() {
-    return this.config?.trimXAxisTicks ?? true;
-  }
-  get trimYAxisTicks() {
-    return this.config?.trimYAxisTicks ?? true;
-  }
-  get rotateXAxisTicks() {
-    return this.config?.rotateXAxisTicks ?? true;
-  }
-  get maxXAxisTickLength() {
-    return this.config?.maxXAxisTickLength ?? 16;
-  }
-  get maxYAxisTickLength() {
-    return this.config?.maxYAxisTickLength ?? 16;
-  }
-  @Input()
-  get xAxisTickFormatting() {
-    return this.config?.xAxisTickFormatting;
-  }
-  set xAxisTickFormatting(val: (o: unknown) => string) {
-    if (this.config) this.config.xAxisTickFormatting = val;
-  }
-  @Input()
-  get yAxisTickFormatting() {
-    return this.config?.yAxisTickFormatting;
-  }
-  set yAxisTickFormatting(val: (o: unknown) => string) {
-    if (this.config) this.config.yAxisTickFormatting = val;
-  }
-  get xAxisTicks() {
-    return this.config?.xAxisTicks;
-  }
-  get yAxisTicks() {
-    return this.config?.yAxisTicks;
-  }
-  get roundDomains() {
-    return this.config?.roundDomains ?? false;
-  }
-  get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
-  }
-  get showRefLines() {
-    return this.config?.showRefLines ?? false;
-  }
-  @Input()
-  get referenceLines() {
-    return this.config?.referenceLines;
-  }
-  set referenceLines(val: unknown) {
-    if (this.config) this.config.referenceLines = val;
-  }
-  get showRefLabels() {
-    return this.config?.showRefLabels ?? true;
-  }
-  get xScaleMin() {
-    return this.config?.xScaleMin;
-  }
-  get xScaleMax() {
-    return this.config?.xScaleMax;
-  }
-  get yScaleMin() {
-    return this.config?.yScaleMin;
-  }
-  get yScaleMax() {
-    return this.config?.yScaleMax;
-  }
-  get wrapTicks() {
-    return this.config?.wrapTicks ?? false;
-  }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) this.isSSR = true;
@@ -263,35 +103,36 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
 
   update(): void {
     super.update();
+    this.curve = this.config?.curve ?? curveLinear;
     this.dims = calculateViewDimensions({
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config?.xAxis,
+      showYAxis: this.config?.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
+      showXLabel: this.config?.showXAxisLabel,
+      showYLabel: this.config?.showYAxisLabel,
+      showLegend: this.config?.legend,
       legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      legendPosition: this.config?.legendPosition ?? LegendPosition.Right
     });
-    if (this.timeline) this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
-    const xDom = getLineChartXDomain(this.results, this.xScaleMin, this.xScaleMax);
+    if (this.config?.timeline) this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
+    const xDom = getLineChartXDomain(this.results, this.config?.xScaleMin, this.config?.xScaleMax);
     this.xDomain = this.filteredDomain || xDom.domain;
     this.scaleType = xDom.scaleType;
     this.xSet = xDom.xSet;
-    const yDom = getLineChartYDomain(this.results, this.autoScale, this.yScaleMin, this.yScaleMax);
+    const yDom = getLineChartYDomain(this.results, this.config?.autoScale, this.config?.yScaleMin, this.config?.yScaleMax);
     this.yDomain = yDom.domain;
     this.hasRange = yDom.hasRange;
     this.seriesDomain = this.results.map(d => d.name);
-    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.roundDomains);
+    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.config?.roundDomains ?? false);
     this.yScale = scaleLinear().range([this.dims.height, 0]).domain(this.yDomain);
-    if (this.roundDomains) this.yScale = this.yScale.nice();
-    if (this.timeline) {
+    if (this.config?.roundDomains) this.yScale = this.yScale.nice();
+    if (this.config?.timeline) {
       this.timelineWidth = this.dims.width;
-      this.timelineXScale = getLineChartXScale(xDom.domain, this.timelineWidth, this.scaleType, this.roundDomains);
+      this.timelineXScale = getLineChartXScale(xDom.domain, this.timelineWidth, this.scaleType, this.config?.roundDomains ?? false);
       this.timelineYScale = scaleLinear().range([this.timelineHeight, 0]).domain(this.yDomain);
       this.timelineTransform = `translate(${this.dims.xOffset}, ${-this.margin[2]})`;
     }
@@ -305,8 +146,8 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
       scaleType: this.schemeType,
       colors: this.schemeType === ScaleType.Ordinal ? this.colors : this.colors.scale,
       domain: (this.schemeType === ScaleType.Ordinal ? this.seriesDomain : this.yDomain) as unknown[],
-      title: this.schemeType === ScaleType.Ordinal ? this.legendTitle : undefined,
-      position: this.legendPosition
+      title: this.schemeType === ScaleType.Ordinal ? (this.config?.legendTitle ?? 'Legend') : undefined,
+      position: this.config?.legendPosition ?? LegendPosition.Right
     };
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
     this.clipPathId = 'clip' + id().toString();
@@ -316,7 +157,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   updateDomain(domain): void {
     this.filteredDomain = domain;
     this.xDomain = this.filteredDomain;
-    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.roundDomains);
+    this.xScale = getLineChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.config?.roundDomains ?? false);
   }
   updateHoveredVertical(item): void {
     this.hoveredVertical = item.value;
@@ -343,26 +184,28 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   onActivate(item): void {
     this.deactivateAll();
     if (
-      !(this.activeEntries as unknown as { name: string; value: unknown }[]).some(
+      !(this.config?.activeEntries as unknown as { name: string; value: unknown }[]).some(
         d => d.name === item.name && d.value === item.value
       )
     ) {
-      this.activeEntries = [item];
-      this.activate.emit({ value: item, entries: this.activeEntries });
+      this.config.activeEntries = [item];
+      this.activate.emit({ value: item, entries: this.config.activeEntries });
     }
   }
   onDeactivate(item): void {
-    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(
+    const idx = (this.config?.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(
       d => d.name === item.name && d.value === item.value
     );
     if (idx > -1) {
-      this.activeEntries.splice(idx, 1);
-      this.activeEntries = [...this.activeEntries];
-      this.deactivate.emit({ value: item, entries: this.activeEntries });
+      this.config.activeEntries.splice(idx, 1);
+      this.config.activeEntries = [...this.config.activeEntries];
+      this.deactivate.emit({ value: item, entries: this.config.activeEntries });
     }
   }
   deactivateAll(): void {
-    this.activeEntries.forEach(entry => this.deactivate.emit({ value: entry, entries: [] }));
-    this.activeEntries = [];
+    (this.config?.activeEntries ?? []).forEach(entry => this.deactivate.emit({ value: entry, entries: [] }));
+    if (this.config) {
+      this.config.activeEntries = [];
+    }
   }
 }

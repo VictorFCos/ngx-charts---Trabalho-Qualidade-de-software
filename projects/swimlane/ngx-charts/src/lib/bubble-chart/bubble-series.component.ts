@@ -19,6 +19,7 @@ import { PlacementTypes } from '../common/tooltip/position';
 import { StyleTypes } from '../common/tooltip/style.type';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { isPlatformServer } from '@angular/common';
+import { getTooltipText } from './bubble-series.utils';
 
 @Component({
   selector: 'g[ngx-charts-bubble-series]',
@@ -118,7 +119,7 @@ export class BubbleSeriesComponent implements OnChanges, OnInit {
 
   isSSR = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: any) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: any) { }
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
@@ -188,32 +189,7 @@ export class BubbleSeriesComponent implements OnChanges, OnInit {
   }
 
   getTooltipText(circle): string {
-    const hasRadius = typeof circle.r !== 'undefined';
-    const hasTooltipLabel = circle.tooltipLabel && circle.tooltipLabel.length;
-    const hasSeriesName = circle.seriesName && circle.seriesName.length;
-
-    const radiusValue = hasRadius ? formatLabel(circle.r) : '';
-    const xAxisLabel = this.xAxisLabel && this.xAxisLabel !== '' ? `${this.xAxisLabel}:` : '';
-    const yAxisLabel = this.yAxisLabel && this.yAxisLabel !== '' ? `${this.yAxisLabel}:` : '';
-    const x = formatLabel(circle.x);
-    const y = formatLabel(circle.y);
-    const name =
-      hasSeriesName && hasTooltipLabel
-        ? `${circle.seriesName} • ${circle.tooltipLabel}`
-        : circle.seriesName + circle.tooltipLabel;
-    const tooltipTitle =
-      hasSeriesName || hasTooltipLabel ? `<span class="tooltip-label">${escapeLabel(name)}</span>` : '';
-
-    return `
-      ${tooltipTitle}
-      <span class="tooltip-label">
-        <label>${escapeLabel(xAxisLabel)}</label> ${escapeLabel(x)}<br />
-        <label>${escapeLabel(yAxisLabel)}</label> ${escapeLabel(y)}
-      </span>
-      <span class="tooltip-val">
-        ${escapeLabel(radiusValue)}
-      </span>
-    `;
+    return getTooltipText(circle, this.xAxisLabel, this.yAxisLabel);
   }
 
   onClick(data): void {

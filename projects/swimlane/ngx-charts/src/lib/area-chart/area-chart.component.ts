@@ -27,6 +27,7 @@ import { ScaleType } from '../common/types/scale-type.enum';
 import { select } from 'd3-selection';
 
 import { AreaChartOptions } from './area-chart.options';
+import { getAreaChartXDomain, getAreaChartYDomain, getAreaChartXScale, getAreaChartYScale } from './area-chart.helper';
 
 @Component({
   selector: 'ngx-charts-area-chart',
@@ -120,16 +121,24 @@ export class AreaChartComponent extends BaseChartComponent {
       this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
     }
 
-    this.xDomain = this.getXDomain();
-    if (this.filteredDomain) {
-      this.xDomain = this.filteredDomain;
-    }
+    const xDom = getAreaChartXDomain(this.results, this.config?.xScaleMin, this.config?.xScaleMax);
+    this.xDomain = this.filteredDomain || xDom.domain;
+    this.scaleType = xDom.scaleType;
+    this.xSet = xDom.xSet;
 
-    this.yDomain = this.getYDomain();
-    this.seriesDomain = this.getSeriesDomain();
+    this.yDomain = getAreaChartYDomain(
+      this.results,
+      this.config?.autoScale,
+      this.config?.yScaleMin,
+      this.config?.yScaleMax,
 
-    this.xScale = this.getXScale(this.xDomain, this.dims.width);
-    this.yScale = this.getYScale(this.yDomain, this.dims.height);
+      this.config?.baseValue as number | 'auto'
+    );
+
+    this.seriesDomain = this.results.map(d => d.name);
+
+    this.xScale = getAreaChartXScale(this.xDomain, this.dims.width, this.scaleType, this.config?.roundDomains);
+    this.yScale = getAreaChartYScale(this.yDomain, this.dims.height, this.config?.roundDomains);
 
     this.updateTimeline();
 
@@ -149,131 +158,20 @@ export class AreaChartComponent extends BaseChartComponent {
   updateTimeline(): void {
     if (this.config?.timeline) {
       this.timelineWidth = this.dims.width;
-      this.timelineXDomain = this.getXDomain();
-      this.timelineXScale = this.getXScale(this.timelineXDomain, this.timelineWidth);
-      this.timelineYScale = this.getYScale(this.yDomain, this.timelineHeight);
+      const xDom = getAreaChartXDomain(this.results, this.config?.xScaleMin, this.config?.xScaleMax);
+      this.timelineXDomain = xDom.domain; // Use recalculated domain for timeline
+      this.timelineXScale = getAreaChartXScale(this.timelineXDomain, this.timelineWidth, xDom.scaleType, this.config?.roundDomains);
+      this.timelineYScale = getAreaChartYScale(this.yDomain, this.timelineHeight, this.config?.roundDomains);
       this.timelineTransform = `translate(${this.dims.xOffset}, ${-this.margin[2]})`;
     }
   }
 
-  getXDomain(): unknown[] {
-    let values = getUniqueXDomainValues(this.results);
 
-    this.scaleType = getScaleType(values);
-    let domain = [];
-
-    if (this.scaleType === ScaleType.Linear) {
-      values = values.map(v => Number(v));
-    }
-
-    let min;
-    let max;
-    if (this.scaleType === ScaleType.Time || this.scaleType === ScaleType.Linear) {
-      min = this.config?.xScaleMin ? this.config?.xScaleMin : Math.min(...values);
-
-      max = this.config?.xScaleMax ? this.config?.xScaleMax : Math.max(...values);
-    }
-
-    if (this.scaleType === ScaleType.Time) {
-      domain = [new Date(min), new Date(max)];
-      this.xSet = [...values].sort((a, b) => {
-        const aDate = a.getTime();
-        const bDate = b.getTime();
-        if (aDate > bDate) return 1;
-        if (bDate > aDate) return -1;
-        return 0;
-      });
-    } else if (this.scaleType === ScaleType.Linear) {
-      domain = [min, max];
-      // Use compare function to sort numbers numerically
-      this.xSet = [...values].sort((a, b) => a - b);
-    } else {
-      domain = values;
-      this.xSet = values;
-    }
-
-    return domain;
-  }
-
-  getYDomain(): [number, number] {
-    const domain = [];
-
-    for (const results of this.results) {
-      for (const d of results.series) {
-        if (!domain.includes(d.value)) {
-          domain.push(d.value);
-        }
-      }
-    }
-
-    const values = [...domain];
-    if (!(this.config?.autoScale ?? false)) {
-      values.push(0);
-    }
-    const baseValue = this.config?.baseValue ?? 'auto';
-    if (baseValue !== 'auto') {
-      values.push(baseValue as number);
-    }
-
-    const min = this.config?.yScaleMin ? this.config?.yScaleMin : Math.min(...values);
-
-    const max = this.config?.yScaleMax ? this.config?.yScaleMax : Math.max(...values);
-
-    return [min, max];
-  }
-
-  getSeriesDomain(): string[] {
-    return this.results.map(d => d.name);
-  }
-
-  getXScale(domain, width: number): number {
-    let scale;
-
-    if (this.scaleType === ScaleType.Time) {
-      scale = scaleTime();
-    } else if (this.scaleType === ScaleType.Linear) {
-      scale = scaleLinear();
-    } else if (this.scaleType === ScaleType.Ordinal) {
-      scale = scalePoint().padding(0.1);
-    }
-
-    scale.range([0, width]).domain(domain);
-
-    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
-  }
-
-  getYScale(domain: [number, number], height: number): any {
-    const scale = scaleLinear().range([height, 0]).domain(domain);
-    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
-  }
-
-  getScaleType(values): ScaleType {
-    let date = true;
-    let num = true;
-    for (const value of values) {
-      if (isDate(value)) {
-        date = false;
-      }
-      if (isNumber(value)) {
-        num = false;
-      }
-    }
-
-    if (date) {
-      return ScaleType.Time;
-    }
-
-    if (num) {
-      return ScaleType.Linear;
-    }
-
-    return ScaleType.Ordinal;
-  }
 
   updateDomain(domain): void {
     this.filteredDomain = domain;
     this.xDomain = this.filteredDomain;
-    this.xScale = this.getXScale(this.xDomain, this.dims.width);
+    this.xScale = getAreaChartXScale(this.xDomain as any[], this.dims.width, this.scaleType, this.config?.roundDomains);
   }
 
   updateHoveredVertical(item): void {

@@ -18,6 +18,7 @@ import { getScaleType } from '../common/domain.helper';
 import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { calculateInnerPadding } from '../utils/calculate-padding';
 import { getHeatMapDomains, getHeatMapRects, RectItem } from './heat-map.utils';
+import { calculateActiveEntries, calculateDeactivatedEntries } from './heat-map-interaction.utils';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 
@@ -229,42 +230,14 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   onActivate(event, group, fromLegend: boolean = false) {
-    const item = Object.assign({}, event);
-    if (group) {
-      item.series = group.name;
-    }
-
-    const items = this.results
-      .map(g => g.series)
-      .flat()
-      .filter(i => {
-        if (fromLegend) {
-          return i.label === item.name;
-        } else {
-          return i.name === item.name && i.series === item.series;
-        }
-      });
-
-    this.config.activeEntries = [...items];
+    const { activeEntries, item } = calculateActiveEntries(event, group, this.results, this.config.activeEntries, fromLegend);
+    this.config.activeEntries = activeEntries;
     this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group, fromLegend: boolean = false) {
-    const item = Object.assign({}, event);
-    if (group) {
-      item.series = group.name;
-    }
-
-    this.config.activeEntries = (this.config.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
-      i => {
-        if (fromLegend) {
-          return i.label !== item.name;
-        } else {
-          return !(i.name === item.name && i.series === item.series);
-        }
-      }
-    );
-
+    const { activeEntries, item } = calculateDeactivatedEntries(event, group, this.config.activeEntries, fromLegend);
+    this.config.activeEntries = activeEntries;
     this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }
