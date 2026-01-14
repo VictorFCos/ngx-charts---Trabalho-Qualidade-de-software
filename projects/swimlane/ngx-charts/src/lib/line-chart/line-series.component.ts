@@ -1,76 +1,16 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
-import { ColorHelper } from '../common/color.helper';
-import { Series } from '../models/chart-data.model';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
-import { ScaleType } from '../common/types/scale-type.enum';
 import { Gradient } from '../common/types/gradient.interface';
-import { updateLineSeries } from './line-series.helper';
+import { updateLineSeries, LineSeriesConfig, areActiveEntriesEqual, isActive, isInactive } from './line-series.helper';
 
 @Component({
   selector: 'g[ngx-charts-line-series]',
-  template: `
-    <svg:g>
-      <defs>
-        <svg:g
-          ngx-charts-svg-linear-gradient
-          *ngIf="hasGradient"
-          [orientation]="barOrientation.Vertical"
-          [name]="gradientId"
-          [stops]="gradientStops"
-        />
-      </defs>
-      <svg:g
-        ngx-charts-area
-        class="line-highlight"
-        [data]="data"
-        [path]="areaPath"
-        [fill]="hasGradient ? gradientUrl : colors.getColor(data.name)"
-        [opacity]="0.25"
-        [startOpacity]="0"
-        [gradient]="true"
-        [stops]="areaGradientStops"
-        [class.active]="isActive(data)"
-        [class.inactive]="isInactive(data)"
-        [animations]="animations"
-      />
-      <svg:g
-        ngx-charts-line
-        class="line-series"
-        [data]="data"
-        [path]="path"
-        [stroke]="stroke"
-        [animations]="animations"
-        [class.active]="isActive(data)"
-        [class.inactive]="isInactive(data)"
-      />
-      <svg:g
-        ngx-charts-area
-        *ngIf="hasRange"
-        class="line-series-range"
-        [data]="data"
-        [path]="outerPath"
-        [fill]="hasGradient ? gradientUrl : colors.getColor(data.name)"
-        [class.active]="isActive(data)"
-        [class.inactive]="isInactive(data)"
-        [opacity]="rangeFillOpacity"
-        [animations]="animations"
-      />
-    </svg:g>
-  `,
+  templateUrl: './line-series.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
 export class LineSeriesComponent implements OnChanges {
-  @Input() data: Series;
-  @Input() xScale;
-  @Input() yScale;
-  @Input() colors: ColorHelper;
-  @Input() scaleType: ScaleType;
-  @Input() curve: any;
-  @Input() activeEntries: any[];
-  @Input() rangeFillOpacity: number;
-  @Input() hasRange: boolean;
-  @Input() animations: boolean = true;
+  @Input() config: LineSeriesConfig;
 
   path: string;
   outerPath: string;
@@ -83,19 +23,33 @@ export class LineSeriesComponent implements OnChanges {
   stroke: string;
   barOrientation = BarOrientation;
 
+  // Getters for template compatibility
+  get data() { return this.config.data; }
+  get colors() { return this.config.colors; }
+  get rangeFillOpacity() { return this.config.rangeFillOpacity; }
+  get hasRange() { return this.config.hasRange; }
+  get animations() { return this.config.animations; }
+
   ngOnChanges(changes: SimpleChanges): void {
     let shouldUpdate = false;
 
-    for (const propName in changes) {
-      if (propName === 'activeEntries') {
-        const current = changes[propName].currentValue;
-        const previous = changes[propName].previousValue;
-        if (!this.areActiveEntriesEqual(previous, current)) {
-          shouldUpdate = true;
-        }
-      } else {
+    if (changes.config) {
+        // Simplified change detection for config object
+        // ideally compare content or rely on immutable updates
         shouldUpdate = true;
-      }
+    }
+
+    // Fallback logic for activeEntries check inside config if needed, 
+    // but simpler to just update on config change.
+    
+    if (changes.config && changes.config.currentValue && changes.config.previousValue) {
+        const current = changes.config.currentValue.activeEntries;
+        const previous = changes.config.previousValue.activeEntries;
+        if (areActiveEntriesEqual(previous, current)) {
+            // If only active entries changed and they are equal (deep check), maybe skip update?
+            // But checking equality of other props is hard without individual inputs.
+            // For now, update on any config change is safer.
+        }
     }
 
     if (shouldUpdate) {
@@ -103,20 +57,15 @@ export class LineSeriesComponent implements OnChanges {
     }
   }
 
-  areActiveEntriesEqual(prev: any[], curr: any[]): boolean {
-    if (prev === curr) return true;
-    if (!prev || !curr) return false;
-    if (prev.length !== curr.length) return false;
-    if (prev.length === 0 && curr.length === 0) return true;
-    return prev.every((v, i) => v === curr[i]);
-  }
   update(): void {
     updateLineSeries(this);
   }
+
   isActive(entry): boolean {
-    return this.activeEntries ? this.activeEntries.some(d => entry.name === d.name) : false;
+    return isActive(this.config.activeEntries, entry);
   }
+
   isInactive(entry): boolean {
-    return this.activeEntries?.length > 0 ? !this.activeEntries.some(d => entry.name === d.name) : false;
+    return isInactive(this.config.activeEntries, entry);
   }
 }

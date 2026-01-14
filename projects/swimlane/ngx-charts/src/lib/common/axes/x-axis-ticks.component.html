@@ -24,19 +24,19 @@
 </svg:g>
 
 <svg:g *ngFor="let tick of ticks" [attr.transform]="tickTransform(tick)">
-    <svg:g *ngIf="showGridLines" [attr.transform]="gridLineTransform()">
-        <svg:line class="gridline-path gridline-path-vertical" [attr.y1]="-gridLineHeight" y2="0" />
+    <svg:g *ngIf="config.showGridLines" [attr.transform]="gridLineTransform()">
+        <svg:line class="gridline-path gridline-path-vertical" [attr.y1]="-config.gridLineHeight" y2="0" />
     </svg:g>
 </svg:g>
 
-<svg:path *ngIf="referenceLineLength > 1 && refMax && refMin && showRefLines" class="reference-area"
+<svg:path *ngIf="referenceLineLength > 1 && refMax && refMin && config.showRefLines" class="reference-area"
     [attr.d]="referenceAreaPath" [attr.transform]="gridLineTransform()" />
 
-<svg:g *ngFor="let refLine of referenceLines" class="ref-line">
-    <svg:g *ngIf="showRefLines" [attr.transform]="transform(refLine.value)">
-        <svg:line class="refline-path gridline-path-vertical" y1="25" [attr.y2]="25 + gridLineHeight"
+<svg:g *ngFor="let refLine of config.referenceLines" class="ref-line">
+    <svg:g *ngIf="config.showRefLines" [attr.transform]="transform(refLine.value)">
+        <svg:line class="refline-path gridline-path-vertical" y1="25" [attr.y2]="25 + config.gridLineHeight"
             [attr.transform]="gridLineTransform()" />
-        <svg:g *ngIf="showRefLabels">
+        <svg:g *ngIf="config.showRefLabels">
             <title>{{ tickTrim(tickFormat(refLine.value)) }}</title>
             <svg:text class="refline-label" transform="rotate(-270) translate(5, -5)">
                 {{ refLine.name }}

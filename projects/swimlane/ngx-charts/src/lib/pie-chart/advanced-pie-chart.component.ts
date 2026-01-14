@@ -44,14 +44,17 @@ import { ScaleType } from '../common/types/scale-type.enum';
       </div>
       <div class="advanced-pie-legend-wrapper" [style.width.px]="width - dims.width" [style.height.px]="height">
         <ngx-charts-advanced-legend
-          [data]="results"
-          [colors]="colors"
-          [width]="width - dims.width - margin[1]"
-          [label]="label"
-          [animations]="animations"
-          [valueFormatting]="valueFormatting"
-          [labelFormatting]="nameFormatting"
-          [percentageFormatting]="percentageFormatting"
+          [config]="{
+            data: results,
+            colors: colors,
+            width: width - dims.width - margin[1],
+            label: label,
+            animations: animations,
+            valueFormatting: valueFormatting,
+            labelFormatting: nameFormatting,
+            percentageFormatting: percentageFormatting,
+            roundPercentages: true
+          }"
           (select)="onClick($event)"
           (activate)="onActivate($event, true)"
           (deactivate)="onDeactivate($event, true)"

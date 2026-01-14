@@ -14,15 +14,12 @@ import {
   PLATFORM_ID
 } from '@angular/core';
 import { trimLabel } from '../trim-label.helper';
-import { Orientation } from '../types/orientation.enum';
 import { TextAnchor } from '../types/text-anchor.enum';
 import {
-  getXAxisRotationAngle,
-  getXAxisTicks,
-  getXAxisTickChunks,
-  setXAxisReferenceLines,
   getXAxisHeight,
-  updateXAxisTicks
+  updateXAxisTicks,
+  XAxisTicksConfig,
+  getXAxisTickChunks
 } from './x-axis.helper';
 
 @Component({
@@ -32,22 +29,7 @@ import {
   standalone: false
 })
 export class XAxisTicksComponent implements OnChanges, AfterViewInit {
-  @Input() scale;
-  @Input() orient: Orientation;
-  @Input() tickArguments: number[] = [5];
-  @Input() tickValues: unknown[];
-  @Input() tickStroke: string = '#ccc';
-  @Input() trimTicks: boolean = true;
-  @Input() maxTickLength: number = 16;
-  @Input() tickFormatting: unknown;
-  @Input() showGridLines = false;
-  @Input() gridLineHeight: number;
-  @Input() width: number;
-  @Input() rotateTicks: boolean = true;
-  @Input() wrapTicks = false;
-  @Input() referenceLines: unknown[];
-  @Input() showRefLabels: boolean = false;
-  @Input() showRefLines: boolean = false;
+  @Input() config: XAxisTicksConfig;
   @Output() dimensionsChanged = new EventEmitter();
 
   verticalSpacing: number = 20;
@@ -78,13 +60,15 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
   @ViewChild('ticksel') ticksElement: ElementRef;
 
   get isWrapTicksSupported() {
-    return this.wrapTicks && this.scale.step;
+    return this.config.wrapTicks && this.config.scale.step;
   }
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.update();
+    if (changes.config) {
+      this.update();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -116,15 +100,15 @@ export class XAxisTicksComponent implements OnChanges, AfterViewInit {
     return `translate(0, ${- this.verticalSpacing - 5})`;
   }
   tickTrim(label: string): string {
-    return this.trimTicks ? trimLabel(label, this.maxTickLength) : label;
+    return this.config.trimTicks ? trimLabel(label, this.config.maxTickLength) : label;
   }
   tickChunks(label: string): string[] {
     return getXAxisTickChunks(
       label,
-      this.maxTickLength,
-      this.scale.bandwidth ? this.scale.bandwidth() : 0,
-      this.rotateTicks,
-      this.scale.step ? this.scale.step() : 0,
+      this.config.maxTickLength,
+      this.config.scale.bandwidth ? this.config.scale.bandwidth() : 0,
+      this.config.rotateTicks,
+      this.config.scale.step ? this.config.scale.step() : 0,
       this.tickTrim.bind(this),
       this.maxPossibleLengthForTickIfWrapped,
       isPlatformBrowser(this.platformId),

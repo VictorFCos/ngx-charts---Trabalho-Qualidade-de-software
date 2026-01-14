@@ -29,16 +29,22 @@ export interface PieArc {
         ngx-charts-pie-arc
         *ngFor="let arc of arcs; trackBy: trackBy"
         [attr.class]="arc.class"
-        [startAngle]="arc.startAngle"
-        [endAngle]="arc.endAngle"
-        [innerRadius]="innerRadius"
-        [outerRadius]="outerRadius"
-        [fill]="color(arc)"
-        [value]="arc.data.value"
-        [data]="arc.data"
-        [gradient]="false"
-        [pointerEvents]="arc.pointerEvents"
-        [animate]="arc.animate"
+        [config]="{
+          startAngle: arc.startAngle,
+          endAngle: arc.endAngle,
+          innerRadius: innerRadius,
+          outerRadius: outerRadius,
+          fill: color(arc),
+          value: arc.data.value,
+          data: arc.data,
+          gradient: false,
+          pointerEvents: arc.pointerEvents,
+          animate: arc.animate,
+          max: undefined,
+          explodeSlices: undefined,
+          isActive: undefined,
+          cornerRadius: undefined
+        }"
         (select)="onClick($event)"
         (activate)="activate.emit($event)"
         (deactivate)="deactivate.emit($event)"

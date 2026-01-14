@@ -21,13 +21,18 @@ import {
           <svg:g *ngFor="let series of results; trackBy: trackBy">
             <svg:g
               ngx-charts-line-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [scaleType]="scaleType"
-              [curve]="curve"
-              [animations]="animations"
+              [config]="{
+                xScale: xScale,
+                yScale: yScale,
+                colors: colors,
+                data: series,
+                scaleType: scaleType,
+                curve: curve,
+                animations: animations,
+                activeEntries: null,
+                rangeFillOpacity: null,
+                hasRange: false
+              }"
             />
           </svg:g>
         </svg:g>

@@ -18,26 +18,41 @@ export interface ArcItem {
     <svg:g
       ngx-charts-pie-arc
       class="background-arc"
-      [startAngle]="0"
-      [endAngle]="backgroundArc.endAngle"
-      [innerRadius]="backgroundArc.innerRadius"
-      [outerRadius]="backgroundArc.outerRadius"
-      [cornerRadius]="cornerRadius"
-      [data]="backgroundArc.data"
-      [animate]="false"
-      [pointerEvents]="false"
+      [config]="{
+        startAngle: 0,
+        endAngle: backgroundArc.endAngle,
+        innerRadius: backgroundArc.innerRadius,
+        outerRadius: backgroundArc.outerRadius,
+        cornerRadius: cornerRadius,
+        data: backgroundArc.data,
+        animate: false,
+        pointerEvents: false,
+        fill: null,
+        value: null,
+        max: null,
+        explodeSlices: null,
+        gradient: null,
+        isActive: null
+      }"
     ></svg:g>
     <svg:g
       ngx-charts-pie-arc
-      [startAngle]="0"
-      [endAngle]="valueArc.endAngle"
-      [innerRadius]="valueArc.innerRadius"
-      [outerRadius]="valueArc.outerRadius"
-      [cornerRadius]="cornerRadius"
-      [fill]="colors.getColor(valueArc.data.name)"
-      [data]="valueArc.data"
-      [animate]="animations"
-      [isActive]="isActive"
+      [config]="{
+        startAngle: 0,
+        endAngle: valueArc.endAngle,
+        innerRadius: valueArc.innerRadius,
+        outerRadius: valueArc.outerRadius,
+        cornerRadius: cornerRadius,
+        fill: colors.getColor(valueArc.data.name),
+        data: valueArc.data,
+        animate: animations,
+        isActive: isActive,
+        value: null,
+        max: null,
+        explodeSlices: null,
+        gradient: null,
+        pointerEvents: null
+      }"
       (select)="select.emit($event)"
       (activate)="activate.emit($event)"
       (deactivate)="deactivate.emit($event)"

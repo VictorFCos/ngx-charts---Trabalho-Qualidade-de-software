@@ -51,15 +51,17 @@ describe('<ngx-charts-advanced-legend>', () => {
       set: {
         template: `
                 <ngx-charts-advanced-legend
-                  [label]="legendLabel"
-                  [colors]="colors"
-                  [data]="data"
-                  [width]="legendWidth"
-                  [animations]="false"
-                  [roundPercentages]="false"
-                  [valueFormatting]="valueFormatting"
-                  [labelFormatting]="labelFormatting"
-                  [percentageFormatting]="percentageFormatting">
+                  [config]="{
+                    label: legendLabel,
+                    colors: colors,
+                    data: data,
+                    width: legendWidth,
+                    animations: false,
+                    roundPercentages: false,
+                    valueFormatting: valueFormatting,
+                    labelFormatting: labelFormatting,
+                    percentageFormatting: percentageFormatting
+                  }">
                 </ngx-charts-advanced-legend>
             `
       }
@@ -150,15 +152,17 @@ describe('<ngx-charts-advanced-legend>', () => {
       set: {
         template: `
           <ngx-charts-advanced-legend
-            [label]="legendLabel"
-            [colors]="colors"
-            [data]="data"
-            [width]="legendWidth"
-            [animations]="false"
-            [roundPercentages]="true"
-            [valueFormatting]="valueFormatting"
-            [labelFormatting]="labelFormatting"
-            [percentageFormatting]="percentageFormatting">
+            [config]="{
+              label: legendLabel,
+              colors: colors,
+              data: data,
+              width: legendWidth,
+              animations: false,
+              roundPercentages: true,
+              valueFormatting: valueFormatting,
+              labelFormatting: labelFormatting,
+              percentageFormatting: percentageFormatting
+            }">
           </ngx-charts-advanced-legend>
         `
       }
@@ -191,15 +195,17 @@ describe('<ngx-charts-advanced-legend>', () => {
       set: {
         template: `
           <ngx-charts-advanced-legend
-            [label]="legendLabel"
-            [colors]="colors"
-            [data]="data"
-            [width]="legendWidth"
-            [animations]="false"
-            [roundPercentages]="true"
-            [valueFormatting]="valueFormatting"
-            [labelFormatting]="labelFormatting"
-            [percentageFormatting]="percentageFormatting">
+            [config]="{
+              label: legendLabel,
+              colors: colors,
+              data: data,
+              width: legendWidth,
+              animations: false,
+              roundPercentages: true,
+              valueFormatting: valueFormatting,
+              labelFormatting: labelFormatting,
+              percentageFormatting: percentageFormatting
+            }">
           </ngx-charts-advanced-legend>
         `
       }
@@ -229,15 +235,17 @@ describe('<ngx-charts-advanced-legend>', () => {
       set: {
         template: `
           <ngx-charts-advanced-legend
-            [label]="legendLabel"
-            [colors]="colors"
-            [data]="data"
-            [width]="legendWidth"
-            [animations]="false"
-            [roundPercentages]="true"
-            [valueFormatting]="valueFormatting"
-            [labelFormatting]="labelFormatting"
-            [percentageFormatting]="percentageFormatting">
+            [config]="{
+              label: legendLabel,
+              colors: colors,
+              data: data,
+              width: legendWidth,
+              animations: false,
+              roundPercentages: true,
+              valueFormatting: valueFormatting,
+              labelFormatting: labelFormatting,
+              percentageFormatting: percentageFormatting
+            }">
           </ngx-charts-advanced-legend>
         `
       }
@@ -270,15 +278,17 @@ describe('<ngx-charts-advanced-legend>', () => {
       set: {
         template: `
           <ngx-charts-advanced-legend
-            [label]="legendLabel"
-            [colors]="colors"
-            [data]="data"
-            [width]="legendWidth"
-            [animations]="false"
-            [roundPercentages]="true"
-            [valueFormatting]="valueFormatting"
-            [labelFormatting]="labelFormatting"
-            [percentageFormatting]="percentageFormatting">
+            [config]="{
+              label: legendLabel,
+              colors: colors,
+              data: data,
+              width: legendWidth,
+              animations: false,
+              roundPercentages: true,
+              valueFormatting: valueFormatting,
+              labelFormatting: labelFormatting,
+              percentageFormatting: percentageFormatting
+            }">
           </ngx-charts-advanced-legend>
         `
       }
