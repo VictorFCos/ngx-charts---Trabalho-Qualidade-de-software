@@ -23,9 +23,117 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { BarOrientation } from '../common/types/bar-orientation.enum';
 import { isPlatformServer } from '@angular/common';
 
+import { BarVertical2DOptions } from './bar-vertical-2d.options';
+
 @Component({
   selector: 'ngx-charts-bar-vertical-2d',
-  templateUrl: './bar-vertical-2d.component.html',
+  template: `
+    <ngx-charts-chart
+      [view]="[width, height]"
+      [showLegend]="config.legend ?? false"
+      [legendOptions]="legendOptions"
+      [activeEntries]="config.activeEntries ?? []"
+      [animations]="animations"
+      (legendLabelActivate)="onActivate($event, undefined, true)"
+      (legendLabelDeactivate)="onDeactivate($event, undefined, true)"
+      (legendLabelClick)="onClick($event)"
+    >
+      <svg:g [attr.transform]="transform" class="bar-chart chart">
+        <svg:g
+          ngx-charts-grid-panel-series
+          [xScale]="groupScale"
+          [yScale]="valueScale"
+          [data]="results"
+          [dims]="dims"
+          [orient]="barOrientation.Vertical"
+        ></svg:g>
+        <svg:g
+          ngx-charts-x-axis
+          *ngIf="config.xAxis"
+          [xScale]="groupScale"
+          [dims]="dims"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [xAxisOffset]="dataLabelMaxHeight.negative"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateXAxisHeight($event)"
+        ></svg:g>
+        <svg:g
+          ngx-charts-y-axis
+          *ngIf="config.yAxis"
+          [yScale]="valueScale"
+          [dims]="dims"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateYAxisWidth($event)"
+        ></svg:g>
+        <svg:g *ngIf="!isSSR">
+          <svg:g
+            ngx-charts-series-vertical
+            *ngFor="let group of results; let index = index; trackBy: trackBy"
+            [@animationState]="'active'"
+            [attr.transform]="groupTransform(group)"
+            [activeEntries]="config.activeEntries ?? []"
+            [xScale]="innerScale"
+            [yScale]="valueScale"
+            [colors]="colors"
+            [series]="group.series"
+            [dims]="dims"
+            [gradient]="config.gradient"
+            [tooltipDisabled]="config.tooltipDisabled ?? false"
+            [tooltipTemplate]="tooltipTemplate"
+            [showDataLabel]="config.showDataLabel ?? false"
+            [dataLabelFormatting]="config.dataLabelFormatting"
+            [seriesName]="group.name"
+            [roundEdges]="config.roundEdges ?? true"
+            [animations]="animations"
+            [noBarWhenZero]="config.noBarWhenZero ?? true"
+            (select)="onClick($event, group)"
+            (activate)="onActivate($event, group)"
+            (deactivate)="onDeactivate($event, group)"
+            (dataLabelHeightChanged)="onDataLabelMaxHeightChanged($event, index)"
+          ></svg:g>
+        </svg:g>
+        <svg:g *ngIf="isSSR">
+          <svg:g
+            ngx-charts-series-vertical
+            *ngFor="let group of results; let index = index; trackBy: trackBy"
+            [attr.transform]="groupTransform(group)"
+            [activeEntries]="config.activeEntries ?? []"
+            [xScale]="innerScale"
+            [yScale]="valueScale"
+            [colors]="colors"
+            [series]="group.series"
+            [dims]="dims"
+            [gradient]="config.gradient"
+            [tooltipDisabled]="config.tooltipDisabled ?? false"
+            [tooltipTemplate]="tooltipTemplate"
+            [showDataLabel]="config.showDataLabel ?? false"
+            [dataLabelFormatting]="config.dataLabelFormatting"
+            [seriesName]="group.name"
+            [roundEdges]="config.roundEdges ?? true"
+            [animations]="animations"
+            [noBarWhenZero]="config.noBarWhenZero ?? true"
+            (select)="onClick($event, group)"
+            (activate)="onActivate($event, group)"
+            (deactivate)="onDeactivate($event, group)"
+            (dataLabelHeightChanged)="onDataLabelMaxHeightChanged($event, index)"
+          ></svg:g>
+        </svg:g>
+      </svg:g>
+    </ngx-charts-chart>
+  `,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,39 +151,7 @@ import { isPlatformServer } from '@angular/common';
   standalone: false
 })
 export class BarVertical2DComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() scaleType: ScaleType = ScaleType.Ordinal;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: unknown[] = [];
-  @Input() schemeType: ScaleType = ScaleType.Ordinal;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: any;
-  @Input() yAxisTickFormatting: any;
-  @Input() xAxisTicks: any[];
-  @Input() yAxisTicks: any[];
-  @Input() groupPadding: number = 16;
-  @Input() barPadding: number = 8;
-  @Input() roundDomains: boolean = false;
-  @Input() roundEdges: boolean = true;
-  @Input() yScaleMax: number;
-  @Input() showDataLabel: boolean = false;
-  @Input() dataLabelFormatting: any;
-  @Input() noBarWhenZero: boolean = true;
-  @Input() wrapTicks = false;
+  @Input() config: BarVertical2DOptions = {};
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
@@ -109,7 +185,7 @@ export class BarVertical2DComponent extends BaseChartComponent {
   update(): void {
     super.update();
 
-    if (!this.showDataLabel) {
+    if (!(this.config.showDataLabel ?? false)) {
       this.dataLabelMaxHeight = { negative: 0, positive: 0 };
     }
     this.margin = [10 + this.dataLabelMaxHeight.positive, 20, 10 + this.dataLabelMaxHeight.negative, 20];
@@ -118,18 +194,18 @@ export class BarVertical2DComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config.xAxis,
+      showYAxis: this.config.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
-      legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      showXLabel: this.config.showXAxisLabel,
+      showYLabel: this.config.showYAxisLabel,
+      showLegend: this.config.legend ?? false,
+      legendType: this.config.schemeType ?? ScaleType.Ordinal,
+      legendPosition: this.config.legendPosition ?? LegendPosition.Right
     });
 
-    if (this.showDataLabel) {
+    if (this.config.showDataLabel ?? false) {
       this.dims.height -= this.dataLabelMaxHeight.negative;
     }
 
@@ -161,7 +237,7 @@ export class BarVertical2DComponent extends BaseChartComponent {
   }
 
   getGroupScale(): any {
-    const spacing = this.groupDomain.length / (this.dims.height / this.groupPadding + 1);
+    const spacing = this.groupDomain.length / (this.dims.height / (this.config.groupPadding ?? 16) + 1);
 
     return scaleBand()
       .rangeRound([0, this.dims.width])
@@ -172,13 +248,13 @@ export class BarVertical2DComponent extends BaseChartComponent {
 
   getInnerScale(): any {
     const width = this.groupScale.bandwidth();
-    const spacing = this.innerDomain.length / (width / this.barPadding + 1);
+    const spacing = this.innerDomain.length / (width / (this.config.barPadding ?? 8) + 1);
     return scaleBand().rangeRound([0, width]).paddingInner(spacing).domain(this.innerDomain);
   }
 
   getValueScale(): any {
     const scale = scaleLinear().range([this.dims.height, 0]).domain(this.valueDomain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   getGroupDomain(): string[] {
@@ -216,7 +292,7 @@ export class BarVertical2DComponent extends BaseChartComponent {
     }
 
     const min = Math.min(0, ...domain);
-    const max = this.yScaleMax ? Math.max(this.yScaleMax, ...domain) : Math.max(0, ...domain);
+    const max = this.config.yScaleMax ? Math.max(this.config.yScaleMax, ...domain) : Math.max(0, ...domain);
 
     return [min, max];
   }
@@ -239,27 +315,27 @@ export class BarVertical2DComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    if (this.schemeType === ScaleType.Ordinal) {
+    if ((this.config.schemeType ?? ScaleType.Ordinal) === ScaleType.Ordinal) {
       domain = this.innerDomain;
     } else {
       domain = this.valueDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.config.schemeType ?? ScaleType.Ordinal, domain, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: (this.config.schemeType ?? ScaleType.Ordinal) as any,
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.valueDomain;
       opts.colors = this.colors.scale;
@@ -295,8 +371,8 @@ export class BarVertical2DComponent extends BaseChartComponent {
         }
       });
 
-    this.activeEntries = [...items];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [...items];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group: DataItem, fromLegend: boolean = false): void {
@@ -305,7 +381,7 @@ export class BarVertical2DComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+    this.config.activeEntries = (this.config.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
       i => {
         if (fromLegend) {
           return i.label !== item.name;
@@ -315,6 +391,6 @@ export class BarVertical2DComponent extends BaseChartComponent {
       }
     );
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }

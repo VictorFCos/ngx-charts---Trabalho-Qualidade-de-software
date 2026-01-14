@@ -26,44 +26,7 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { select } from 'd3-selection';
 
-export interface AreaChartOptions {
-  legend: boolean;
-  legendTitle: string;
-  legendPosition: LegendPosition;
-  xAxis: boolean;
-  yAxis: boolean;
-  baseValue: unknown;
-  autoScale: boolean;
-  showXAxisLabel: boolean;
-  showYAxisLabel: boolean;
-  xAxisLabel: string;
-  yAxisLabel: string;
-  timeline: boolean;
-  gradient: boolean;
-  showGridLines: boolean;
-  curve: CurveFactory;
-  activeEntries: unknown[];
-  schemeType: ScaleType;
-  trimXAxisTicks: boolean;
-  trimYAxisTicks: boolean;
-  rotateXAxisTicks: boolean;
-  maxXAxisTickLength: number;
-  maxYAxisTickLength: number;
-  xAxisTickFormatting: (o: unknown) => string;
-  yAxisTickFormatting: (o: unknown) => string;
-  xAxisTicks: unknown[];
-  yAxisTicks: unknown[];
-  roundDomains: boolean;
-  tooltipDisabled: boolean;
-  referenceLines: unknown[];
-  showRefLines: boolean;
-  showRefLabels: boolean;
-  xScaleMin: unknown;
-  xScaleMax: unknown;
-  yScaleMin: number;
-  yScaleMax: number;
-  wrapTicks: boolean;
-}
+import { AreaChartOptions } from './area-chart.options';
 
 @Component({
   selector: 'ngx-charts-area-chart',
@@ -110,114 +73,7 @@ export class AreaChartComponent extends BaseChartComponent {
   timelineTransform: string;
   timelinePadding: number = 10;
 
-  get legend() {
-    return this.config?.legend ?? false;
-  }
-  get legendTitle() {
-    return this.config?.legendTitle ?? 'Legend';
-  }
-  get legendPosition() {
-    return this.config?.legendPosition ?? LegendPosition.Right;
-  }
-  get xAxis() {
-    return this.config?.xAxis ?? false;
-  }
-  get yAxis() {
-    return this.config?.yAxis ?? false;
-  }
-  get baseValue() {
-    return this.config?.baseValue ?? 'auto';
-  }
-  get autoScale() {
-    return this.config?.autoScale ?? false;
-  }
-  get showXAxisLabel() {
-    return this.config?.showXAxisLabel;
-  }
-  get showYAxisLabel() {
-    return this.config?.showYAxisLabel;
-  }
-  get xAxisLabel() {
-    return this.config?.xAxisLabel;
-  }
-  get yAxisLabel() {
-    return this.config?.yAxisLabel;
-  }
-  get timeline() {
-    return this.config?.timeline ?? false;
-  }
-  get gradient() {
-    return this.config?.gradient;
-  }
-  get showGridLines() {
-    return this.config?.showGridLines ?? true;
-  }
-  get curve() {
-    return this.config?.curve ?? curveLinear;
-  }
-  get activeEntries() {
-    return this.config?.activeEntries ?? [];
-  }
-  set activeEntries(value: unknown[]) {
-    if (this.config) this.config.activeEntries = value;
-  }
-  get trimXAxisTicks() {
-    return this.config?.trimXAxisTicks ?? true;
-  }
-  get trimYAxisTicks() {
-    return this.config?.trimYAxisTicks ?? true;
-  }
-  get rotateXAxisTicks() {
-    return this.config?.rotateXAxisTicks ?? true;
-  }
-  get maxXAxisTickLength() {
-    return this.config?.maxXAxisTickLength ?? 16;
-  }
-  get maxYAxisTickLength() {
-    return this.config?.maxYAxisTickLength ?? 16;
-  }
-  get xAxisTickFormatting() {
-    return this.config?.xAxisTickFormatting;
-  }
-  get yAxisTickFormatting() {
-    return this.config?.yAxisTickFormatting;
-  }
-  get xAxisTicks() {
-    return this.config?.xAxisTicks;
-  }
-  get yAxisTicks() {
-    return this.config?.yAxisTicks;
-  }
-  get roundDomains() {
-    return this.config?.roundDomains ?? false;
-  }
-  get tooltipDisabled() {
-    return this.config?.tooltipDisabled ?? false;
-  }
-  get referenceLines() {
-    return this.config?.referenceLines;
-  }
-  get showRefLines() {
-    return this.config?.showRefLines ?? false;
-  }
-  get showRefLabels() {
-    return this.config?.showRefLabels ?? false;
-  }
-  get xScaleMin() {
-    return this.config?.xScaleMin;
-  }
-  get xScaleMax() {
-    return this.config?.xScaleMax;
-  }
-  get yScaleMin() {
-    return this.config?.yScaleMin;
-  }
-  get yScaleMax() {
-    return this.config?.yScaleMax;
-  }
-  get wrapTicks() {
-    return this.config?.wrapTicks ?? false;
-  }
+
 
   ngOnChanges(changes: SimpleChanges): void {
     let shouldUpdate = false;
@@ -249,18 +105,18 @@ export class AreaChartComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config?.xAxis ?? false,
+      showYAxis: this.config?.yAxis ?? false,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
+      showXLabel: this.config?.showXAxisLabel,
+      showYLabel: this.config?.showYAxisLabel,
+      showLegend: this.config?.legend ?? false,
       legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      legendPosition: this.config?.legendPosition ?? LegendPosition.Right
     });
 
-    if (this.timeline) {
+    if (this.config?.timeline) {
       this.dims.height -= this.timelineHeight + this.margin[2] + this.timelinePadding;
     }
 
@@ -291,7 +147,7 @@ export class AreaChartComponent extends BaseChartComponent {
   }
 
   updateTimeline(): void {
-    if (this.timeline) {
+    if (this.config?.timeline) {
       this.timelineWidth = this.dims.width;
       this.timelineXDomain = this.getXDomain();
       this.timelineXScale = this.getXScale(this.timelineXDomain, this.timelineWidth);
@@ -313,9 +169,9 @@ export class AreaChartComponent extends BaseChartComponent {
     let min;
     let max;
     if (this.scaleType === ScaleType.Time || this.scaleType === ScaleType.Linear) {
-      min = this.xScaleMin ? this.xScaleMin : Math.min(...values);
+      min = this.config?.xScaleMin ? this.config?.xScaleMin : Math.min(...values);
 
-      max = this.xScaleMax ? this.xScaleMax : Math.max(...values);
+      max = this.config?.xScaleMax ? this.config?.xScaleMax : Math.max(...values);
     }
 
     if (this.scaleType === ScaleType.Time) {
@@ -351,16 +207,17 @@ export class AreaChartComponent extends BaseChartComponent {
     }
 
     const values = [...domain];
-    if (!this.autoScale) {
+    if (!(this.config?.autoScale ?? false)) {
       values.push(0);
     }
-    if (this.baseValue !== 'auto') {
-      values.push(this.baseValue as number);
+    const baseValue = this.config?.baseValue ?? 'auto';
+    if (baseValue !== 'auto') {
+      values.push(baseValue as number);
     }
 
-    const min = this.yScaleMin ? this.yScaleMin : Math.min(...values);
+    const min = this.config?.yScaleMin ? this.config?.yScaleMin : Math.min(...values);
 
-    const max = this.yScaleMax ? this.yScaleMax : Math.max(...values);
+    const max = this.config?.yScaleMax ? this.config?.yScaleMax : Math.max(...values);
 
     return [min, max];
   }
@@ -382,12 +239,12 @@ export class AreaChartComponent extends BaseChartComponent {
 
     scale.range([0, width]).domain(domain);
 
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   getYScale(domain: [number, number], height: number): any {
     const scale = scaleLinear().range([height, 0]).domain(domain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   getScaleType(values): ScaleType {
@@ -459,12 +316,12 @@ export class AreaChartComponent extends BaseChartComponent {
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config?.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.seriesDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config?.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.yDomain;
       opts.colors = this.colors.scale;
@@ -483,33 +340,33 @@ export class AreaChartComponent extends BaseChartComponent {
   }
 
   onActivate(item): void {
-    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
     if (idx > -1) {
       return;
     }
 
-    this.activeEntries = [item, ...this.activeEntries];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [item, ...this.config.activeEntries];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(item): void {
-    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
 
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
+    this.config.activeEntries.splice(idx, 1);
+    this.config.activeEntries = [...this.config.activeEntries];
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   deactivateAll(): void {
-    this.activeEntries = [...this.activeEntries];
-    for (const entry of this.activeEntries) {
+    this.config.activeEntries = [...this.config.activeEntries];
+    for (const entry of this.config.activeEntries) {
       this.deactivate.emit({ value: entry, entries: [] });
     }
-    this.activeEntries = [];
+    this.config.activeEntries = [];
   }
 }

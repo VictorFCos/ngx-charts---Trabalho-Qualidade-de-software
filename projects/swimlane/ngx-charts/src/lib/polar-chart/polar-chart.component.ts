@@ -27,39 +27,130 @@ import { isPlatformServer } from '@angular/common';
 
 const twoPI = 2 * Math.PI;
 
-export interface PolarChartConfig {
-  legend: boolean;
-  legendTitle: string;
-  legendPosition: LegendPosition;
-  xAxis: boolean;
-  yAxis: boolean;
-  showXAxisLabel: boolean;
-  showYAxisLabel: boolean;
-  xAxisLabel: string;
-  yAxisLabel: string;
-  autoScale: boolean;
-  showGridLines: boolean;
-  curve: unknown;
-  activeEntries: unknown[];
-  schemeType: ScaleType;
-  rangeFillOpacity: number;
-  trimYAxisTicks: boolean;
-  maxYAxisTickLength: number;
-  xAxisTickFormatting: (o: unknown) => string;
-  yAxisTickFormatting: (o: unknown) => string;
-  roundDomains: boolean;
-  tooltipDisabled: boolean;
-  showSeriesOnHover: boolean;
-  gradient: boolean;
-  yAxisMinScale: number;
-  labelTrim: boolean;
-  labelTrimSize: number;
-  wrapTicks: boolean;
-}
+
+
+import { PolarChartOptions } from './polar-chart.options';
 
 @Component({
   selector: 'ngx-charts-polar-chart',
-  templateUrl: './polar-chart.component.html',
+  template: `
+    <ngx-charts-chart
+      [view]="[width, height]"
+      [showLegend]="config.legend ?? false"
+      [legendOptions]="legendOptions"
+      [activeEntries]="config.activeEntries ?? []"
+      [animations]="animations"
+      (legendLabelClick)="onClick($event)"
+      (legendLabelActivate)="onActivate($event)"
+      (legendLabelDeactivate)="onDeactivate($event)"
+    >
+      <svg:g class="polar-chart chart" [attr.transform]="transform">
+        <svg:g [attr.transform]="transformPlot">
+          <svg:circle
+            class="polar-chart-background"
+            cx="0"
+            cy="0"
+            [attr.r]="this.outerRadius"
+          />
+          <svg:g *ngIf="config.showGridLines ?? true">
+            <svg:circle
+              *ngFor="let r of radiusTicks"
+              class="gridline-path radial-gridline-path"
+              cx="0"
+              cy="0"
+              [attr.r]="r"
+            />
+          </svg:g>
+          <svg:g *ngIf="config.xAxis">
+            <svg:g
+              ngx-charts-pie-label
+              *ngFor="let tick of thetaTicks"
+              [data]="tick"
+              [radius]="outerRadius"
+              [label]="tick.label"
+              [max]="outerRadius"
+              [value]="(config.showGridLines ?? true) ? 1 : outerRadius"
+              [explodeSlices]="true"
+              [animations]="animations"
+              [labelTrim]="config.labelTrim ?? true"
+              [labelTrimSize]="config.labelTrimSize ?? 10"
+            ></svg:g>
+          </svg:g>
+        </svg:g>
+        <svg:g
+          ngx-charts-y-axis
+          [attr.transform]="transformYAxis"
+          *ngIf="config.yAxis"
+          [yScale]="yAxisScale"
+          [dims]="yAxisDims"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateYAxisWidth($event)"
+        ></svg:g>
+        <svg:g
+          ngx-charts-axis-label
+          *ngIf="config.xAxis && config.showXAxisLabel"
+          [label]="config.xAxisLabel"
+          [offset]="labelOffset"
+          [orient]="orientation.Bottom"
+          [height]="dims.height"
+          [width]="dims.width"
+        ></svg:g>
+        <svg:g *ngIf="!isSSR" [attr.transform]="transformPlot">
+          <svg:g
+            *ngFor="let series of results; trackBy: trackBy"
+            [@animationState]="'active'"
+          >
+            <svg:g
+              ngx-charts-polar-series
+              [gradient]="config.gradient ?? false"
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [colors]="colors"
+              [data]="series"
+              [activeEntries]="config.activeEntries ?? []"
+              [scaleType]="scaleType"
+              [curve]="config.curve ?? curve"
+              [rangeFillOpacity]="config.rangeFillOpacity ?? 0.15"
+              [animations]="animations"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
+              [tooltipTemplate]="tooltipTemplate"
+              (select)="onClick($event)"
+              (activate)="onActivate($event)"
+              (deactivate)="onDeactivate($event)"
+            />
+          </svg:g>
+        </svg:g>
+        <svg:g *ngIf="isSSR" [attr.transform]="transformPlot">
+          <svg:g *ngFor="let series of results; trackBy: trackBy">
+            <svg:g
+              ngx-charts-polar-series
+              [gradient]="config.gradient ?? false"
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [colors]="colors"
+              [data]="series"
+              [activeEntries]="config.activeEntries ?? []"
+              [scaleType]="scaleType"
+              [curve]="config.curve ?? curve"
+              [rangeFillOpacity]="config.rangeFillOpacity ?? 0.15"
+              [animations]="animations"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
+              [tooltipTemplate]="tooltipTemplate"
+              (select)="onClick($event)"
+              (activate)="onActivate($event)"
+              (deactivate)="onDeactivate($event)"
+            />
+          </svg:g>
+        </svg:g>
+      </svg:g>
+    </ngx-charts-chart>
+  `,
   styleUrls: [
     '../common/base-chart.component.scss',
     '../pie-chart/pie-chart.component.scss',
@@ -85,7 +176,7 @@ export interface PolarChartConfig {
   standalone: false
 })
 export class PolarChartComponent extends BaseChartComponent implements OnInit {
-  @Input() config: PolarChartConfig = {} as PolarChartConfig;
+  @Input() config: PolarChartOptions = {};
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
@@ -120,214 +211,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   orientation = Orientation;
 
   isSSR = false;
-
-  @Input()
-  get legend() {
-    return this.config.legend;
-  }
-  set legend(val: boolean) {
-    this.config.legend = val;
-  }
-
-  @Input()
-  get legendTitle() {
-    return this.config.legendTitle ?? 'Legend';
-  }
-  set legendTitle(val: string) {
-    this.config.legendTitle = val;
-  }
-
-  @Input()
-  get legendPosition() {
-    return this.config.legendPosition ?? LegendPosition.Right;
-  }
-  set legendPosition(val: LegendPosition) {
-    this.config.legendPosition = val;
-  }
-
-  @Input()
-  get xAxis() {
-    return this.config.xAxis;
-  }
-  set xAxis(val: boolean) {
-    this.config.xAxis = val;
-  }
-
-  @Input()
-  get yAxis() {
-    return this.config.yAxis;
-  }
-  set yAxis(val: boolean) {
-    this.config.yAxis = val;
-  }
-
-  @Input()
-  get showXAxisLabel() {
-    return this.config.showXAxisLabel;
-  }
-  set showXAxisLabel(val: boolean) {
-    this.config.showXAxisLabel = val;
-  }
-
-  @Input()
-  get showYAxisLabel() {
-    return this.config.showYAxisLabel;
-  }
-  set showYAxisLabel(val: boolean) {
-    this.config.showYAxisLabel = val;
-  }
-
-  @Input()
-  get xAxisLabel() {
-    return this.config.xAxisLabel;
-  }
-  set xAxisLabel(val: string) {
-    this.config.xAxisLabel = val;
-  }
-
-  @Input()
-  get yAxisLabel() {
-    return this.config.yAxisLabel;
-  }
-  set yAxisLabel(val: string) {
-    this.config.yAxisLabel = val;
-  }
-
-  @Input()
-  get autoScale() {
-    return this.config.autoScale;
-  }
-  set autoScale(val: boolean) {
-    this.config.autoScale = val;
-  }
-
-  @Input()
-  get showGridLines() {
-    return this.config.showGridLines ?? true;
-  }
-  set showGridLines(val: boolean) {
-    this.config.showGridLines = val;
-  }
-
-  @Input()
-  get curve() {
-    return this.config.curve ?? curveCardinalClosed;
-  }
-  set curve(val: unknown) {
-    this.config.curve = val;
-  }
-
-  @Input()
-  get activeEntries() {
-    return this.config.activeEntries ?? [];
-  }
-  set activeEntries(value: unknown[]) {
-    this.config.activeEntries = value;
-  }
-
-  @Input()
-  get rangeFillOpacity() {
-    return this.config.rangeFillOpacity ?? 0.15;
-  }
-  set rangeFillOpacity(val: number) {
-    this.config.rangeFillOpacity = val;
-  }
-
-  @Input()
-  get trimYAxisTicks() {
-    return this.config.trimYAxisTicks ?? true;
-  }
-  set trimYAxisTicks(val: boolean) {
-    this.config.trimYAxisTicks = val;
-  }
-
-  @Input()
-  get maxYAxisTickLength() {
-    return this.config.maxYAxisTickLength ?? 16;
-  }
-  set maxYAxisTickLength(val: number) {
-    this.config.maxYAxisTickLength = val;
-  }
-
-  @Input()
-  get xAxisTickFormatting() {
-    return this.config.xAxisTickFormatting;
-  }
-  set xAxisTickFormatting(val: (o: unknown) => string) {
-    this.config.xAxisTickFormatting = val;
-  }
-
-  @Input()
-  get yAxisTickFormatting() {
-    return this.config.yAxisTickFormatting;
-  }
-  set yAxisTickFormatting(val: (o: unknown) => string) {
-    this.config.yAxisTickFormatting = val;
-  }
-
-  @Input()
-  get roundDomains() {
-    return this.config.roundDomains ?? false;
-  }
-  set roundDomains(val: boolean) {
-    this.config.roundDomains = val;
-  }
-
-  @Input()
-  get tooltipDisabled() {
-    return this.config.tooltipDisabled ?? false;
-  }
-  set tooltipDisabled(val: boolean) {
-    this.config.tooltipDisabled = val;
-  }
-
-  @Input()
-  get showSeriesOnHover() {
-    return this.config.showSeriesOnHover ?? true;
-  }
-  set showSeriesOnHover(val: boolean) {
-    this.config.showSeriesOnHover = val;
-  }
-
-  @Input()
-  get gradient() {
-    return this.config.gradient ?? false;
-  }
-  set gradient(val: boolean) {
-    this.config.gradient = val;
-  }
-
-  @Input()
-  get yAxisMinScale() {
-    return this.config.yAxisMinScale ?? 0;
-  }
-  set yAxisMinScale(val: number) {
-    this.config.yAxisMinScale = val;
-  }
-
-  @Input()
-  get labelTrim() {
-    return this.config.labelTrim ?? true;
-  }
-  set labelTrim(val: boolean) {
-    this.config.labelTrim = val;
-  }
-
-  @Input()
-  get labelTrimSize() {
-    return this.config.labelTrimSize ?? 10;
-  }
-  set labelTrimSize(val: number) {
-    this.config.labelTrimSize = val;
-  }
-
-  @Input()
-  get wrapTicks() {
-    return this.config.wrapTicks ?? false;
-  }
-  set wrapTicks(val: boolean) {
-    this.config.wrapTicks = val;
-  }
+  curve: any = curveCardinalClosed; // Internal default if not overridden
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) {
@@ -375,15 +259,15 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config.xAxis,
+      showYAxis: this.config.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
+      showXLabel: this.config.showXAxisLabel,
+      showYLabel: this.config.showYAxisLabel,
+      showLegend: this.config.legend,
       legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      legendPosition: this.config.legendPosition
     });
 
     const halfWidth = Math.floor(this.dims.width / 2);
@@ -419,8 +303,8 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   setTicks() {
     let tickFormat;
-    if (this.xAxisTickFormatting) {
-      tickFormat = this.xAxisTickFormatting;
+    if (this.config.xAxisTickFormatting) {
+      tickFormat = this.config.xAxisTickFormatting;
     } else if (this.xScale.tickFormat) {
       tickFormat = this.xScale.tickFormat.apply(this.xScale, [5]);
     } else {
@@ -528,10 +412,10 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
 
   getYDomain(domain = this.getYValues()): any[] {
     let min = Math.min(...domain);
-    const max = Math.max(this.yAxisMinScale, ...domain);
+    const max = Math.max(this.config.yAxisMinScale ?? 0, ...domain);
 
     min = Math.max(0, min);
-    if (!this.autoScale) {
+    if (!this.config.autoScale) {
       min = Math.min(0, min);
     }
 
@@ -548,7 +432,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
         return scaleTime().range([0, width]).domain(domain);
       case ScaleType.Linear: {
         const scale = scaleLinear().range([0, width]).domain(domain);
-        return this.roundDomains ? scale.nice() : scale;
+        return (this.config.roundDomains ?? false) ? scale.nice() : scale;
       }
       default:
         return scalePoint()
@@ -561,7 +445,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   getYScale(domain, height: number): any {
     const scale = scaleLinear().range([0, height]).domain(domain);
 
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   onClick(data, series?): void {
@@ -583,8 +467,8 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
         scaleType: this.schemeType,
         colors: this.colors,
         domain: this.seriesDomain,
-        title: this.legendTitle,
-        position: this.legendPosition
+        title: this.config.legendTitle ?? 'Legend',
+        position: this.config.legendPosition ?? LegendPosition.Right
       };
     }
     return {
@@ -592,7 +476,7 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
       colors: this.colors.scale,
       domain: this.yDomain,
       title: undefined,
-      position: this.legendPosition
+      position: this.config.legendPosition ?? LegendPosition.Right
     };
   }
 
@@ -607,33 +491,33 @@ export class PolarChartComponent extends BaseChartComponent implements OnInit {
   }
 
   onActivate(item): void {
-    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
     if (idx > -1) {
       return;
     }
-    this.activeEntries = this.showSeriesOnHover ? [item, ...this.activeEntries] : this.activeEntries;
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = (this.config.showSeriesOnHover ?? true) ? [item, ...(this.config.activeEntries || [])] : (this.config.activeEntries || []);
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(item): void {
-    const idx = (this.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
+    const idx = (this.config.activeEntries as unknown as { name: string; value: unknown }[]).findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
 
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
+    this.config.activeEntries.splice(idx, 1);
+    this.config.activeEntries = [...this.config.activeEntries];
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   deactivateAll(): void {
-    this.activeEntries = [...this.activeEntries];
-    for (const entry of this.activeEntries) {
+    this.config.activeEntries = [...(this.config.activeEntries || [])];
+    for (const entry of this.config.activeEntries) {
       this.deactivate.emit({ value: entry, entries: [] });
     }
-    this.activeEntries = [];
+    this.config.activeEntries = [];
   }
 
   trackBy(index: number, item): string {

@@ -22,14 +22,16 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 
+import { BarVerticalNormalizedOptions } from './bar-vertical-normalized.options';
+
 @Component({
   selector: 'ngx-charts-bar-vertical-normalized',
   template: `
     <ngx-charts-chart
       [view]="[width, height]"
-      [showLegend]="legend"
+      [showLegend]="config.legend ?? false"
       [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
+      [activeEntries]="config.activeEntries ?? []"
       [animations]="animations"
       (legendLabelActivate)="onActivate($event, undefined, true)"
       (legendLabelDeactivate)="onDeactivate($event, undefined, true)"
@@ -38,32 +40,32 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
       <svg:g [attr.transform]="transform" class="bar-chart chart">
         <svg:g
           ngx-charts-x-axis
-          *ngIf="xAxis"
+          *ngIf="config.xAxis"
           [xScale]="xScale"
           [dims]="dims"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [trimTicks]="trimXAxisTicks"
-          [rotateTicks]="rotateXAxisTicks"
-          [maxTickLength]="maxXAxisTickLength"
-          [tickFormatting]="xAxisTickFormatting"
-          [ticks]="xAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateXAxisHeight($event)"
         ></svg:g>
         <svg:g
           ngx-charts-y-axis
-          *ngIf="yAxis"
+          *ngIf="config.yAxis"
           [yScale]="yScale"
           [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [trimTicks]="trimYAxisTicks"
-          [maxTickLength]="maxYAxisTickLength"
-          [tickFormatting]="yAxisTickFormatting"
-          [ticks]="yAxisTicks"
-          [wrapTicks]="wrapTicks"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
           (dimensionsChanged)="updateYAxisWidth($event)"
         ></svg:g>
         <svg:g *ngIf="!isSSR">
@@ -77,16 +79,16 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
               [type]="barChartType.Normalized"
               [xScale]="xScale"
               [yScale]="yScale"
-              [activeEntries]="activeEntries"
+              [activeEntries]="config.activeEntries ?? []"
               [colors]="colors"
               [series]="group.series"
               [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
               [tooltipTemplate]="tooltipTemplate"
               [seriesName]="group.name"
               [animations]="animations"
-              [noBarWhenZero]="noBarWhenZero"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
               (select)="onClick($event, group)"
               (activate)="onActivate($event, group)"
               (deactivate)="onDeactivate($event, group)"
@@ -100,16 +102,16 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
               [type]="barChartType.Normalized"
               [xScale]="xScale"
               [yScale]="yScale"
-              [activeEntries]="activeEntries"
+              [activeEntries]="config.activeEntries ?? []"
               [colors]="colors"
               [series]="group.series"
               [dims]="dims"
-              [gradient]="gradient"
-              [tooltipDisabled]="tooltipDisabled"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
               [tooltipTemplate]="tooltipTemplate"
               [seriesName]="group.name"
               [animations]="animations"
-              [noBarWhenZero]="noBarWhenZero"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
               (select)="onClick($event, group)"
               (activate)="onActivate($event, group)"
               (deactivate)="onDeactivate($event, group)"
@@ -136,33 +138,8 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
   standalone: false
 })
 export class BarVerticalNormalizedComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: unknown[] = [];
-  @Input() schemeType: ScaleType = ScaleType.Ordinal;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: (val: unknown) => string;
-  @Input() yAxisTickFormatting: (val: unknown) => string;
-  @Input() xAxisTicks: unknown[];
-  @Input() yAxisTicks: unknown[];
-  @Input() barPadding: number = 8;
-  @Input() roundDomains: boolean = false;
-  @Input() noBarWhenZero: boolean = true;
-  @Input() wrapTicks = false;
+  @Input() config: BarVerticalNormalizedOptions = {};
+
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
@@ -198,15 +175,15 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config.xAxis,
+      showYAxis: this.config.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
-      legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      showXLabel: this.config.showXAxisLabel,
+      showYLabel: this.config.showYAxisLabel,
+      showLegend: this.config.legend ?? false,
+      legendType: this.config.schemeType ?? ScaleType.Ordinal,
+      legendPosition: this.config.legendPosition ?? LegendPosition.Right
     });
 
     this.formatDates();
@@ -248,14 +225,14 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
   }
 
   getXScale() {
-    const spacing = this.groupDomain.length / (this.dims.width / this.barPadding + 1);
+    const spacing = this.groupDomain.length / (this.dims.width / (this.config.barPadding ?? 8) + 1);
 
     return scaleBand().rangeRound([0, this.dims.width]).paddingInner(spacing).domain(this.groupDomain);
   }
 
   getYScale() {
     const scale = scaleLinear().range([this.dims.height, 0]).domain(this.valueDomain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   groupTransform(group: Series): string {
@@ -276,27 +253,27 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    if (this.schemeType === ScaleType.Ordinal) {
+    if (this.config.schemeType === ScaleType.Ordinal) {
       domain = this.innerDomain;
     } else {
       domain = this.valueDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.config.schemeType ?? ScaleType.Ordinal, domain, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: this.config.schemeType as any,
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.valueDomain;
       opts.colors = this.colors.scale;
@@ -332,8 +309,8 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
         }
       });
 
-    this.activeEntries = [...items];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [...items];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group: Series, fromLegend: boolean = false) {
@@ -342,16 +319,18 @@ export class BarVerticalNormalizedComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
-      i => {
-        if (fromLegend) {
-          return i.label !== item.name;
-        } else {
-          return !(i.name === item.name && i.series === item.series);
-        }
+    this.config.activeEntries = (this.config.activeEntries as unknown as {
+      name: string;
+      series: unknown;
+      label: string;
+    }[]).filter(i => {
+      if (fromLegend) {
+        return i.label !== item.name;
+      } else {
+        return !(i.name === item.name && i.series === item.series);
       }
-    );
+    });
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }

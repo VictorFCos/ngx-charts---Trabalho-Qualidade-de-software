@@ -23,9 +23,115 @@ import { LegendOptions, LegendPosition } from '../common/types/legend.model';
 import { ScaleType } from '../common/types/scale-type.enum';
 import { ViewDimensions } from '../common/types/view-dimension.interface';
 
+import { BarHorizontalStackedOptions } from './bar-horizontal-stacked.options';
+
 @Component({
   selector: 'ngx-charts-bar-horizontal-stacked',
-  templateUrl: './bar-horizontal-stacked.component.html',
+  template: `
+    <ngx-charts-chart
+      [view]="[width, height]"
+      [showLegend]="config.legend ?? false"
+      [legendOptions]="legendOptions"
+      [activeEntries]="config.activeEntries ?? []"
+      [animations]="animations"
+      (legendLabelActivate)="onActivate($event, undefined, true)"
+      (legendLabelDeactivate)="onDeactivate($event, undefined, true)"
+      (legendLabelClick)="onClick($event)"
+    >
+      <svg:g [attr.transform]="transform" class="bar-chart chart">
+        <svg:g
+          ngx-charts-x-axis
+          *ngIf="config.xAxis"
+          [xScale]="xScale"
+          [dims]="dims"
+          [showGridLines]="config.showGridLines ?? true"
+          [showLabel]="config.showXAxisLabel"
+          [labelText]="config.xAxisLabel"
+          [trimTicks]="config.trimXAxisTicks ?? true"
+          [rotateTicks]="config.rotateXAxisTicks ?? true"
+          [maxTickLength]="config.maxXAxisTickLength ?? 16"
+          [tickFormatting]="config.xAxisTickFormatting"
+          [ticks]="config.xAxisTicks"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateXAxisHeight($event)"
+        ></svg:g>
+        <svg:g
+          ngx-charts-y-axis
+          *ngIf="config.yAxis"
+          [yScale]="yScale"
+          [dims]="dims"
+          [showLabel]="config.showYAxisLabel"
+          [labelText]="config.yAxisLabel"
+          [trimTicks]="config.trimYAxisTicks ?? true"
+          [maxTickLength]="config.maxYAxisTickLength ?? 16"
+          [tickFormatting]="config.yAxisTickFormatting"
+          [ticks]="config.yAxisTicks"
+          [yAxisOffset]="dataLabelMaxWidth.negative"
+          [wrapTicks]="config.wrapTicks ?? false"
+          (dimensionsChanged)="updateYAxisWidth($event)"
+        ></svg:g>
+        <svg:g *ngIf="!isSSR">
+          <svg:g
+            *ngFor="let group of results; let index = index; trackBy: trackBy"
+            [@animationState]="'active'"
+            [attr.transform]="groupTransform(group)"
+          >
+            <svg:g
+              ngx-charts-series-horizontal
+              [type]="barChartType.Stacked"
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [colors]="colors"
+              [series]="group.series"
+              [activeEntries]="config.activeEntries ?? []"
+              [dims]="dims"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
+              [tooltipTemplate]="tooltipTemplate"
+              [seriesName]="group.name"
+              [animations]="animations"
+              [showDataLabel]="config.showDataLabel ?? false"
+              [dataLabelFormatting]="config.dataLabelFormatting"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
+              (select)="onClick($event, group)"
+              (activate)="onActivate($event, group)"
+              (deactivate)="onDeactivate($event, group)"
+              (dataLabelWidthChanged)="onDataLabelMaxWidthChanged($event, index)"
+            />
+          </svg:g>
+        </svg:g>
+        <svg:g *ngIf="isSSR">
+          <svg:g
+            *ngFor="let group of results; let index = index; trackBy: trackBy"
+            [attr.transform]="groupTransform(group)"
+          >
+            <svg:g
+              ngx-charts-series-horizontal
+              [type]="barChartType.Stacked"
+              [xScale]="xScale"
+              [yScale]="yScale"
+              [colors]="colors"
+              [series]="group.series"
+              [activeEntries]="config.activeEntries ?? []"
+              [dims]="dims"
+              [gradient]="config.gradient"
+              [tooltipDisabled]="config.tooltipDisabled ?? false"
+              [tooltipTemplate]="tooltipTemplate"
+              [seriesName]="group.name"
+              [animations]="animations"
+              [showDataLabel]="config.showDataLabel ?? false"
+              [dataLabelFormatting]="config.dataLabelFormatting"
+              [noBarWhenZero]="config.noBarWhenZero ?? true"
+              (select)="onClick($event, group)"
+              (activate)="onActivate($event, group)"
+              (deactivate)="onDeactivate($event, group)"
+              (dataLabelWidthChanged)="onDataLabelMaxWidthChanged($event, index)"
+            />
+          </svg:g>
+        </svg:g>
+      </svg:g>
+    </ngx-charts-chart>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -43,36 +149,7 @@ import { ViewDimensions } from '../common/types/view-dimension.interface';
   standalone: false
 })
 export class BarHorizontalStackedComponent extends BaseChartComponent {
-  @Input() legend: boolean = false;
-  @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: LegendPosition = LegendPosition.Right;
-  @Input() xAxis;
-  @Input() yAxis;
-  @Input() showXAxisLabel: boolean;
-  @Input() showYAxisLabel: boolean;
-  @Input() xAxisLabel: string;
-  @Input() yAxisLabel: string;
-  @Input() tooltipDisabled: boolean = false;
-  @Input() gradient: boolean;
-  @Input() showGridLines: boolean = true;
-  @Input() activeEntries: unknown[] = [];
-  @Input() declare schemeType: ScaleType;
-  @Input() trimXAxisTicks: boolean = true;
-  @Input() trimYAxisTicks: boolean = true;
-  @Input() rotateXAxisTicks: boolean = true;
-  @Input() maxXAxisTickLength: number = 16;
-  @Input() maxYAxisTickLength: number = 16;
-  @Input() xAxisTickFormatting: (val: unknown) => string;
-  @Input() yAxisTickFormatting: (val: unknown) => string;
-  @Input() xAxisTicks: unknown[];
-  @Input() yAxisTicks: unknown[];
-  @Input() barPadding: number = 8;
-  @Input() roundDomains: boolean = false;
-  @Input() xScaleMax: number;
-  @Input() showDataLabel: boolean = false;
-  @Input() dataLabelFormatting: (val: unknown) => string;
-  @Input() noBarWhenZero: boolean = true;
-  @Input() wrapTicks = false;
+  @Input() config: BarHorizontalStackedOptions = {};
 
   @Output() activate: EventEmitter<unknown> = new EventEmitter();
   @Output() deactivate: EventEmitter<unknown> = new EventEmitter();
@@ -105,7 +182,7 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
   update(): void {
     super.update();
 
-    if (!this.showDataLabel) {
+    if (!(this.config.showDataLabel ?? false)) {
       this.dataLabelMaxWidth = { negative: 0, positive: 0 };
     }
 
@@ -115,15 +192,15 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showXAxis: this.xAxis,
-      showYAxis: this.yAxis,
+      showXAxis: this.config?.xAxis,
+      showYAxis: this.config?.yAxis,
       xAxisHeight: this.xAxisHeight,
       yAxisWidth: this.yAxisWidth,
-      showXLabel: this.showXAxisLabel,
-      showYLabel: this.showYAxisLabel,
-      showLegend: this.legend,
-      legendType: this.schemeType,
-      legendPosition: this.legendPosition
+      showXLabel: this.config?.showXAxisLabel,
+      showYLabel: this.config?.showYAxisLabel,
+      showLegend: this.config?.legend ?? false,
+      legendType: this.config?.schemeType,
+      legendPosition: this.config?.legendPosition ?? LegendPosition.Right
     });
 
     this.formatDates();
@@ -191,19 +268,19 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
     domain.push(biggest);
 
     const min = Math.min(0, ...domain);
-    const max = this.xScaleMax ? Math.max(this.xScaleMax, ...domain) : Math.max(...domain);
+    const max = this.config?.xScaleMax ? Math.max(this.config?.xScaleMax, ...domain) : Math.max(...domain);
     return [min, max];
   }
 
   getYScale() {
-    const spacing = this.groupDomain.length / (this.dims.height / this.barPadding + 1);
+    const spacing = this.groupDomain.length / (this.dims.height / (this.config?.barPadding ?? 8) + 1);
 
     return scaleBand().rangeRound([0, this.dims.height]).paddingInner(spacing).domain(this.groupDomain);
   }
 
   getXScale() {
     const scale = scaleLinear().range([0, this.dims.width]).domain(this.valueDomain);
-    return this.roundDomains ? scale.nice() : scale;
+    return (this.config?.roundDomains ?? false) ? scale.nice() : scale;
   }
 
   groupTransform(group: Series): string {
@@ -224,27 +301,27 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    if (this.schemeType === ScaleType.Ordinal) {
+    if ((this.config.schemeType ?? ScaleType.Ordinal) === ScaleType.Ordinal) {
       domain = this.innerDomain;
     } else {
       domain = this.valueDomain;
     }
 
-    this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+    this.colors = new ColorHelper(this.scheme, this.config?.schemeType ?? ScaleType.Ordinal, domain, this.customColors);
   }
 
   getLegendOptions(): LegendOptions {
     const opts = {
-      scaleType: this.schemeType as any,
+      scaleType: this.config?.schemeType as any,
       colors: undefined,
       domain: [],
       title: undefined,
-      position: this.legendPosition
+      position: this.config?.legendPosition ?? LegendPosition.Right
     };
     if (opts.scaleType === ScaleType.Ordinal) {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
-      opts.title = this.legendTitle;
+      opts.title = this.config?.legendTitle ?? 'Legend';
     } else {
       opts.domain = this.valueDomain;
       opts.colors = this.colors.scale;
@@ -291,8 +368,8 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
         }
       });
 
-    this.activeEntries = [...items];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.config.activeEntries = [...items];
+    this.activate.emit({ value: item, entries: this.config.activeEntries });
   }
 
   onDeactivate(event, group: Series, fromLegend: boolean = false) {
@@ -301,7 +378,7 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
       item.series = group.name;
     }
 
-    this.activeEntries = (this.activeEntries as unknown as { name: string; series: unknown; label: string }[]).filter(
+    this.config.activeEntries = (this.config.activeEntries as any[]).filter(
       i => {
         if (fromLegend) {
           return i.label !== item.name;
@@ -311,6 +388,6 @@ export class BarHorizontalStackedComponent extends BaseChartComponent {
       }
     );
 
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    this.deactivate.emit({ value: item, entries: this.config.activeEntries });
   }
 }
